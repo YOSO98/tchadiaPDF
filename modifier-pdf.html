@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modifier un PDF gratuit en ligne : tchadiaPdf</title>
+  <meta name="description" content="Ajoutez du texte, un surlignage, des formes ou un dessin libre par-dessus les pages de votre PDF, puis téléchargez le résultat, gratuitement et sans envoi sur un serveur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Styles scopés à l'éditeur d'annotations, réutilisent uniquement les variables du design system */
+
+    #pageOptions { flex-wrap: wrap; }
+
+    .editor-toolbar {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+    .editor-toolbar > label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    #toolSeg button { white-space: nowrap; }
+
+    .editor-actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .editor-actions .btn-secondary { width: auto; }
+
+    .modif-preview-wrap {
+      position: relative;
+      display: inline-block;
+      line-height: 0;
+      max-width: 100%;
+      margin-top: 20px;
+    }
+    .modif-preview-wrap canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+    }
+    #overlayCanvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: crosshair;
+    }
+    #overlayCanvas.tool-text { cursor: text; }
+
+    .text-annotation-input {
+      position: absolute;
+      z-index: 5;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: #1E293B;
+      background: var(--white);
+      border: 1px dashed var(--blue);
+      border-radius: 4px;
+      padding: 2px 4px;
+      min-width: 120px;
+      outline: none;
+    }
+
+    .editor-hint {
+      margin-top: 10px;
+      color: var(--slate);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 520px) {
+      .editor-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+      #toolSeg { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Modifier un PDF</h1>
+  <p class="tool-sub">Ajoutez du texte, un surlignage, des formes ou un dessin libre par-dessus vos pages, puis téléchargez le PDF annoté.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-item" id="fileInfo" style="display:none">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="options" id="pageOptions" style="display:none">
+    <label for="pageSelect">Page à modifier :</label>
+    <select id="pageSelect"></select>
+  </div>
+
+  <div class="editor-toolbar" id="editorToolbar" style="display:none">
+    <label>Outil :</label>
+    <div class="seg" id="toolSeg">
+      <button type="button" data-tool="text" class="active">Texte</button>
+      <button type="button" data-tool="highlight">Surligner</button>
+      <button type="button" data-tool="rect">Rectangle</button>
+      <button type="button" data-tool="circle">Cercle</button>
+      <button type="button" data-tool="line">Trait</button>
+      <button type="button" data-tool="freehand">Dessin libre</button>
+    </div>
+  </div>
+
+  <div id="previewSection" style="display:none">
+    <div class="modif-preview-wrap" id="previewWrap">
+      <canvas id="pageCanvas"></canvas>
+      <canvas id="overlayCanvas"></canvas>
+    </div>
+    <p class="editor-hint">Avec l'outil Texte, cliquez sur la page pour placer un champ de saisie. Pour les autres outils, cliquez et glissez sur l'aperçu.</p>
+
+    <div class="editor-actions">
+      <button type="button" class="btn-secondary" id="undoBtn">Annuler le dernier élément</button>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="saveBtn" disabled>Enregistrer le PDF modifié</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Traitement…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF modifié est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/modifier-pdf.js"></script>
+</body>
+</html>

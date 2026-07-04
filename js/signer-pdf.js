@@ -325,7 +325,9 @@ signBtn.addEventListener("click", async () => {
     // Largeur de la page en points, telle que rendue par pdf.js à l'échelle 1
     const jsPage = await pdfDocJs.getPage(currentPageNum);
     const viewportPtWidth = jsPage.getViewport({ scale: 1 }).width;
-    const scale = previewCanvas.width / viewportPtWidth;
+    // On utilise la largeur CSS affichee (et non previewCanvas.width, sa resolution interne)
+    // car la position/taille de la signature (sigOverlay) est exprimee en pixels CSS.
+    const scale = previewCanvas.getBoundingClientRect().width / viewportPtWidth;
 
     const overlayLeftPx = parseFloat(sigOverlay.style.left) || 0;
     const overlayTopPx = parseFloat(sigOverlay.style.top) || 0;

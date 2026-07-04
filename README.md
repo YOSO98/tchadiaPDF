@@ -30,6 +30,8 @@ tchadiapdf/
 │   └── style.css           Design system unique (blanc + bleu)
 ├── js/
 │   ├── common.js           Utilitaires partagés (dropzone, progression, téléchargement…)
+│   ├── pdf-crypt.js        Chiffrement PDF standard (MD5 + RC4) pour proteger-pdf
+│   ├── compresser-pdf.worker.js   Web Worker dédié à la recompression d'images
 │   └── <outil>.js          Un fichier JS par outil
 ├── <outil>.html            Une page dédiée par outil (ex. fusionner.html)
 ├── TODO.md                 Suivi du développement
@@ -62,8 +64,11 @@ progression, message d'erreur, téléchargement du résultat).
 | OCR PDF | Rend un PDF scanné recherchable (français et anglais) |
 | Formulaires PDF | Détecte et remplit les champs de formulaire existants |
 | Comparer PDF | Affiche deux PDF côte à côte avec leurs différences |
+| Scanner un document | Transforme une photo en PDF avec correction de perspective |
+| Modifier PDF | Ajoute du texte, des formes ou un dessin sur les pages |
 
-La liste à jour et l'état d'avancement se trouvent dans [TODO.md](TODO.md).
+Les 18 outils ci-dessus sont actifs sur le site. Le détail des choix
+techniques et le journal des vérifications se trouvent dans [TODO.md](TODO.md).
 
 ## Lancer le projet en local
 

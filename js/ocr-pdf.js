@@ -167,6 +167,10 @@ ocrBtn.addEventListener("click", async () => {
   }
 
   if (annule) {
+    // L'annulation a eu lieu pendant l'initialisation : le worker vient tout juste
+    // d'être créé et n'a pas encore servi, il faut l'arrêter explicitement ici.
+    try { await worker.terminate(); } catch (_) { /* déjà arrêté */ }
+    worker = null;
     arreterTraitement();
     showMsg("OCR annulé.");
     return;

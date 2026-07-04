@@ -94,8 +94,15 @@ self.onmessage = async (e) => {
         const newBytes = new Uint8Array(await newBlob.arrayBuffer());
 
         if (newBytes.length < originalBytes.length) {
+          // Le canvas decode et reencode toujours en couleur RGB, quel que soit
+          // l'espace colorimetrique d'origine (CMJN, niveaux de gris...). Il faut
+          // donc forcer /ColorSpace a /DeviceRGB, sinon le lecteur PDF interprete
+          // mal les nouvelles donnees avec l'ancien espace colorimetrique declare.
           obj.dict.set(PDFName.of("Length"), PDFNumber.of(newBytes.length));
           obj.dict.set(PDFName.of("Filter"), PDFName.of("DCTDecode"));
+          obj.dict.set(PDFName.of("ColorSpace"), PDFName.of("DeviceRGB"));
+          obj.dict.set(PDFName.of("BitsPerComponent"), PDFNumber.of(8));
+          obj.dict.delete(PDFName.of("Decode"));
           obj.dict.delete(PDFName.of("DecodeParms"));
           obj.dict.delete(PDFName.of("DP"));
           const newStream = PDFRawStream.of(obj.dict, newBytes);

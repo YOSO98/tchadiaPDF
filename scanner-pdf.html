@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scanner PDF gratuit en ligne, photo vers PDF redressé : tchadiaPdf</title>
+  <meta name="description" content="Transformez vos photos de documents en PDF : redressez la perspective en ajustant 4 coins, appliquez un filtre scanner, puis téléchargez le PDF. Traitement 100% dans votre navigateur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à la page Scanner PDF : réutilise uniquement les variables du design system. */
+    #workshop { margin-top: 24px; }
+    #workshop .tool-sub { text-align: left; margin: 0 0 16px; }
+
+    .scan-workshop-wrap { display: flex; justify-content: center; }
+    .scan-canvas-wrap {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      max-width: 500px;
+      touch-action: none;
+    }
+    .scan-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--white);
+    }
+    .scan-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    /* Remplissage/trait dérivés de var(--blue) (#2563EB), sans introduire de nouvelle couleur. */
+    .scan-overlay polygon {
+      fill: rgba(37, 99, 235, 0.12);
+      stroke: var(--blue);
+      stroke-width: 2;
+    }
+    .scan-handle {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      margin-left: -11px;
+      margin-top: -11px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 3px solid var(--blue);
+      box-shadow: 0 1px 4px rgba(37, 99, 235, 0.35);
+      cursor: grab;
+      touch-action: none;
+    }
+    .scan-handle:active { cursor: grabbing; background: var(--blue-50); }
+
+    #pagesSection { margin-top: 32px; }
+    #pageCountLabel { font-weight: 600; color: var(--ink); }
+
+    .thumb-actions {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+    }
+    .thumb-actions .icon-btn { width: 28px; height: 28px; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Scanner PDF</h1>
+  <p class="tool-sub">Photographiez un document, redressez sa perspective et appliquez un filtre, puis assemblez toutes les pages en un seul PDF.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Ajouter une photo de document">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <strong>Prendre une photo ou choisir une image</strong>
+    <span>Un document par photo, ajoutez-en autant que nécessaire</span>
+    <input type="file" id="fileInput" accept="image/*" capture="environment">
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <div id="workshop" style="display:none">
+    <p class="tool-sub">Déplacez les 4 poignées pour qu'elles suivent exactement les bords du document, choisissez un filtre, puis validez la page.</p>
+
+    <div class="scan-workshop-wrap">
+      <div class="scan-canvas-wrap" id="canvasWrap">
+        <canvas id="editCanvas" class="scan-canvas"></canvas>
+        <svg id="handleOverlay" class="scan-overlay" preserveAspectRatio="none">
+          <polygon id="cornerPolygon" points=""></polygon>
+        </svg>
+        <div class="scan-handle" data-corner="tl" role="slider" aria-label="Coin haut-gauche" tabindex="0"></div>
+        <div class="scan-handle" data-corner="tr" role="slider" aria-label="Coin haut-droit" tabindex="0"></div>
+        <div class="scan-handle" data-corner="br" role="slider" aria-label="Coin bas-droit" tabindex="0"></div>
+        <div class="scan-handle" data-corner="bl" role="slider" aria-label="Coin bas-gauche" tabindex="0"></div>
+      </div>
+    </div>
+
+    <div class="options">
+      <div>
+        <label>Filtre :</label><br>
+        <div class="seg" id="filterSeg" style="margin-top:6px">
+          <button type="button" data-f="couleur" class="active">Couleur</button>
+          <button type="button" data-f="contraste">Contraste</button>
+          <button type="button" data-f="nb">Noir et blanc</button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn-secondary" id="addPageBtn" style="margin-top:20px">Ajouter cette page</button>
+  </div>
+
+  <div id="pagesSection" style="display:none">
+    <p id="pageCountLabel"></p>
+    <div class="thumbs-grid" id="pagesGrid"></div>
+  </div>
+
+  <button class="btn-primary" id="createBtn" disabled>Créer le PDF</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Traitement…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF scanné est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/scanner-pdf.js"></script>
+</body>
+</html>

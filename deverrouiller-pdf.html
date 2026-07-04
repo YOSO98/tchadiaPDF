@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Déverrouiller un PDF protégé, gratuit en ligne : tchadiaPdf</title>
+  <meta name="description" content="Supprimez la protection par mot de passe d'un PDF, gratuitement et sans envoi sur un serveur. Traitement 100% dans votre navigateur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .pw-field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 220px; }
+    .pw-field label { font-size: 0.9rem; font-weight: 600; }
+    .pw-field input[type="password"] {
+      font-family: inherit; font-size: 0.95rem; padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius-btn); color: var(--ink); background: var(--white);
+    }
+    .pw-field input[type="password"]:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Déverrouiller PDF</h1>
+  <p class="tool-sub">Retirez la protection par mot de passe d'un PDF pour le consulter et le modifier librement. Le PDF obtenu reproduit fidèlement l'apparence de chaque page, mais son texte n'est plus sélectionnable.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF protégé">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF protégé</strong>
+    <span>ou glissez-le ici</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-list" id="fileList"></div>
+
+  <div class="options" id="pwOptions" style="display:none">
+    <div class="pw-field">
+      <label for="pw1">Mot de passe du PDF</label>
+      <input type="password" id="pw1" autocomplete="current-password" placeholder="Mot de passe actuel du fichier">
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="unlockBtn" disabled>Déverrouiller le PDF</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Déverrouillage en cours…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF déverrouillé est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/deverrouiller-pdf.js"></script>
+</body>
+</html>
