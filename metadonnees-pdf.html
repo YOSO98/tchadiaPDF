@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modifier les métadonnées d'un PDF gratuit en ligne : tchadiaPdf</title>
+  <meta name="description" content="Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, le créateur et le producteur d'un PDF, gratuitement et sans envoi sur un serveur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Styles propres à l'outil métadonnées, basés uniquement sur les variables du design system */
+    .meta-form {
+      margin-top: 24px;
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px;
+    }
+    .meta-form.visible { display: flex; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 20px;
+    }
+    .meta-field { display: flex; flex-direction: column; gap: 6px; }
+    .meta-field.meta-field-full { grid-column: 1 / -1; }
+    .meta-field label { font-size: 0.9rem; font-weight: 600; }
+    .meta-field input[type="text"] {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      color: var(--ink);
+      background: var(--white);
+      width: 100%;
+    }
+    .meta-field input[type="text"]:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+
+    .meta-dates {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .meta-date-item strong {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .meta-date-item span { font-size: 0.9rem; color: var(--slate); }
+
+    @media (max-width: 560px) {
+      .meta-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Métadonnées PDF</h1>
+  <p class="tool-sub">Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, le créateur et le producteur de votre PDF.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-list" id="fileList"></div>
+
+  <div class="meta-form" id="metaForm">
+    <div class="meta-grid">
+      <div class="meta-field">
+        <label for="metaTitle">Titre</label>
+        <input type="text" id="metaTitle" placeholder="Titre du document" maxlength="500">
+      </div>
+      <div class="meta-field">
+        <label for="metaAuthor">Auteur</label>
+        <input type="text" id="metaAuthor" placeholder="Nom de l'auteur" maxlength="500">
+      </div>
+      <div class="meta-field meta-field-full">
+        <label for="metaSubject">Sujet</label>
+        <input type="text" id="metaSubject" placeholder="Sujet du document" maxlength="500">
+      </div>
+      <div class="meta-field meta-field-full">
+        <label for="metaKeywords">Mots-clés</label>
+        <input type="text" id="metaKeywords" placeholder="mot-clé 1, mot-clé 2, mot-clé 3" maxlength="500">
+      </div>
+      <div class="meta-field">
+        <label for="metaCreator">Créateur (logiciel d'origine)</label>
+        <input type="text" id="metaCreator" placeholder="Nom du logiciel" maxlength="500">
+      </div>
+      <div class="meta-field">
+        <label for="metaProducer">Producteur</label>
+        <input type="text" id="metaProducer" placeholder="Nom du producteur" maxlength="500">
+      </div>
+    </div>
+
+    <div class="meta-dates">
+      <div class="meta-date-item">
+        <strong>Date de création</strong>
+        <span id="metaCreationDate">Non renseignée</span>
+      </div>
+      <div class="meta-date-item">
+        <strong>Date de modification</strong>
+        <span id="metaModDate">Non renseignée</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="saveBtn" disabled>Enregistrer les métadonnées</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Enregistrement en cours…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Vos métadonnées ont été enregistrées.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/metadonnees-pdf.js"></script>
+</body>
+</html>

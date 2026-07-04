@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF en texte gratuit en ligne, extraire le texte d'un PDF : tchadiaPdf</title>
+  <meta name="description" content="Extrayez le texte d'un PDF gratuitement. Repli automatique proposé par OCR (français et anglais) pour les documents scannés. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .file-info {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .file-info.visible { display: flex; }
+    .file-info .f-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-info .f-meta { font-size: 0.8rem; color: var(--slate); white-space: nowrap; }
+
+    /* Emplacement du bouton Annuler, affiché uniquement pendant l'OCR */
+    .ocr-cancel-wrap {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Proposition de repli OCR quand aucun texte n'est détecté */
+    .ocr-offer {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      display: none;
+    }
+    .ocr-offer.visible { display: block; }
+    .ocr-offer p { color: var(--slate); margin-bottom: 14px; }
+    .ocr-offer p + p { margin-top: -6px; }
+
+    /* Aperçu scrollable du texte extrait */
+    .text-preview-wrap {
+      margin-top: 4px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .text-preview {
+      width: 100%;
+      max-height: 320px;
+      min-height: 160px;
+      overflow-y: auto;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: var(--white);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      padding: 14px;
+    }
+    #result .btn-primary { margin-top: 4px; }
+
+    @media (max-width: 520px) {
+      .text-preview { font-size: 0.8rem; max-height: 240px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>PDF en texte</h1>
+  <p class="tool-sub">Extrayez le texte d'un PDF. Si le document est un scan sans texte, un passage par OCR pourra être proposé.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-info" id="fileInfo">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="extractBtn" disabled>Extraire le texte</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Traitement…</div>
+    <div class="progress-bar"><div></div></div>
+    <div class="ocr-cancel-wrap">
+      <button class="btn-secondary" id="cancelBtn" type="button" style="display:none">Annuler</button>
+    </div>
+  </div>
+
+  <div class="ocr-offer" id="ocrOffer">
+    <p>Aucun texte n'a été détecté dans ce PDF. Il s'agit probablement d'un document scanné (image).</p>
+    <p>L'OCR peut prendre plusieurs minutes selon la taille du document. Le premier lancement télécharge environ 15 à 20 Mo de données de langue (français et anglais) depuis un réseau de diffusion public : ce sont des données publiques, pas votre fichier, qui reste dans votre navigateur. Gardez cet onglet ouvert pendant tout le traitement.</p>
+    <button class="btn-secondary" id="ocrOfferBtn" type="button">Lancer l'OCR à la place</button>
+  </div>
+
+  <div class="result" id="result">
+    <p id="resultTitle">Texte extrait avec succès.</p>
+    <div class="text-preview-wrap">
+      <textarea id="textPreview" class="text-preview" readonly spellcheck="false" aria-label="Aperçu du texte extrait"></textarea>
+    </div>
+    <a class="btn-primary" href="#">Télécharger le texte (.txt)</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/pdf-en-texte.js"></script>
+</body>
+</html>
