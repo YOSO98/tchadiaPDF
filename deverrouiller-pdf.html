@@ -29,7 +29,7 @@
 
 <main class="tool-page">
   <h1>Déverrouiller PDF</h1>
-  <p class="tool-sub">Retirez la protection par mot de passe d'un PDF pour le consulter et le modifier librement. Le PDF obtenu reproduit fidèlement l'apparence de chaque page, mais son texte n'est plus sélectionnable.</p>
+  <p class="tool-sub">Retirez la protection par mot de passe d'un PDF pour le consulter et le modifier librement. Le texte et la mise en page d'origine sont préservés.</p>
 
   <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF protégé">
     <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -75,6 +75,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="js/common.js"></script>
+<script src="js/qpdf-engine.js"></script>
 <script src="js/deverrouiller-pdf.js"></script>
 </body>
 </html>

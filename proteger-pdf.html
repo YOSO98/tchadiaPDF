@@ -51,6 +51,10 @@
       <input type="password" id="pw2" autocomplete="new-password" placeholder="Retapez le mot de passe">
       <span class="pw-hint">Ce mot de passe sera nécessaire pour ouvrir le PDF. Conservez-le précieusement : il ne peut pas être récupéré si vous l'oubliez.</span>
     </div>
+    <div class="pw-field">
+      <label><input type="checkbox" id="linearize"> Optimiser pour le web (linéarisation)</label>
+      <span class="pw-hint">Permet au PDF de commencer à s'afficher avant d'être entièrement téléchargé.</span>
+    </div>
   </div>
 
   <div class="msg" id="msg"></div>
@@ -80,6 +84,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="js/common.js"></script>
+<script src="js/qpdf-engine.js"></script>
 <script src="js/pdf-crypt.js"></script>
 <script src="js/proteger-pdf.js"></script>
 </body>
