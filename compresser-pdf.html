@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compresser PDF gratuit en ligne : tchadiaPdf</title>
+  <meta name="description" content="Réduisez la taille de votre PDF en recompressant ses images, gratuitement et sans envoi sur un serveur. Traitement 100% dans votre navigateur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Styles spécifiques à l'outil Compresser PDF, réutilisant les variables du design system */
+    .compress-file {
+      margin-top: 20px;
+    }
+    .quality-hint {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--slate);
+      margin-top: 6px;
+      width: 100%;
+    }
+    #cancelBtn {
+      display: none;
+      margin-top: 14px;
+    }
+    .result p.size-line {
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+    .result p.size-line:last-of-type {
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Compresser PDF</h1>
+  <p class="tool-sub">Réduisez le poids de votre PDF en recompressant ses images, directement dans votre navigateur.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici, 100 Mo maximum</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-item compress-file" id="fileInfo" style="display:none">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileSize"></span>
+  </div>
+
+  <div class="options" id="qualityOptions" style="display:none">
+    <label>Niveau de compression :</label>
+    <div class="seg" id="qualitySeg">
+      <button type="button" data-quality="0.35">Forte</button>
+      <button type="button" data-quality="0.6" class="active">Moyenne</button>
+      <button type="button" data-quality="0.8">Légère</button>
+    </div>
+    <span class="quality-hint">Plus la compression est forte, plus le fichier est léger, mais la qualité des images diminue.</span>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="compressBtn" disabled>Compresser le PDF</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Traitement…</div>
+    <div class="progress-bar"><div></div></div>
+    <button class="btn-secondary" id="cancelBtn" type="button">Annuler</button>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF compressé est prêt.</p>
+    <p class="size-line" id="sizeBefore"></p>
+    <p class="size-line" id="sizeAfter"></p>
+    <p class="size-line" id="sizeReduction"></p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="js/common.js"></script>
+<script src="js/compresser-pdf.js"></script>
+</body>
+</html>

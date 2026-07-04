@@ -1,0 +1,23 @@
+# Dépendances
+node_modules/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+
+# Configuration locale de l'assistant de code
+.claude/
+
+# Fichiers temporaires / logs
+*.log
+.cache/
+
+# Environnement local
+.env
+.env.local

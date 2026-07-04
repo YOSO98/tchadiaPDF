@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remplir un formulaire PDF gratuit en ligne : tchadiaPdf</title>
+  <meta name="description" content="Détectez les champs d'un formulaire PDF (AcroForm) et remplissez-les directement dans votre navigateur, gratuitement et sans envoi sur un serveur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Liste des champs de formulaire détectés, propre à cet outil */
+    .form-fields {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .form-field-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 14px;
+      background: var(--white);
+    }
+    .form-field-row label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink);
+      word-break: break-word;
+    }
+    .form-field-row .field-type {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--slate);
+    }
+    .form-field-row input[type="text"],
+    .form-field-row textarea,
+    .form-field-row select {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      color: var(--ink);
+      background: var(--white);
+      width: 100%;
+    }
+    .form-field-row textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .form-field-row select[multiple] {
+      min-height: 100px;
+    }
+    .form-field-row input[type="text"]:focus,
+    .form-field-row textarea:focus,
+    .form-field-row select:focus {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+    }
+    .form-field-row.checkbox-row {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-field-row.checkbox-row label {
+      flex: 1;
+    }
+    .form-field-row input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--blue);
+      flex-shrink: 0;
+    }
+    @media (max-width: 520px) {
+      .form-field-row.checkbox-row {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Remplir un formulaire PDF</h1>
+  <p class="tool-sub">Choisissez un PDF contenant un formulaire, remplissez les champs détectés et téléchargez le résultat, toujours modifiable.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-item" id="fileInfo" style="display:none">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="form-fields" id="formFields" style="display:none"></div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="fillBtn" disabled>Enregistrer le PDF rempli</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Traitement…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF rempli est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/formulaires-pdf.js"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajouter un filigrane à un PDF gratuit en ligne : tchadiaPdf</title>
+  <meta name="description" content="Ajoutez un filigrane texte ou image sur toutes les pages de votre PDF, gratuitement et sans envoi sur un serveur. Opacité et position réglables.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Styles propres à l'outil filigrane, basés uniquement sur les variables du design system */
+    .opt-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .dropzone-small {
+      padding: 22px 20px;
+    }
+    .dropzone-small .dz-icon {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 8px;
+    }
+
+    /* Curseur d'opacité */
+    .opacity-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .opacity-row input[type="range"] {
+      width: 180px;
+      accent-color: var(--blue);
+    }
+    .opacity-row .opacity-val {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--slate);
+      min-width: 42px;
+    }
+
+    /* Grille de position (5 choix) */
+    .pos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 44px);
+      grid-template-rows: repeat(3, 44px);
+      grid-template-areas:
+        "hg . hd"
+        ".  c  ."
+        "bg . bd";
+      gap: 6px;
+    }
+    .pos-grid button {
+      font-family: inherit;
+      font-size: 1.15rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: var(--white);
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+    .pos-grid button:hover { background: var(--blue-50); border-color: var(--blue); }
+    .pos-grid button.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .pos-grid button[data-pos="hg"] { grid-area: hg; }
+    .pos-grid button[data-pos="hd"] { grid-area: hd; }
+    .pos-grid button[data-pos="centre"] { grid-area: c; }
+    .pos-grid button[data-pos="bg"] { grid-area: bg; }
+    .pos-grid button[data-pos="bd"] { grid-area: bd; }
+
+    @media (max-width: 520px) {
+      .pos-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Ajouter un filigrane</h1>
+  <p class="tool-sub">Ajoutez un texte ou une image en filigrane sur toutes les pages de votre PDF, réglez l'opacité et la position.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-list" id="pdfFileList"></div>
+
+  <div class="options" id="wmOptions" style="display:none">
+
+    <div class="opt-group">
+      <label>Type de filigrane :</label>
+      <div class="seg" id="typeSeg">
+        <button type="button" data-type="texte" class="active">Texte</button>
+        <button type="button" data-type="image">Image</button>
+      </div>
+    </div>
+
+    <div class="opt-group" id="textFields">
+      <label for="wmText">Texte du filigrane :</label>
+      <input type="text" id="wmText" placeholder="Votre texte" value="CONFIDENTIEL" maxlength="60">
+    </div>
+
+    <div class="opt-group" id="sizeFields">
+      <label>Taille du texte :</label>
+      <div class="seg" id="sizeSeg">
+        <button type="button" data-size="32">Petite</button>
+        <button type="button" data-size="48" class="active">Moyenne</button>
+        <button type="button" data-size="72">Grande</button>
+      </div>
+    </div>
+
+    <div class="opt-group" id="imageFields" style="display:none">
+      <label>Image du filigrane :</label>
+      <div class="dropzone dropzone-small" id="dzImage" role="button" tabindex="0" aria-label="Choisir une image de filigrane, JPG ou PNG">
+        <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <strong>Choisir une image</strong>
+        <span>JPG ou PNG, ou glissez-la ici</span>
+        <input type="file" id="imageInput" accept="image/jpeg,image/png">
+      </div>
+      <div class="file-list" id="imageFileList"></div>
+    </div>
+
+    <div class="opt-group">
+      <label for="wmOpacity">Opacité :</label>
+      <div class="opacity-row">
+        <input type="range" id="wmOpacity" min="0.05" max="1" step="0.05" value="0.3">
+        <span class="opacity-val" id="opacityVal" aria-live="polite">30 %</span>
+      </div>
+    </div>
+
+    <div class="opt-group">
+      <label>Position :</label>
+      <div class="pos-grid" id="posGrid" role="group" aria-label="Position du filigrane">
+        <button type="button" data-pos="hg" aria-label="Haut gauche" title="Haut gauche">↖</button>
+        <button type="button" data-pos="hd" aria-label="Haut droite" title="Haut droite">↗</button>
+        <button type="button" data-pos="centre" class="active" aria-label="Centre" title="Centre">●</button>
+        <button type="button" data-pos="bg" aria-label="Bas gauche" title="Bas gauche">↙</button>
+        <button type="button" data-pos="bd" aria-label="Bas droite" title="Bas droite">↘</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="applyBtn" disabled>Appliquer le filigrane</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Traitement…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF avec filigrane est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/filigrane.js"></script>
+</body>
+</html>
