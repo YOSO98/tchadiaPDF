@@ -3,87 +3,184 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modifier un PDF gratuit en ligne : tchadiaPdf</title>
-  <meta name="description" content="Ajoutez du texte, un surlignage, des formes ou un dessin libre par-dessus les pages de votre PDF, puis téléchargez le résultat, gratuitement et sans envoi sur un serveur.">
+  <title>Modifier un PDF gratuit en ligne : changer le texte, ajouter des annotations : tchadiaPdf</title>
+  <meta name="description" content="Éditeur PDF complet et gratuit : modifiez le texte existant de votre PDF, ajoutez du texte, des images, des formes et des annotations, sans envoi sur un serveur. Aucune limite, aucun compte requis.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Styles scopés à l'éditeur d'annotations, réutilisent uniquement les variables du design system */
-
-    #pageOptions { flex-wrap: wrap; }
-
-    .editor-toolbar {
+    /* Styles scopés à l'éditeur, réutilisent uniquement les variables du design system */
+    .editor-shell { max-width: 1180px; }
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 64px 168px 1fr;
+      gap: 16px;
       margin-top: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 14px;
+      align-items: start;
     }
-    .editor-toolbar > label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--ink);
-      white-space: nowrap;
+    .editor-layout.fullscreen {
+      position: fixed; inset: 0; z-index: 200; background: var(--white);
+      max-width: none; margin: 0; padding: 16px; overflow: auto;
     }
-    #toolSeg button { white-space: nowrap; }
 
-    .editor-actions {
-      margin-top: 14px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    /* Barre d'outils latérale fixe */
+    .side-tools {
+      display: flex; flex-direction: column; gap: 8px;
+      position: sticky; top: 76px;
     }
-    .editor-actions .btn-secondary { width: auto; }
+    .side-tools button {
+      width: 48px; height: 48px; border-radius: var(--radius-btn);
+      border: 1px solid var(--border); background: var(--white); color: var(--blue);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 150ms ease, border-color 150ms ease;
+    }
+    .side-tools button svg { width: 22px; height: 22px; }
+    .side-tools button:hover { background: var(--blue-50); border-color: var(--blue); }
+    .side-tools button.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .side-tools .sep { height: 1px; background: var(--border); margin: 4px 0; }
 
+    /* Vignettes de pages */
+    .thumb-rail {
+      display: flex; flex-direction: column; gap: 8px;
+      max-height: 78vh; overflow-y: auto;
+      position: sticky; top: 76px;
+      padding-right: 4px;
+    }
+    .thumb-rail .thumb-item {
+      border: 2px solid var(--border); border-radius: var(--radius-btn);
+      padding: 4px; cursor: pointer; text-align: center; background: var(--white);
+    }
+    .thumb-rail .thumb-item.active { border-color: var(--blue); background: var(--blue-50); }
+    .thumb-rail .thumb-item canvas { width: 100%; height: auto; display: block; }
+    .thumb-rail .thumb-item span { font-size: 0.72rem; color: var(--slate); display: block; margin-top: 2px; }
+
+    /* Barre supérieure : zoom, recherche, aide, plein écran */
+    .editor-topbar {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .editor-topbar .spacer { flex: 1; }
+    .editor-topbar button.icon-btn { width: 36px; height: 36px; }
+    .zoom-value { font-size: 0.85rem; color: var(--slate); min-width: 46px; text-align: center; }
+    #searchBox { display: none; align-items: center; gap: 6px; }
+    #searchBox.visible { display: flex; }
+    #searchBox input {
+      font-family: inherit; font-size: 0.9rem; padding: 7px 10px;
+      border: 1px solid var(--border); border-radius: var(--radius-btn);
+      width: 160px;
+    }
+    #searchCount { font-size: 0.8rem; color: var(--slate); white-space: nowrap; }
+
+    /* Zone d'édition */
     .modif-preview-wrap {
-      position: relative;
-      display: inline-block;
-      line-height: 0;
-      max-width: 100%;
-      margin-top: 20px;
+      position: relative; display: inline-block; line-height: 0; max-width: 100%;
     }
-    .modif-preview-wrap canvas {
-      display: block;
-      max-width: 100%;
-      height: auto;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-btn);
+    .modif-preview-wrap canvas.page-canvas {
+      display: block; max-width: 100%; height: auto;
+      border: 1px solid var(--border); border-radius: var(--radius-btn);
     }
     #overlayCanvas {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-      cursor: crosshair;
+      position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+      touch-action: none; cursor: crosshair;
     }
-    #overlayCanvas.tool-text { cursor: text; }
+    #overlayCanvas.tool-select, #overlayCanvas.tool-text { cursor: default; }
+
+    .text-block-hit {
+      position: absolute; cursor: text;
+      background: transparent;
+      border-radius: 2px;
+    }
+    .text-block-hit:hover { background: rgba(37, 99, 235, 0.16); }
+    .text-block-hit.editing { background: var(--white); outline: 2px solid var(--blue); }
+    .text-block-hit.unsupported:hover { background: rgba(100, 116, 139, 0.18); cursor: not-allowed; }
+
+    .text-edit-area {
+      position: absolute; z-index: 6; box-sizing: border-box;
+      font-family: inherit; color: #1E293B; background: var(--white);
+      border: 2px solid var(--blue); border-radius: 3px; padding: 0 2px;
+      outline: none; resize: none; overflow: hidden; line-height: 1.15;
+    }
 
     .text-annotation-input {
-      position: absolute;
-      z-index: 5;
-      font-family: inherit;
-      font-size: 0.95rem;
-      color: #1E293B;
-      background: var(--white);
-      border: 1px dashed var(--blue);
-      border-radius: 4px;
-      padding: 2px 4px;
-      min-width: 120px;
-      outline: none;
+      position: absolute; z-index: 6; font-family: inherit; font-size: 0.95rem;
+      color: #1E293B; background: var(--white); border: 1px dashed var(--blue);
+      border-radius: 4px; padding: 2px 4px; min-width: 120px; outline: none;
     }
 
-    .editor-hint {
-      margin-top: 10px;
-      color: var(--slate);
-      font-size: 0.85rem;
+    .img-annotation {
+      position: absolute; cursor: move; border: 1px dashed transparent;
+    }
+    .img-annotation.selected { border-color: var(--blue); }
+    .img-annotation img { width: 100%; height: 100%; display: block; }
+    .img-resize-handle {
+      position: absolute; width: 14px; height: 14px; right: -7px; bottom: -7px;
+      background: var(--blue); border-radius: 50%; cursor: nwse-resize;
     }
 
-    @media (max-width: 520px) {
-      .editor-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
-      #toolSeg { flex-wrap: wrap; }
+    /* Barre contextuelle sous le bloc sélectionné */
+    .context-bar {
+      position: absolute; z-index: 7; display: none; flex-wrap: wrap;
+      align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-btn); box-shadow: 0 4px 14px rgba(30, 41, 59, 0.12);
+      padding: 8px 10px; font-size: 0.82rem;
+    }
+    .context-bar.visible { display: flex; }
+    .context-bar button {
+      border: 1px solid var(--border); background: var(--white); color: var(--ink);
+      border-radius: 6px; width: 30px; height: 30px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .context-bar button.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .context-bar button:hover:not(.active) { background: var(--blue-50); }
+    .context-bar select, .context-bar input[type="number"] {
+      font-family: inherit; font-size: 0.8rem; padding: 5px 6px;
+      border: 1px solid var(--border); border-radius: 6px;
+    }
+    .context-bar input[type="color"] { width: 30px; height: 30px; padding: 0; border: 1px solid var(--border); border-radius: 6px; }
+    .context-bar .del-btn { color: var(--slate); }
+    .context-bar .del-btn:hover { background: var(--blue-50); color: var(--blue); }
+
+    .editor-hint { margin-top: 10px; color: var(--slate); font-size: 0.85rem; }
+    .banner {
+      margin-top: 16px; border: 1px solid var(--border); border-radius: var(--radius-card);
+      background: var(--blue-50); padding: 14px 16px; font-size: 0.9rem; color: var(--ink);
+      display: none;
+    }
+    .banner.visible { display: block; }
+    .banner a { font-weight: 600; }
+
+    /* Aide raccourcis (modale simple) */
+    .help-modal {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(30, 41, 59, 0.45); align-items: center; justify-content: center;
+    }
+    .help-modal.visible { display: flex; }
+    .help-modal .help-box {
+      background: var(--white); border-radius: var(--radius-card); padding: 24px;
+      max-width: 460px; width: 90%; max-height: 80vh; overflow-y: auto;
+    }
+    .help-box h2 { margin-bottom: 12px; font-size: 1.1rem; }
+    .help-box dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; font-size: 0.88rem; }
+    .help-box dt { font-weight: 600; color: var(--ink); white-space: nowrap; }
+    .help-box dd { color: var(--slate); }
+    .help-box .btn-secondary { margin-top: 16px; width: auto; }
+
+    /* Barre d'outils mobile en bas */
+    .mobile-toolbar { display: none; }
+    @media (max-width: 860px) {
+      .editor-layout { grid-template-columns: 1fr; }
+      .side-tools { display: none; }
+      .thumb-rail { flex-direction: row; overflow-x: auto; overflow-y: hidden; max-height: none; position: static; }
+      .thumb-rail .thumb-item { flex: 0 0 70px; }
+      .mobile-toolbar {
+        display: flex; gap: 6px; overflow-x: auto; position: sticky; bottom: 0;
+        background: var(--white); border-top: 1px solid var(--border); padding: 8px 4px; margin-top: 16px;
+      }
+      .mobile-toolbar button {
+        flex: 0 0 auto; width: 44px; height: 44px; border-radius: var(--radius-btn);
+        border: 1px solid var(--border); background: var(--white); color: var(--blue);
+      }
+      .mobile-toolbar button.active { background: var(--blue); color: var(--white); }
     }
   </style>
 </head>
@@ -96,14 +193,14 @@
   </div>
 </header>
 
-<main class="tool-page">
+<main class="tool-page editor-shell">
   <h1>Modifier un PDF</h1>
-  <p class="tool-sub">Ajoutez du texte, un surlignage, des formes ou un dessin libre par-dessus vos pages, puis téléchargez le PDF annoté.</p>
+  <p class="tool-sub">L'éditeur PDF le plus complet de tchadiaPdf, gratuit et sans limite : modifiez le texte existant, ajoutez du texte, des images, des formes et des annotations, entièrement dans votre navigateur.</p>
 
-  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF à modifier">
     <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     <strong>Choisir un fichier PDF</strong>
-    <span>ou glissez-le ici</span>
+    <span>ou glissez-le ici, 100 Mo maximum</span>
     <input type="file" id="fileInput" accept="application/pdf">
   </div>
 
@@ -112,38 +209,106 @@
     <span class="f-meta" id="fileMeta"></span>
   </div>
 
-  <div class="options" id="pageOptions" style="display:none">
-    <label for="pageSelect">Page à modifier :</label>
-    <select id="pageSelect"></select>
+  <div class="banner" id="scannedBanner">
+    Ce PDF ne contient pas de texte détectable (probablement un document scanné). Vous pouvez tout de même y ajouter des annotations, mais pour modifier son texte, passez-le d'abord par <a href="ocr-pdf.html">l'outil OCR</a> afin de le rendre reconnaissable.
+  </div>
+  <div class="banner" id="protectedBanner">
+    Ce PDF est protégé par mot de passe et ne peut pas être modifié directement. Utilisez d'abord <a href="deverrouiller-pdf.html">Déverrouiller PDF</a>.
   </div>
 
-  <div class="editor-toolbar" id="editorToolbar" style="display:none">
-    <label>Outil :</label>
-    <div class="seg" id="toolSeg">
-      <button type="button" data-tool="text" class="active">Texte</button>
-      <button type="button" data-tool="highlight">Surligner</button>
-      <button type="button" data-tool="rect">Rectangle</button>
-      <button type="button" data-tool="circle">Cercle</button>
-      <button type="button" data-tool="line">Trait</button>
-      <button type="button" data-tool="freehand">Dessin libre</button>
+  <div id="editorSection" style="display:none">
+    <div class="editor-topbar">
+      <button type="button" class="icon-btn" id="zoomOutBtn" title="Réduire le zoom" aria-label="Réduire le zoom">−</button>
+      <span class="zoom-value" id="zoomValue">100 %</span>
+      <button type="button" class="icon-btn" id="zoomInBtn" title="Augmenter le zoom" aria-label="Augmenter le zoom">+</button>
+      <button type="button" class="icon-btn" id="searchToggleBtn" title="Rechercher (Ctrl+F)" aria-label="Rechercher dans le document">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <div id="searchBox">
+        <input type="text" id="searchInput" placeholder="Rechercher...">
+        <button type="button" class="btn-secondary" id="searchPrevBtn" style="width:auto">◀</button>
+        <button type="button" class="btn-secondary" id="searchNextBtn" style="width:auto">▶</button>
+        <span id="searchCount"></span>
+        <button type="button" class="btn-secondary" id="replaceToggleBtn" style="width:auto">Remplacer</button>
+        <input type="text" id="replaceInput" placeholder="Remplacer par..." style="display:none">
+        <button type="button" class="btn-secondary" id="replaceAllBtn" style="width:auto;display:none">Tout remplacer</button>
+      </div>
+      <span class="spacer"></span>
+      <button type="button" class="icon-btn" id="helpBtn" title="Aide et raccourcis (?)" aria-label="Aide et raccourcis clavier">?</button>
+      <button type="button" class="icon-btn" id="fullscreenBtn" title="Plein écran" aria-label="Basculer en plein écran">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+      </button>
     </div>
+
+    <div class="editor-layout" id="editorLayout">
+      <div class="side-tools" id="sideTools" role="toolbar" aria-label="Outils d'édition">
+        <button type="button" data-tool="select" class="active" title="Sélection / modifier le texte (V)" aria-label="Outil sélection">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l7 17 2-7 7-2z"/></svg>
+        </button>
+        <button type="button" data-tool="text" title="Ajouter du texte (T)" aria-label="Outil texte">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        </button>
+        <button type="button" data-tool="image" title="Ajouter une image (I)" aria-label="Outil image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        </button>
+        <div class="sep"></div>
+        <button type="button" data-tool="whiteout" title="Masquer une zone (blanc)" aria-label="Outil masquage blanc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        </button>
+        <button type="button" data-tool="highlight" title="Surligner" aria-label="Outil surlignage">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21l4-1 11-11-3-3L4 17z"/></svg>
+        </button>
+        <button type="button" data-tool="underline" title="Souligner" aria-label="Outil soulignement">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" y1="20" x2="20" y2="20"/></svg>
+        </button>
+        <button type="button" data-tool="strikethrough" title="Barrer" aria-label="Outil barré">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="12" x2="20" y2="12"/><path d="M8 6c0-1 1.5-2 4-2s4 1 4 2"/><path d="M8 18c0 1 1.5 2 4 2s4-1 4-2"/></svg>
+        </button>
+        <div class="sep"></div>
+        <button type="button" data-tool="rect" title="Rectangle" aria-label="Outil rectangle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="16" height="12" rx="1"/></svg>
+        </button>
+        <button type="button" data-tool="circle" title="Cercle" aria-label="Outil cercle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg>
+        </button>
+        <button type="button" data-tool="arrow" title="Flèche" aria-label="Outil flèche">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="5" y1="19" x2="19" y2="5"/><polyline points="9 5 19 5 19 15"/></svg>
+        </button>
+        <button type="button" data-tool="line" title="Trait" aria-label="Outil trait">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="5" y1="19" x2="19" y2="5"/></svg>
+        </button>
+        <button type="button" data-tool="freehand" title="Dessin libre" aria-label="Outil dessin libre">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18c3-6 5-12 8-12s2 8 5 8 3-4 3-4"/></svg>
+        </button>
+        <div class="sep"></div>
+        <button type="button" id="undoBtn" title="Annuler (Ctrl+Z)" aria-label="Annuler" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 14l-4-4 4-4"/><path d="M5 10h9a5 5 0 0 1 0 10h-1"/></svg>
+        </button>
+        <button type="button" id="redoBtn" title="Rétablir (Ctrl+Y)" aria-label="Rétablir" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 14l4-4-4-4"/><path d="M19 10h-9a5 5 0 0 0 0 10h1"/></svg>
+        </button>
+      </div>
+
+      <div class="thumb-rail" id="thumbRail"></div>
+
+      <div>
+        <div class="modif-preview-wrap" id="previewWrap">
+          <canvas class="page-canvas" id="pageCanvas"></canvas>
+          <canvas id="overlayCanvas"></canvas>
+          <div class="context-bar" id="contextBar"></div>
+        </div>
+        <p class="editor-hint" id="toolHint">Cliquez sur un texte existant pour le modifier directement, ou choisissez un outil dans la barre de gauche.</p>
+      </div>
+    </div>
+
+    <div class="mobile-toolbar" id="mobileToolbar"></div>
   </div>
 
-  <div id="previewSection" style="display:none">
-    <div class="modif-preview-wrap" id="previewWrap">
-      <canvas id="pageCanvas"></canvas>
-      <canvas id="overlayCanvas"></canvas>
-    </div>
-    <p class="editor-hint">Avec l'outil Texte, cliquez sur la page pour placer un champ de saisie. Pour les autres outils, cliquez et glissez sur l'aperçu.</p>
-
-    <div class="editor-actions">
-      <button type="button" class="btn-secondary" id="undoBtn">Annuler le dernier élément</button>
-    </div>
-  </div>
+  <input type="file" id="imageInput" accept="image/jpeg,image/png" style="display:none">
 
   <div class="msg" id="msg"></div>
 
-  <button class="btn-primary" id="saveBtn" disabled>Enregistrer le PDF modifié</button>
+  <button class="btn-primary" id="saveBtn" disabled>Télécharger le PDF modifié</button>
 
   <div class="progress-wrap" id="progress">
     <div class="progress-label">Traitement…</div>
@@ -156,7 +321,31 @@
   </div>
 
   <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+
+  <section class="content-page" style="padding:48px 0 0" aria-labelledby="seoHeading">
+    <h2 id="seoHeading" style="font-size:1.2rem">Modifier un PDF gratuitement, sans limite et sans compte</h2>
+    <p>tchadiaPdf permet de modifier un PDF gratuitement en ligne directement dans votre navigateur : changez le texte existant d'une facture, d'un CV ou d'un formulaire administratif, ajoutez des annotations, des images ou des formes, sans installer de logiciel et sans envoyer votre document sur un serveur.</p>
+    <p>Contrairement à de nombreux outils qui limitent la modification de texte aux offres payantes, tchadiaPdf reste 100% gratuit et open source. La correspondance de police est assurée par des polices libres (Liberation Sans, Serif et Mono) proches d'Arial, Times New Roman et Courier New.</p>
+  </section>
 </main>
+
+<div class="help-modal" id="helpModal" role="dialog" aria-label="Aide et raccourcis clavier">
+  <div class="help-box">
+    <h2>Raccourcis clavier</h2>
+    <dl>
+      <dt>Ctrl+Z</dt><dd>Annuler</dd>
+      <dt>Ctrl+Y</dt><dd>Rétablir</dd>
+      <dt>Ctrl+F</dt><dd>Rechercher dans le document</dd>
+      <dt>Suppr</dt><dd>Supprimer le bloc ou l'élément sélectionné</dd>
+      <dt>V</dt><dd>Outil sélection / modifier le texte</dd>
+      <dt>T</dt><dd>Outil ajouter du texte</dd>
+      <dt>I</dt><dd>Outil ajouter une image</dd>
+      <dt>Échap</dt><dd>Quitter le plein écran ou fermer cette aide</dd>
+      <dt>?</dt><dd>Afficher cette aide</dd>
+    </dl>
+    <button type="button" class="btn-secondary" id="closeHelpBtn">Fermer</button>
+  </div>
+</div>
 
 <footer class="site-footer">
   <nav>
@@ -167,6 +356,7 @@
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="js/common.js"></script>
 <script src="js/modifier-pdf.js"></script>

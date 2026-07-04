@@ -1,601 +1,1116 @@
-/* tchadiaPdf : Modifier un PDF (texte, surlignage, formes, dessin libre) */
+/* tchadiaPdf : Modifier PDF, éditeur complet
+ *
+ * Architecture : pdf.js rend la page courante dans un canvas ; un second
+ * canvas transparent superposé sert de zone d'interaction pour les formes
+ * (rectangle, cercle, flèche, trait, dessin libre, surlignage, masquage) ;
+ * des éléments HTML positionnés par-dessus servent de zones interactives
+ * pour les blocs de texte existants (détectés via pdf.js getTextContent)
+ * et pour les images ajoutées, qui ont besoin d'être de vrais éléments du
+ * DOM pour capter le survol, le clic et la saisie de texte.
+ *
+ * Toutes les modifications sont conservées en mémoire, par page, sous
+ * forme de données en points PDF (pas en pixels d'écran), et ne sont
+ * transformées en instructions pdf-lib qu'au moment de l'enregistrement
+ * final. L'historique annuler/rétablir fonctionne par instantané de ces
+ * données page par page : simple et fiable, largement suffisant vu la
+ * taille modeste de ces listes de modifications.
+ */
 
-const TAILLE_MAX_OCTETS = 100 * 1024 * 1024; // 100 Mo
-const SEUIL_CLIC_PX = 6;   // en dessous de cette distance, un glisser est traité comme un simple clic
-const TAILLE_MIN_FORME_PX = 3; // taille minimale pour garder une forme dessinée
+const MAX_SIZE = 100 * 1024 * 1024; // 100 Mo
+const INK = { r: 0.12, g: 0.16, b: 0.22 };
+const BLUE = { r: 0.145, g: 0.388, b: 0.922 };
 
-const COULEUR_BLEU = "#2563EB";
-const COULEUR_SURLIGNAGE = "rgba(37, 99, 235, 0.35)";
-const COULEUR_ENCRE = "#1E293B";
+const LIBERATION_BASE = "https://cdn.jsdelivr.net/gh/shantigilbert/liberation-fonts-ttf@master/";
+const FONT_FILES = {
+  sans: { regular: "LiberationSans-Regular.ttf", bold: "LiberationSans-Bold.ttf", italic: "LiberationSans-Italic.ttf", boldItalic: "LiberationSans-BoldItalic.ttf" },
+  serif: { regular: "LiberationSerif-Regular.ttf", bold: "LiberationSerif-Bold.ttf", italic: "LiberationSerif-Italic.ttf", boldItalic: "LiberationSerif-BoldItalic.ttf" },
+  mono: { regular: "LiberationMono-Regular.ttf", bold: "LiberationMono-Bold.ttf", italic: "LiberationMono-Italic.ttf", boldItalic: "LiberationMono-BoldItalic.ttf" },
+};
 
-let srcBytes = null;       // ArrayBuffer du PDF d'origine
-let pdfDocJs = null;       // document pdf.js (aperçu et dimensions de page)
-let pageCount = 0;
-let currentPageIndex = 0;  // 0-based
-let currentPageWidthPt = 0;
-let currentPageHeightPt = 0;
-let currentTool = "text";
-let dragState = null;      // état du geste pointeur en cours
-let activeTextInput = null;
+// ---------- État global ----------
+let currentFile = null;
+let srcBytes = null;
+let pdfjsDoc = null;
+let numPages = 0;
+let currentPageIndex = 0;
+let zoomFactor = 1;
+let currentTool = "select";
+let hasUnsavedChanges = false;
 
-// annotationsByPage[indexPage0Based] = tableau d'annotations
-let annotationsByPage = {};
+const pageTextCache = new Map(); // pageIndex -> { items, styles, blocks }
+const pageEditsMap = new Map(); // pageIndex -> { textEdits: [], decorations: [], annotations: [], images: [] }
+const history = []; // { pageIndex, before, after }
+let historyIndex = -1;
 
-const fileInfo = document.getElementById("fileInfo");
-const fileName = document.getElementById("fileName");
-const fileMeta = document.getElementById("fileMeta");
-const pageOptions = document.getElementById("pageOptions");
-const pageSelect = document.getElementById("pageSelect");
-const editorToolbar = document.getElementById("editorToolbar");
-const toolSeg = document.getElementById("toolSeg");
-const previewSection = document.getElementById("previewSection");
-const previewWrap = document.getElementById("previewWrap");
+let selection = null; // { kind: 'text'|'image'|'annotation', pageIndex, id }
+
+// ---------- Éléments DOM ----------
+const fileListEl = document.getElementById("fileInfo");
+const editorSection = document.getElementById("editorSection");
 const pageCanvas = document.getElementById("pageCanvas");
 const overlayCanvas = document.getElementById("overlayCanvas");
-const undoBtn = document.getElementById("undoBtn");
+const previewWrap = document.getElementById("previewWrap");
+const thumbRail = document.getElementById("thumbRail");
+const contextBar = document.getElementById("contextBar");
 const saveBtn = document.getElementById("saveBtn");
+const scannedBanner = document.getElementById("scannedBanner");
+const protectedBanner = document.getElementById("protectedBanner");
+const imageInput = document.getElementById("imageInput");
+const toolHint = document.getElementById("toolHint");
 
-const overlayCtx = overlayCanvas.getContext("2d");
+function getPageEdits(pageIndex) {
+  if (!pageEditsMap.has(pageIndex)) pageEditsMap.set(pageIndex, { textEdits: [], decorations: [], annotations: [], images: [] });
+  return pageEditsMap.get(pageIndex);
+}
+function snapshotPage(pageIndex) {
+  return JSON.parse(JSON.stringify(getPageEdits(pageIndex)));
+}
 
-/* ---------- Chargement du fichier ---------- */
+/** Toute modification passe par ici : historique annuler/rétablir uniforme pour tous les types d'action. */
+function withHistory(pageIndex, mutateFn) {
+  const before = snapshotPage(pageIndex);
+  mutateFn(getPageEdits(pageIndex));
+  const after = snapshotPage(pageIndex);
+  history.length = historyIndex + 1;
+  history.push({ pageIndex, before, after });
+  historyIndex++;
+  hasUnsavedChanges = true;
+  updateUndoRedoButtons();
+  if (pageIndex === currentPageIndex) renderOverlay();
+}
+function undo() {
+  if (historyIndex < 0) return;
+  const h = history[historyIndex];
+  pageEditsMap.set(h.pageIndex, JSON.parse(JSON.stringify(h.before)));
+  historyIndex--;
+  updateUndoRedoButtons();
+  deselect();
+  if (h.pageIndex === currentPageIndex) renderOverlay();
+}
+function redo() {
+  if (historyIndex >= history.length - 1) return;
+  historyIndex++;
+  const h = history[historyIndex];
+  pageEditsMap.set(h.pageIndex, JSON.parse(JSON.stringify(h.after)));
+  updateUndoRedoButtons();
+  deselect();
+  if (h.pageIndex === currentPageIndex) renderOverlay();
+}
+function updateUndoRedoButtons() {
+  document.getElementById("undoBtn").disabled = historyIndex < 0;
+  document.getElementById("redoBtn").disabled = historyIndex >= history.length - 1;
+}
 
+window.addEventListener("beforeunload", (e) => {
+  if (!hasUnsavedChanges) return;
+  e.preventDefault();
+  e.returnValue = "";
+});
+
+// ---------- Chargement du fichier ----------
 initDropzone("dropzone", "fileInput", async (newFiles) => {
   hideMsg();
   document.getElementById("result").classList.remove("visible");
-  resetOutil();
-
+  scannedBanner.classList.remove("visible");
+  protectedBanner.classList.remove("visible");
   const file = newFiles[0];
   if (!(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"))) {
     showMsg("Veuillez choisir un fichier PDF.");
     return;
   }
-  if (file.size > TAILLE_MAX_OCTETS) {
+  if (file.size > MAX_SIZE) {
     showMsg("Ce fichier est trop volumineux (limite : 100 Mo).");
     return;
   }
+  currentFile = file;
+  renderFileInfo();
 
   try {
-    setProgress(20, "Lecture du fichier…");
-    const buffer = await readAsArrayBuffer(file);
-
-    // Vérifie que le PDF peut être ouvert (protection ou corruption)
-    let doc;
-    try {
-      doc = await PDFLib.PDFDocument.load(buffer);
-    } catch (e) {
-      hideProgress();
-      showMsg("Impossible d'ouvrir ce PDF. Il est peut-être protégé par mot de passe ou endommagé.");
-      return;
-    }
-
-    setProgress(55, "Préparation de l'aperçu…");
-    let jsDoc;
-    try {
-      jsDoc = await pdfjsLib.getDocument({ data: buffer.slice(0) }).promise;
-    } catch (e) {
-      hideProgress();
-      showMsg("Impossible d'afficher l'aperçu de ce PDF.");
-      return;
-    }
-
-    srcBytes = buffer;
-    pdfDocJs = jsDoc;
-    pageCount = doc.getPageCount();
-    annotationsByPage = {};
-
-    if (pageCount < 1) {
-      hideProgress();
-      showMsg("Ce PDF ne contient aucune page.");
-      return;
-    }
-
-    fileName.textContent = file.name;
-    fileMeta.textContent = fmtSize(file.size) + " · " + pageCount + " page" + (pageCount > 1 ? "s" : "");
-    fileInfo.style.display = "flex";
-
-    pageSelect.innerHTML = "";
-    for (let i = 1; i <= pageCount; i++) {
-      const opt = document.createElement("option");
-      opt.value = String(i);
-      opt.textContent = "Page " + i;
-      pageSelect.appendChild(opt);
-    }
-    pageSelect.value = "1";
-    currentPageIndex = 0;
-
-    pageOptions.style.display = "flex";
-    editorToolbar.style.display = "flex";
-    previewSection.style.display = "block";
-    saveBtn.disabled = false;
-
-    await renderCurrentPage();
-
-    hideProgress();
+    srcBytes = await readAsArrayBuffer(file);
+    pdfjsDoc = await pdfjsLib.getDocument({ data: srcBytes.slice(0) }).promise;
+    numPages = pdfjsDoc.numPages;
   } catch (e) {
-    hideProgress();
-    showMsg("Impossible de lire ce fichier. Réessayez avec un autre PDF.");
+    if (e && e.name === "PasswordException") {
+      protectedBanner.classList.add("visible");
+      currentFile = null;
+      fileListEl.style.display = "none";
+      return;
+    }
+    showMsg("Impossible d'ouvrir ce PDF. Il est peut-être endommagé.");
+    currentFile = null;
+    return;
   }
-});
 
-/** Remet l'outil à zéro avant le chargement d'un nouveau fichier. */
-function resetOutil() {
-  fermerInputTexte(false);
-  srcBytes = null;
-  pdfDocJs = null;
-  pageCount = 0;
+  // Détection PDF scanné (aucun texte sur les premières pages)
+  let hasAnyText = false;
+  const pagesToCheck = Math.min(numPages, 3);
+  for (let i = 1; i <= pagesToCheck; i++) {
+    const page = await pdfjsDoc.getPage(i);
+    const content = await page.getTextContent();
+    if (content.items.some((it) => it.str && it.str.trim())) { hasAnyText = true; break; }
+  }
+  if (!hasAnyText) scannedBanner.classList.add("visible");
+
+  pageTextCache.clear();
+  pageEditsMap.clear();
+  history.length = 0;
+  historyIndex = -1;
+  hasUnsavedChanges = false;
+  updateUndoRedoButtons();
   currentPageIndex = 0;
-  currentPageWidthPt = 0;
-  currentPageHeightPt = 0;
-  annotationsByPage = {};
-  dragState = null;
+  zoomFactor = 1;
+  updateZoomLabel();
 
-  fileInfo.style.display = "none";
-  pageOptions.style.display = "none";
-  editorToolbar.style.display = "none";
-  previewSection.style.display = "none";
-
-  overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-
-  saveBtn.disabled = true;
-}
-
-/* ---------- Sélection de l'outil ---------- */
-
-toolSeg.addEventListener("click", (e) => {
-  const btn = e.target.closest("button[data-tool]");
-  if (!btn) return;
-  toolSeg.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
-  btn.classList.add("active");
-  currentTool = btn.dataset.tool;
-  overlayCanvas.classList.toggle("tool-text", currentTool === "text");
-  fermerInputTexte(false);
-});
-
-/* ---------- Aperçu de la page choisie ---------- */
-
-pageSelect.addEventListener("change", async () => {
-  fermerInputTexte(false);
-  currentPageIndex = parseInt(pageSelect.value, 10) - 1;
+  editorSection.style.display = "block";
+  saveBtn.disabled = false;
+  await buildThumbnails();
   await renderCurrentPage();
 });
 
-/** Calcule une largeur d'aperçu adaptée à l'espace disponible. */
-function calculerLargeurApercu() {
-  const disponible = previewSection.clientWidth || 480;
-  return Math.max(240, Math.min(720, disponible));
+function renderFileInfo() {
+  fileListEl.style.display = "flex";
+  document.getElementById("fileName").textContent = currentFile.name;
+  document.getElementById("fileMeta").textContent = fmtSize(currentFile.size);
 }
+
+// ---------- Vignettes ----------
+async function buildThumbnails() {
+  thumbRail.innerHTML = "";
+  for (let i = 0; i < numPages; i++) {
+    const item = document.createElement("div");
+    item.className = "thumb-item" + (i === 0 ? " active" : "");
+    item.dataset.page = String(i);
+    const canvas = document.createElement("canvas");
+    item.appendChild(canvas);
+    const label = document.createElement("span");
+    label.textContent = "Page " + (i + 1);
+    item.appendChild(label);
+    item.addEventListener("click", () => goToPage(i));
+    thumbRail.appendChild(item);
+  }
+  // Rendu progressif (non bloquant) des vignettes, page par page.
+  for (let i = 0; i < numPages; i++) {
+    const canvas = thumbRail.children[i].querySelector("canvas");
+    try {
+      const page = await pdfjsDoc.getPage(i + 1);
+      const vp = page.getViewport({ scale: 1 });
+      const scale = 90 / vp.width;
+      const viewport = page.getViewport({ scale });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+    } catch (e) { /* vignette non critique, on continue */ }
+  }
+}
+
+async function goToPage(index) {
+  if (index === currentPageIndex) return;
+  currentPageIndex = index;
+  Array.from(thumbRail.children).forEach((el, i) => el.classList.toggle("active", i === index));
+  deselect();
+  await renderCurrentPage();
+}
+
+// ---------- Rendu de la page courante ----------
+let currentViewport = null;
+let currentPageObj = null;
 
 async function renderCurrentPage() {
-  if (!pdfDocJs) return;
-  const pageNum = currentPageIndex + 1;
-  const largeur = calculerLargeurApercu();
+  currentPageObj = await pdfjsDoc.getPage(currentPageIndex + 1);
+  const baseScale = 1.3 * zoomFactor;
+  currentViewport = currentPageObj.getViewport({ scale: baseScale });
+  pageCanvas.width = currentViewport.width;
+  pageCanvas.height = currentViewport.height;
+  overlayCanvas.width = currentViewport.width;
+  overlayCanvas.height = currentViewport.height;
+  await currentPageObj.render({ canvasContext: pageCanvas.getContext("2d"), viewport: currentViewport }).promise;
 
-  await renderPdfPage(pdfDocJs, pageNum, pageCanvas, largeur);
-
-  const jsPage = await pdfDocJs.getPage(pageNum);
-  const viewport = jsPage.getViewport({ scale: 1 });
-  currentPageWidthPt = viewport.width;
-  currentPageHeightPt = viewport.height;
-
-  overlayCanvas.width = pageCanvas.width;
-  overlayCanvas.height = pageCanvas.height;
-
-  redessinerOverlay();
+  if (!pageTextCache.has(currentPageIndex)) {
+    const content = await currentPageObj.getTextContent();
+    const blocks = groupIntoBlocks(content.items, content.styles);
+    pageTextCache.set(currentPageIndex, { items: content.items, styles: content.styles, blocks });
+  }
+  renderOverlay();
 }
 
-/* ---------- Conversion position pointeur -> pixels du canevas ---------- */
-
-function positionSurCanevas(evt) {
-  const rect = overlayCanvas.getBoundingClientRect();
-  const scaleX = overlayCanvas.width / rect.width;
-  const scaleY = overlayCanvas.height / rect.height;
-  return {
-    x: (evt.clientX - rect.left) * scaleX,
-    y: (evt.clientY - rect.top) * scaleY
-  };
-}
-
-/* ---------- Stockage et rendu des annotations ---------- */
-
-function ajouterAnnotation(partielle) {
-  const ann = Object.assign({}, partielle, {
-    pageWidthPt: currentPageWidthPt,
-    pageHeightPt: currentPageHeightPt,
-    canvasWidthPx: pageCanvas.width,
-    canvasHeightPx: pageCanvas.height
+// ---------- Regroupement du texte en blocs modifiables ----------
+function groupIntoBlocks(items, styles) {
+  const lines = [];
+  for (const item of items) {
+    if (!item.str || !item.str.trim()) continue;
+    const y = item.transform[5];
+    let line = lines.find((l) => Math.abs(l.y - y) < 2);
+    if (!line) { line = { y, items: [] }; lines.push(line); }
+    line.items.push(item);
+  }
+  lines.sort((a, b) => b.y - a.y);
+  return lines.map((line, idx) => {
+    line.items.sort((a, b) => a.transform[4] - b.transform[4]);
+    const text = line.items.map((it) => it.str).join("");
+    const first = line.items[0];
+    const last = line.items[line.items.length - 1];
+    const x0 = first.transform[4];
+    const x1 = last.transform[4] + (last.width || 0);
+    const fontHeight = Math.max.apply(null, line.items.map((it) => Math.abs(it.transform[3]) || it.height || 10));
+    const style = styles[first.fontName] || {};
+    const detected = detectStyle(first.fontName, style, first.transform);
+    return {
+      id: "blk" + idx + "_" + Math.round(line.y),
+      text,
+      x: x0,
+      y: line.y - fontHeight * 0.22,
+      width: Math.max(x1 - x0, fontHeight * 0.6),
+      height: fontHeight * 1.2,
+      baseline: line.y,
+      fontSize: fontHeight,
+      fontFamily: detected.family,
+      bold: detected.bold,
+      italic: detected.italic,
+    };
   });
-  if (!annotationsByPage[currentPageIndex]) annotationsByPage[currentPageIndex] = [];
-  annotationsByPage[currentPageIndex].push(ann);
 }
 
-/** Redessine tout l'overlay de la page courante à partir du tableau d'annotations. */
-function redessinerOverlay() {
-  overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-  const liste = annotationsByPage[currentPageIndex] || [];
-  liste.forEach((ann) => dessinerAnnotationMiseAEchelle(ann));
+function detectStyle(rawFontName, style, transform) {
+  const name = (rawFontName || "") + " " + (style.fontFamily || "");
+  const lower = name.toLowerCase();
+  let family = "sans";
+  if (/serif/.test(lower) && !/sans-serif/.test(lower)) family = "serif";
+  if (/mono|courier|consolas/.test(lower)) family = "mono";
+  if (/times|georgia|garamond|cambria/.test(lower)) family = "serif";
+  const bold = /bold|black|heavy|semibold/.test(lower);
+  const italic = /italic|oblique/.test(lower) || Math.abs(transform[2]) > 0.001;
+  return { family, bold, italic };
 }
 
-/** Adapte les coordonnées stockées à la résolution actuelle de l'overlay, puis dessine. */
-function dessinerAnnotationMiseAEchelle(ann) {
-  const f = ann.canvasWidthPx ? (overlayCanvas.width / ann.canvasWidthPx) : 1;
-  let a;
-  if (ann.type === "text") {
-    a = { type: "text", xPx: ann.xPx * f, yPx: ann.yPx * f, text: ann.text, size: ann.size * f };
+// ---------- Conversion de coordonnées (PDF <-> pixels du canvas) ----------
+function pdfToCanvasPx(x, y) { return currentViewport.convertToViewportPoint(x, y); }
+function canvasPxToPdf(x, y) { return currentViewport.convertToPdfPoint(x, y); }
+
+/** Convertit une position d'événement pointeur en pixels internes du canvas (indépendant du redimensionnement CSS). */
+function eventToCanvasPx(e) {
+  const rect = pageCanvas.getBoundingClientRect();
+  const scaleX = pageCanvas.width / rect.width;
+  const scaleY = pageCanvas.height / rect.height;
+  return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+}
+/** Facteur pour positionner des éléments DOM (en pixels CSS) à partir de coordonnées canvas internes. */
+function canvasPxToCssPx(x, y) {
+  const rect = pageCanvas.getBoundingClientRect();
+  return { x: (x / pageCanvas.width) * rect.width, y: (y / pageCanvas.height) * rect.height };
+}
+
+// ---------- Échantillonnage de la couleur de fond ----------
+function sampleBackgroundColor(block) {
+  const ctx = pageCanvas.getContext("2d");
+  const corners = [
+    pdfToCanvasPx(block.x - 2, block.y - 2),
+    pdfToCanvasPx(block.x + block.width + 2, block.y - 2),
+  ];
+  const samples = [];
+  for (const c of corners) {
+    const px = Math.max(0, Math.min(pageCanvas.width - 1, Math.round(c[0])));
+    const py = Math.max(0, Math.min(pageCanvas.height - 1, Math.round(c[1])));
+    try {
+      const d = ctx.getImageData(px, py, 1, 1).data;
+      samples.push([d[0], d[1], d[2]]);
+    } catch (e) { /* canvas pollué (rare, cross origin), on ignore */ }
+  }
+  if (!samples.length) return { r: 1, g: 1, b: 1 };
+  const avg = samples.reduce((a, s) => [a[0] + s[0], a[1] + s[1], a[2] + s[2]], [0, 0, 0]).map((v) => v / samples.length);
+  return { r: avg[0] / 255, g: avg[1] / 255, b: avg[2] / 255 };
+}
+
+// ---------- Rendu de la couche d'édition (overlay) ----------
+function renderOverlay() {
+  const ctx = overlayCanvas.getContext("2d");
+  ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+  previewWrap.querySelectorAll(".text-block-hit, .img-annotation").forEach((el) => el.remove());
+
+  const edits = getPageEdits(currentPageIndex);
+  const textData = pageTextCache.get(currentPageIndex);
+
+  if (textData) {
+    for (const block of textData.blocks) {
+      const edit = edits.textEdits.find((t) => t.blockId === block.id);
+      if (edit && edit.deleted) continue;
+      const displayBlock = edit ? Object.assign({}, block, edit) : block;
+      if (edit) drawTextBlockOnCanvas(ctx, displayBlock);
+      const hit = document.createElement("div");
+      hit.className = "text-block-hit";
+      positionOverlayEl(hit, block.x, block.y, block.width, block.height);
+      hit.title = "Cliquer pour modifier ce texte";
+      hit.addEventListener("pointerdown", (e) => onTextBlockPointerDown(e, block));
+      previewWrap.appendChild(hit);
+    }
+  }
+
+  for (const deco of edits.decorations) {
+    const block = (textData || { blocks: [] }).blocks.find((b) => b.id === deco.blockId);
+    if (!block) continue;
+    drawDecoration(ctx, block, deco.type);
+  }
+
+  for (const ann of edits.annotations) drawAnnotation(ctx, ann);
+
+  for (const img of edits.images) renderImageAnnotation(img);
+
+  updateContextBarVisibility();
+}
+
+function positionOverlayEl(el, pdfX, pdfY, pdfW, pdfH) {
+  const topLeft = pdfToCanvasPx(pdfX, pdfY + pdfH);
+  const bottomRight = pdfToCanvasPx(pdfX + pdfW, pdfY);
+  const a = canvasPxToCssPx(topLeft[0], topLeft[1]);
+  const b = canvasPxToCssPx(bottomRight[0], bottomRight[1]);
+  el.style.position = "absolute";
+  el.style.left = Math.min(a.x, b.x) + "px";
+  el.style.top = Math.min(a.y, b.y) + "px";
+  el.style.width = Math.abs(b.x - a.x) + "px";
+  el.style.height = Math.abs(b.y - a.y) + "px";
+}
+
+function fontCssFamily(family) {
+  if (family === "serif") return "'Liberation Serif', Georgia, serif";
+  if (family === "mono") return "'Liberation Mono', Consolas, monospace";
+  return "'Liberation Sans', Arial, sans-serif";
+}
+
+function drawTextBlockOnCanvas(ctx, block) {
+  const bg = block.bgColor || { r: 1, g: 1, b: 1 };
+  const tl = pdfToCanvasPx(block.x - 1, block.y + block.height + 1);
+  const br = pdfToCanvasPx(block.x + block.width + 1, block.y - 1);
+  ctx.fillStyle = "rgb(" + Math.round(bg.r * 255) + "," + Math.round(bg.g * 255) + "," + Math.round(bg.b * 255) + ")";
+  ctx.fillRect(Math.min(tl[0], br[0]), Math.min(tl[1], br[1]), Math.abs(br[0] - tl[0]), Math.abs(br[1] - tl[1]));
+
+  if (block.deleted || !block.text) return;
+  const baseline = pdfToCanvasPx(block.x, block.baseline);
+  const scalePx = Math.abs(pdfToCanvasPx(0, 0)[1] - pdfToCanvasPx(0, 1)[1]);
+  const color = block.color || INK;
+  ctx.fillStyle = "rgb(" + Math.round(color.r * 255) + "," + Math.round(color.g * 255) + "," + Math.round(color.b * 255) + ")";
+  let fontStr = "";
+  if (block.italic) fontStr += "italic ";
+  if (block.bold) fontStr += "bold ";
+  fontStr += Math.round(block.fontSize * scalePx) + "px " + fontCssFamily(block.fontFamily);
+  ctx.font = fontStr;
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(block.text, baseline[0], baseline[1]);
+}
+
+function drawDecoration(ctx, block, type) {
+  const y = type === "strikethrough" ? block.baseline + block.height * 0.28 : block.baseline - block.height * 0.08;
+  const p1 = pdfToCanvasPx(block.x, y);
+  const p2 = pdfToCanvasPx(block.x + block.width, y);
+  ctx.strokeStyle = "rgb(" + Math.round(BLUE.r * 255) + "," + Math.round(BLUE.g * 255) + "," + Math.round(BLUE.b * 255) + ")";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+}
+
+function rgbCss(c, alpha) { return "rgba(" + Math.round(c.r * 255) + "," + Math.round(c.g * 255) + "," + Math.round(c.b * 255) + "," + (alpha != null ? alpha : 1) + ")"; }
+
+function drawAnnotation(ctx, ann) {
+  if (ann.type === "newtext") {
+    const p = pdfToCanvasPx(ann.x, ann.y);
+    const scalePx = Math.abs(pdfToCanvasPx(0, 0)[1] - pdfToCanvasPx(0, 1)[1]);
+    ctx.fillStyle = rgbCss(ann.color || INK, 1);
+    ctx.font = Math.round(ann.size * scalePx) + "px " + fontCssFamily("sans");
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(ann.text, p[0], p[1]);
+    return;
+  }
+  const color = ann.color || BLUE;
+  ctx.strokeStyle = rgbCss(color, 1);
+  ctx.lineWidth = (ann.thickness || 2) * (Math.abs(pdfToCanvasPx(0, 0)[1] - pdfToCanvasPx(0, 1)[1]));
+
+  if (ann.type === "whiteout" || ann.type === "highlight") {
+    const tl = pdfToCanvasPx(ann.x, ann.y + ann.height);
+    const br = pdfToCanvasPx(ann.x + ann.width, ann.y);
+    ctx.fillStyle = ann.type === "whiteout" ? "#ffffff" : rgbCss(color, 0.35);
+    ctx.fillRect(Math.min(tl[0], br[0]), Math.min(tl[1], br[1]), Math.abs(br[0] - tl[0]), Math.abs(br[1] - tl[1]));
+  } else if (ann.type === "rect") {
+    const tl = pdfToCanvasPx(ann.x, ann.y + ann.height);
+    const br = pdfToCanvasPx(ann.x + ann.width, ann.y);
+    ctx.strokeRect(Math.min(tl[0], br[0]), Math.min(tl[1], br[1]), Math.abs(br[0] - tl[0]), Math.abs(br[1] - tl[1]));
+  } else if (ann.type === "circle") {
+    const c = pdfToCanvasPx(ann.x + ann.width / 2, ann.y + ann.height / 2);
+    const edge = pdfToCanvasPx(ann.x + ann.width, ann.y + ann.height / 2);
+    const rx = Math.abs(edge[0] - c[0]);
+    const edgeY = pdfToCanvasPx(ann.x + ann.width / 2, ann.y);
+    const ry = Math.abs(edgeY[1] - c[1]);
+    ctx.beginPath(); ctx.ellipse(c[0], c[1], rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
+  } else if (ann.type === "line" || ann.type === "arrow") {
+    const p1 = pdfToCanvasPx(ann.x1, ann.y1);
+    const p2 = pdfToCanvasPx(ann.x2, ann.y2);
+    ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+    if (ann.type === "arrow") {
+      const angle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+      const headLen = 12;
+      ctx.beginPath();
+      ctx.moveTo(p2[0], p2[1]);
+      ctx.lineTo(p2[0] - headLen * Math.cos(angle - Math.PI / 7), p2[1] - headLen * Math.sin(angle - Math.PI / 7));
+      ctx.moveTo(p2[0], p2[1]);
+      ctx.lineTo(p2[0] - headLen * Math.cos(angle + Math.PI / 7), p2[1] - headLen * Math.sin(angle + Math.PI / 7));
+      ctx.stroke();
+    }
   } else if (ann.type === "freehand") {
-    a = { type: "freehand", points: ann.points.map((p) => ({ x: p.x * f, y: p.y * f })) };
-  } else if (ann.type === "line") {
-    a = { type: "line", x1Px: ann.x1Px * f, y1Px: ann.y1Px * f, x2Px: ann.x2Px * f, y2Px: ann.y2Px * f };
-  } else {
-    a = { type: ann.type, xPx: ann.xPx * f, yPx: ann.yPx * f, wPx: ann.wPx * f, hPx: ann.hPx * f };
+    ctx.beginPath();
+    ann.points.forEach((pt, i) => {
+      const p = pdfToCanvasPx(pt.x, pt.y);
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    });
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.stroke();
   }
-  dessinerFormeBrute(a);
 }
 
-/** Dessine une forme directement dans l'espace pixels courant de l'overlay (sans mise à l'échelle). */
-function dessinerFormeBrute(a) {
-  switch (a.type) {
-    case "text":
-      overlayCtx.fillStyle = COULEUR_ENCRE;
-      overlayCtx.font = Math.max(1, a.size) + "px Inter, sans-serif";
-      overlayCtx.textBaseline = "alphabetic";
-      overlayCtx.fillText(a.text, a.xPx, a.yPx);
-      break;
-    case "highlight":
-      overlayCtx.fillStyle = COULEUR_SURLIGNAGE;
-      overlayCtx.fillRect(a.xPx, a.yPx, a.wPx, a.hPx);
-      break;
-    case "rect":
-      overlayCtx.strokeStyle = COULEUR_BLEU;
-      overlayCtx.lineWidth = 2;
-      overlayCtx.strokeRect(a.xPx, a.yPx, a.wPx, a.hPx);
-      break;
-    case "circle":
-      overlayCtx.strokeStyle = COULEUR_BLEU;
-      overlayCtx.lineWidth = 2;
-      overlayCtx.beginPath();
-      overlayCtx.ellipse(a.xPx + a.wPx / 2, a.yPx + a.hPx / 2, Math.abs(a.wPx / 2), Math.abs(a.hPx / 2), 0, 0, Math.PI * 2);
-      overlayCtx.stroke();
-      break;
-    case "line":
-      overlayCtx.strokeStyle = COULEUR_BLEU;
-      overlayCtx.lineWidth = 2;
-      overlayCtx.lineCap = "round";
-      overlayCtx.beginPath();
-      overlayCtx.moveTo(a.x1Px, a.y1Px);
-      overlayCtx.lineTo(a.x2Px, a.y2Px);
-      overlayCtx.stroke();
-      break;
-    case "freehand":
-      if (!a.points || a.points.length < 2) return;
-      overlayCtx.strokeStyle = COULEUR_BLEU;
-      overlayCtx.lineWidth = 2.5;
-      overlayCtx.lineCap = "round";
-      overlayCtx.lineJoin = "round";
-      overlayCtx.beginPath();
-      a.points.forEach((p, i) => {
-        if (i === 0) overlayCtx.moveTo(p.x, p.y);
-        else overlayCtx.lineTo(p.x, p.y);
+// ---------- Interaction : édition d'un bloc de texte existant ----------
+function onTextBlockPointerDown(e, block) {
+  if (currentTool !== "select") return;
+  e.preventDefault();
+  const startX = e.clientX, startY = e.clientY;
+  let moved = false;
+  const edits = getPageEdits(currentPageIndex);
+  const existing = edits.textEdits.find((t) => t.blockId === block.id);
+  const origX = existing ? existing.x : block.x;
+  const origY = existing ? existing.y : block.y;
+
+  function onMove(ev) {
+    if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > 5) moved = true;
+    if (!moved) return;
+    const c1 = eventToCanvasPx({ clientX: startX, clientY: startY });
+    const c2 = eventToCanvasPx(ev);
+    const p1 = canvasPxToPdf(c1.x, c1.y);
+    const p2 = canvasPxToPdf(c2.x, c2.y);
+    const dx = p2[0] - p1[0], dy = p2[1] - p1[1];
+    renderOverlay();
+    const ctx = overlayCanvas.getContext("2d");
+    const moved2 = Object.assign({}, block, { x: origX + dx, y: origY + dy, baseline: origY + dy + block.height * 0.22 });
+    drawTextBlockOnCanvas(ctx, Object.assign({ bgColor: existing ? existing.bgColor : { r: 1, g: 1, b: 1 }, color: INK }, moved2));
+  }
+  function onUp(ev) {
+    document.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerup", onUp);
+    if (moved) {
+      const c1 = eventToCanvasPx({ clientX: startX, clientY: startY });
+      const c2 = eventToCanvasPx(ev);
+      const p1 = canvasPxToPdf(c1.x, c1.y);
+      const p2 = canvasPxToPdf(c2.x, c2.y);
+      const dx = p2[0] - p1[0], dy = p2[1] - p1[1];
+      withHistory(currentPageIndex, (pe) => {
+        const t = pe.textEdits.find((x) => x.blockId === block.id);
+        if (t) { t.x = origX + dx; t.y = origY + dy; t.baseline = (t.baseline != null ? t.baseline : block.baseline) + dy; }
+        else pe.textEdits.push({ blockId: block.id, text: block.text, fontSize: block.fontSize, fontFamily: block.fontFamily, bold: block.bold, italic: block.italic, color: INK, bgColor: sampleBackgroundColor(block), baseline: block.baseline + dy, x: origX + dx, y: origY + dy, width: block.width, height: block.height });
       });
-      overlayCtx.stroke();
-      break;
+    } else {
+      openTextEditor(block);
+    }
   }
+  document.addEventListener("pointermove", onMove);
+  document.addEventListener("pointerup", onUp);
 }
 
-/* ---------- Champ de saisie pour l'outil Texte ---------- */
+let activeEditArea = null;
+function openTextEditor(block) {
+  closeTextEditor();
+  const edits = getPageEdits(currentPageIndex);
+  const existing = edits.textEdits.find((t) => t.blockId === block.id);
+  const data = existing || { text: block.text, fontSize: block.fontSize, fontFamily: block.fontFamily, bold: block.bold, italic: block.italic, color: INK, x: block.x, y: block.y, baseline: block.baseline, width: block.width, height: block.height };
 
-function ouvrirInputTexte(xPx, yPx) {
-  fermerInputTexte(false);
+  const area = document.createElement("textarea");
+  area.className = "text-edit-area";
+  area.value = data.text;
+  area.spellcheck = false;
+  positionOverlayEl(area, data.x, data.y, Math.max(data.width, 40), data.height * 1.4);
+  const scalePx = Math.abs(pdfToCanvasPx(0, 0)[1] - pdfToCanvasPx(0, 1)[1]);
+  const rect = pageCanvas.getBoundingClientRect();
+  const cssScale = rect.width / pageCanvas.width;
+  area.style.fontSize = (data.fontSize * scalePx * cssScale) + "px";
+  area.style.fontStyle = data.italic ? "italic" : "normal";
+  area.style.fontWeight = data.bold ? "700" : "400";
+  area.style.fontFamily = fontCssFamily(data.fontFamily);
+  previewWrap.appendChild(area);
+  area.focus();
+  area.select();
 
-  const ratioX = overlayCanvas.clientWidth / overlayCanvas.width;
-  const ratioY = overlayCanvas.clientHeight / overlayCanvas.height;
-  const cssX = xPx * ratioX;
-  const cssY = yPx * ratioY;
+  const commit = () => {
+    const newText = area.value;
+    withHistory(currentPageIndex, (pe) => {
+      const idx = pe.textEdits.findIndex((t) => t.blockId === block.id);
+      const bgColor = existing ? existing.bgColor : sampleBackgroundColor(block);
+      const record = Object.assign({}, data, { blockId: block.id, text: newText, bgColor });
+      if (idx >= 0) pe.textEdits[idx] = record; else pe.textEdits.push(record);
+    });
+  };
+  area.addEventListener("blur", () => { commit(); closeTextEditor(); });
+  area.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); area.value = data.text; closeTextEditor(); }
+  });
+  activeEditArea = { area, block };
+  selection = { kind: "text", pageIndex: currentPageIndex, id: block.id, block };
+  showContextBarForText(block, data);
+}
+function closeTextEditor() {
+  if (!activeEditArea) return;
+  const a = activeEditArea.area;
+  activeEditArea = null;
+  if (a && a.parentNode) a.parentNode.removeChild(a);
+}
 
+// ---------- Barre contextuelle ----------
+function showContextBarForText(block, data) {
+  contextBar.innerHTML = "";
+  contextBar.classList.add("visible");
+  const famSel = document.createElement("select");
+  ["sans", "serif", "mono"].forEach((f) => {
+    const o = document.createElement("option");
+    o.value = f; o.textContent = f === "sans" ? "Sans serif" : f === "serif" ? "Serif" : "Monospace";
+    if (f === data.fontFamily) o.selected = true;
+    famSel.appendChild(o);
+  });
+  famSel.addEventListener("change", () => updateTextStyle(block, { fontFamily: famSel.value }));
+
+  const sizeInput = document.createElement("input");
+  sizeInput.type = "number"; sizeInput.min = "6"; sizeInput.max = "96"; sizeInput.style.width = "58px";
+  sizeInput.value = Math.round(data.fontSize);
+  sizeInput.addEventListener("change", () => updateTextStyle(block, { fontSize: parseFloat(sizeInput.value) || data.fontSize }));
+
+  const boldBtn = document.createElement("button");
+  boldBtn.type = "button"; boldBtn.textContent = "G"; boldBtn.title = "Gras";
+  if (data.bold) boldBtn.classList.add("active");
+  boldBtn.addEventListener("click", () => updateTextStyle(block, { bold: !getCurrentTextData(block).bold }));
+
+  const italicBtn = document.createElement("button");
+  italicBtn.type = "button"; italicBtn.textContent = "I"; italicBtn.title = "Italique";
+  if (data.italic) italicBtn.classList.add("active");
+  italicBtn.addEventListener("click", () => updateTextStyle(block, { italic: !getCurrentTextData(block).italic }));
+
+  const colorInput = document.createElement("input");
+  colorInput.type = "color";
+  colorInput.title = "Couleur du texte";
+  colorInput.value = rgbToHex(data.color || INK);
+  colorInput.addEventListener("input", () => updateTextStyle(block, { color: hexToRgb(colorInput.value) }));
+
+  const delBtn = document.createElement("button");
+  delBtn.className = "del-btn"; delBtn.title = "Supprimer ce texte"; delBtn.textContent = "✕";
+  delBtn.addEventListener("click", () => {
+    withHistory(currentPageIndex, (pe) => {
+      const idx = pe.textEdits.findIndex((t) => t.blockId === block.id);
+      const bgColor = sampleBackgroundColor(block);
+      if (idx >= 0) pe.textEdits[idx].deleted = true; else pe.textEdits.push({ blockId: block.id, deleted: true, bgColor, text: "", x: block.x, y: block.y, width: block.width, height: block.height });
+    });
+    deselect();
+  });
+
+  [famSel, sizeInput, boldBtn, italicBtn, colorInput, delBtn].forEach((el) => contextBar.appendChild(el));
+  positionOverlayEl(contextBar, block.x, block.y + block.height + 4, 10, 10);
+  contextBar.style.width = "auto";
+  contextBar.style.height = "auto";
+}
+function getCurrentTextData(block) {
+  const e = getPageEdits(currentPageIndex).textEdits.find((t) => t.blockId === block.id);
+  return e || { bold: block.bold, italic: block.italic };
+}
+
+function updateTextStyle(block, patch) {
+  withHistory(currentPageIndex, (pe) => {
+    const idx = pe.textEdits.findIndex((t) => t.blockId === block.id);
+    if (idx >= 0) Object.assign(pe.textEdits[idx], patch);
+    else pe.textEdits.push(Object.assign({ blockId: block.id, text: block.text, fontSize: block.fontSize, fontFamily: block.fontFamily, bold: block.bold, italic: block.italic, color: INK, x: block.x, y: block.y, baseline: block.baseline, width: block.width, height: block.height, bgColor: sampleBackgroundColor(block) }, patch));
+  });
+  const e = getPageEdits(currentPageIndex).textEdits.find((t) => t.blockId === block.id);
+  if (e) showContextBarForText(block, e);
+}
+
+function rgbToHex(c) {
+  const h = (v) => Math.round(v * 255).toString(16).padStart(2, "0");
+  return "#" + h(c.r) + h(c.g) + h(c.b);
+}
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return { r: ((n >> 16) & 255) / 255, g: ((n >> 8) & 255) / 255, b: (n & 255) / 255 };
+}
+
+function updateContextBarVisibility() {
+  if (!selection || selection.pageIndex !== currentPageIndex) {
+    contextBar.classList.remove("visible");
+  }
+}
+function deselect() {
+  selection = null;
+  contextBar.classList.remove("visible");
+  closeTextEditor();
+}
+
+// ---------- Outils de dessin (formes, surlignage, masquage, souligné, barré) ----------
+document.getElementById("sideTools").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-tool]");
+  if (!btn) return;
+  setTool(btn.dataset.tool);
+});
+function setTool(tool) {
+  if (tool === "image") { imageInput.click(); return; }
+  currentTool = tool;
+  document.querySelectorAll("#sideTools button[data-tool], #mobileToolbar button[data-tool]").forEach((b) => b.classList.toggle("active", b.dataset.tool === tool));
+  overlayCanvas.className = tool === "select" ? "tool-select" : tool === "text" ? "tool-text" : "";
+  deselect();
+  const hints = {
+    select: "Cliquez sur un texte existant pour le modifier directement, ou choisissez un outil dans la barre de gauche.",
+    text: "Cliquez sur la page pour ajouter du texte neuf.",
+    whiteout: "Cliquez et glissez pour masquer une zone en blanc.",
+    highlight: "Cliquez et glissez pour surligner une zone.",
+    underline: "Cliquez sur une ligne de texte existante pour la souligner.",
+    strikethrough: "Cliquez sur une ligne de texte existante pour la barrer.",
+    rect: "Cliquez et glissez pour dessiner un rectangle.",
+    circle: "Cliquez et glissez pour dessiner un cercle.",
+    arrow: "Cliquez et glissez pour dessiner une flèche.",
+    line: "Cliquez et glissez pour dessiner un trait.",
+    freehand: "Cliquez et glissez pour dessiner librement.",
+  };
+  toolHint.textContent = hints[tool] || "";
+}
+
+(function buildMobileToolbar() {
+  const mobile = document.getElementById("mobileToolbar");
+  document.querySelectorAll("#sideTools button[data-tool]").forEach((b) => {
+    const clone = b.cloneNode(true);
+    clone.addEventListener("click", () => setTool(clone.dataset.tool));
+    mobile.appendChild(clone);
+  });
+})();
+
+overlayCanvas.addEventListener("pointerdown", (e) => {
+  if (currentTool === "select" || currentTool === "text") return;
+  const c = eventToCanvasPx(e);
+  const p = canvasPxToPdf(c.x, c.y);
+
+  if (currentTool === "underline" || currentTool === "strikethrough") {
+    const textData = pageTextCache.get(currentPageIndex);
+    if (!textData) return;
+    const block = textData.blocks.find((b) => p[0] >= b.x && p[0] <= b.x + b.width && p[1] >= b.y && p[1] <= b.y + b.height);
+    if (block) {
+      withHistory(currentPageIndex, (pe) => {
+        const existingIdx = pe.decorations.findIndex((d) => d.blockId === block.id && d.type === currentTool);
+        if (existingIdx >= 0) pe.decorations.splice(existingIdx, 1);
+        else pe.decorations.push({ blockId: block.id, type: currentTool });
+      });
+    }
+    return;
+  }
+
+  const drawStart = p;
+  const freehandPoints = currentTool === "freehand" ? [p] : null;
+
+  function onMove(ev) {
+    const cc = eventToCanvasPx(ev);
+    const pp = canvasPxToPdf(cc.x, cc.y);
+    if (freehandPoints) freehandPoints.push(pp);
+    renderOverlay();
+    const ctx = overlayCanvas.getContext("2d");
+    const preview = buildAnnotationFromDrag(currentTool, drawStart, pp, freehandPoints);
+    if (preview) drawAnnotation(ctx, preview);
+  }
+  function onUp(ev) {
+    overlayCanvas.removeEventListener("pointermove", onMove);
+    overlayCanvas.removeEventListener("pointerup", onUp);
+    const cc = eventToCanvasPx(ev);
+    const pp = canvasPxToPdf(cc.x, cc.y);
+    if (freehandPoints) freehandPoints.push(pp);
+    const ann = buildAnnotationFromDrag(currentTool, drawStart, pp, freehandPoints);
+    if (ann) withHistory(currentPageIndex, (pe) => pe.annotations.push(ann));
+  }
+  overlayCanvas.addEventListener("pointermove", onMove);
+  overlayCanvas.addEventListener("pointerup", onUp);
+});
+
+function buildAnnotationFromDrag(tool, start, end, freehandPoints) {
+  if (tool === "freehand") {
+    if (!freehandPoints || freehandPoints.length < 2) return null;
+    return { type: "freehand", points: freehandPoints.slice(), color: BLUE };
+  }
+  if (tool === "line" || tool === "arrow") {
+    return { type: tool, x1: start[0], y1: start[1], x2: end[0], y2: end[1], color: BLUE, thickness: 2.5 };
+  }
+  const x = Math.min(start[0], end[0]);
+  const y = Math.min(start[1], end[1]);
+  const width = Math.abs(end[0] - start[0]);
+  const height = Math.abs(end[1] - start[1]);
+  if (width < 1 || height < 1) return null;
+  if (tool === "whiteout") return { type: "whiteout", x, y, width, height };
+  if (tool === "highlight") return { type: "highlight", x, y, width, height, color: BLUE };
+  if (tool === "rect") return { type: "rect", x, y, width, height, color: BLUE, thickness: 2 };
+  if (tool === "circle") return { type: "circle", x, y, width, height, color: BLUE, thickness: 2 };
+  return null;
+}
+
+// ---------- Ajout d'image ----------
+imageInput.addEventListener("change", async () => {
+  const file = imageInput.files[0];
+  imageInput.value = "";
+  if (!file || !pdfjsDoc) return;
+  try {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const blob = new Blob([bytes], { type: file.type });
+    const bitmap = await createImageBitmap(blob);
+    const dataUrl = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+    const pageW = currentPageObj.getViewport({ scale: 1 }).width;
+    const pageH = currentPageObj.getViewport({ scale: 1 }).height;
+    const w = Math.min(pageW * 0.4, bitmap.width);
+    const h = w * (bitmap.height / bitmap.width);
+    const img = {
+      id: "img" + Date.now(),
+      dataUrl,
+      mime: file.type,
+      x: (pageW - w) / 2,
+      y: (pageH - h) / 2,
+      width: w,
+      height: h,
+    };
+    withHistory(currentPageIndex, (pe) => pe.images.push(img));
+  } catch (e) {
+    showMsg("Impossible de lire cette image.");
+  }
+});
+
+function renderImageAnnotation(img) {
+  const el = document.createElement("div");
+  el.className = "img-annotation";
+  positionOverlayEl(el, img.x, img.y, img.width, img.height);
+  const imgEl = document.createElement("img");
+  imgEl.src = img.dataUrl;
+  imgEl.draggable = false;
+  el.appendChild(imgEl);
+  const handle = document.createElement("div");
+  handle.className = "img-resize-handle";
+  el.appendChild(handle);
+
+  el.addEventListener("pointerdown", (e) => {
+    if (currentTool !== "select" || e.target === handle) return;
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const origX = img.x, origY = img.y;
+    function onMove(ev) {
+      const c1 = eventToCanvasPx({ clientX: startX, clientY: startY });
+      const c2 = eventToCanvasPx(ev);
+      const p1 = canvasPxToPdf(c1.x, c1.y);
+      const p2 = canvasPxToPdf(c2.x, c2.y);
+      positionOverlayEl(el, origX + (p2[0] - p1[0]), origY + (p2[1] - p1[1]), img.width, img.height);
+    }
+    function onUp(ev) {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      const c1 = eventToCanvasPx({ clientX: startX, clientY: startY });
+      const c2 = eventToCanvasPx(ev);
+      const p1 = canvasPxToPdf(c1.x, c1.y);
+      const p2 = canvasPxToPdf(c2.x, c2.y);
+      withHistory(currentPageIndex, (pe) => {
+        const im = pe.images.find((x) => x.id === img.id);
+        if (im) { im.x = origX + (p2[0] - p1[0]); im.y = origY + (p2[1] - p1[1]); }
+      });
+    }
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  });
+
+  handle.addEventListener("pointerdown", (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const startX = e.clientX;
+    const origW = img.width, origH = img.height, ratio = img.height / img.width;
+    function onMove(ev) {
+      const rect = pageCanvas.getBoundingClientRect();
+      const dxCss = ev.clientX - startX;
+      const dxPdf = (dxCss / rect.width) * currentPageObj.getViewport({ scale: 1 }).width;
+      const newW = Math.max(20, origW + dxPdf);
+      positionOverlayEl(el, img.x, img.y - (newW * ratio - origH), newW, newW * ratio);
+    }
+    function onUp(ev) {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      const rect = pageCanvas.getBoundingClientRect();
+      const dxCss = ev.clientX - startX;
+      const dxPdf = (dxCss / rect.width) * currentPageObj.getViewport({ scale: 1 }).width;
+      const newW = Math.max(20, origW + dxPdf);
+      withHistory(currentPageIndex, (pe) => {
+        const im = pe.images.find((x) => x.id === img.id);
+        if (im) { im.y = im.y - (newW * ratio - im.height); im.width = newW; im.height = newW * ratio; }
+      });
+    }
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  });
+
+  previewWrap.appendChild(el);
+}
+
+// ---------- Outil texte neuf ----------
+overlayCanvas.addEventListener("click", (e) => {
+  if (currentTool !== "text") return;
+  const c = eventToCanvasPx(e);
+  const p = canvasPxToPdf(c.x, c.y);
   const input = document.createElement("input");
   input.type = "text";
   input.className = "text-annotation-input";
-  input.style.left = cssX + "px";
-  input.style.top = Math.max(0, cssY - 14) + "px";
+  const cssPos = canvasPxToCssPx(c.x, c.y);
+  input.style.left = cssPos.x + "px";
+  input.style.top = (cssPos.y - 10) + "px";
   previewWrap.appendChild(input);
   input.focus();
-
-  let valide = false;
-  const commit = () => {
-    if (valide) return;
-    valide = true;
-    const texte = input.value.trim();
-    if (texte) {
-      ajouterAnnotation({ type: "text", xPx: xPx, yPx: yPx, text: texte, size: 16 });
-      redessinerOverlay();
-    }
+  function commit() {
+    const val = input.value;
     if (input.parentNode) input.parentNode.removeChild(input);
-    if (activeTextInput === input) activeTextInput = null;
-  };
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      commit();
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      valide = true; // annule sans créer d'annotation
-      if (input.parentNode) input.parentNode.removeChild(input);
-      if (activeTextInput === input) activeTextInput = null;
-    }
-  });
+    if (!val) return;
+    withHistory(currentPageIndex, (pe) => pe.annotations.push({ type: "newtext", x: p[0], y: p[1], text: val, size: 14, color: INK }));
+  }
   input.addEventListener("blur", commit);
-
-  activeTextInput = input;
-}
-
-/** Ferme le champ de saisie texte actif. Si `valider` est vrai, tente d'enregistrer sa valeur. */
-function fermerInputTexte(valider) {
-  if (!activeTextInput) return;
-  const input = activeTextInput;
-  if (!valider) {
-    // Retire simplement l'input sans déclencher son gestionnaire blur habituel deux fois
-    input.onblur = null;
-    if (input.parentNode) input.parentNode.removeChild(input);
-    activeTextInput = null;
-  } else {
-    input.blur();
-  }
-}
-
-/* ---------- Interaction pointeur sur l'overlay ---------- */
-
-overlayCanvas.addEventListener("pointerdown", (e) => {
-  if (!pdfDocJs) return;
-  fermerInputTexte(false);
-  const pos = positionSurCanevas(e);
-  dragState = {
-    tool: currentTool,
-    startX: pos.x,
-    startY: pos.y,
-    pointerId: e.pointerId,
-    points: [pos]
-  };
-  try { overlayCanvas.setPointerCapture(e.pointerId); } catch (err) { /* ignoré */ }
+  input.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); input.blur(); } if (ev.key === "Escape") { input.value = ""; input.blur(); } });
 });
 
-overlayCanvas.addEventListener("pointermove", (e) => {
-  if (!dragState) return;
-  const pos = positionSurCanevas(e);
+// ---------- Zoom ----------
+document.getElementById("zoomInBtn").addEventListener("click", () => setZoom(zoomFactor + 0.15));
+document.getElementById("zoomOutBtn").addEventListener("click", () => setZoom(zoomFactor - 0.15));
+function setZoom(z) {
+  zoomFactor = Math.max(0.5, Math.min(2.5, z));
+  updateZoomLabel();
+  if (pdfjsDoc) renderCurrentPage();
+}
+function updateZoomLabel() { document.getElementById("zoomValue").textContent = Math.round(zoomFactor * 100) + " %"; }
 
-  if (dragState.tool === "freehand") {
-    const prev = dragState.points[dragState.points.length - 1];
-    dragState.points.push(pos);
-    overlayCtx.strokeStyle = COULEUR_BLEU;
-    overlayCtx.lineWidth = 2.5;
-    overlayCtx.lineCap = "round";
-    overlayCtx.lineJoin = "round";
-    overlayCtx.beginPath();
-    overlayCtx.moveTo(prev.x, prev.y);
-    overlayCtx.lineTo(pos.x, pos.y);
-    overlayCtx.stroke();
-  } else if (dragState.tool !== "text") {
-    redessinerOverlay();
-    if (dragState.tool === "line") {
-      dessinerFormeBrute({ type: "line", x1Px: dragState.startX, y1Px: dragState.startY, x2Px: pos.x, y2Px: pos.y });
-    } else {
-      const x = Math.min(dragState.startX, pos.x);
-      const y = Math.min(dragState.startY, pos.y);
-      const w = Math.abs(pos.x - dragState.startX);
-      const h = Math.abs(pos.y - dragState.startY);
-      dessinerFormeBrute({ type: dragState.tool, xPx: x, yPx: y, wPx: w, hPx: h });
+// ---------- Recherche et remplacement ----------
+document.getElementById("searchToggleBtn").addEventListener("click", () => {
+  document.getElementById("searchBox").classList.toggle("visible");
+  document.getElementById("searchInput").focus();
+});
+let searchMatches = [];
+let searchIndex = -1;
+async function runSearch(term) {
+  searchMatches = [];
+  if (!term) { updateSearchCount(); return; }
+  const lower = term.toLowerCase();
+  for (let i = 0; i < numPages; i++) {
+    let data = pageTextCache.get(i);
+    if (!data) {
+      const page = await pdfjsDoc.getPage(i + 1);
+      const content = await page.getTextContent();
+      const blocks = groupIntoBlocks(content.items, content.styles);
+      data = { items: content.items, styles: content.styles, blocks };
+      pageTextCache.set(i, data);
     }
+    data.blocks.forEach((b) => { if (b.text.toLowerCase().includes(lower)) searchMatches.push({ pageIndex: i, blockId: b.id }); });
+  }
+  searchIndex = searchMatches.length ? 0 : -1;
+  updateSearchCount();
+  if (searchIndex >= 0) jumpToSearchMatch();
+}
+function updateSearchCount() {
+  document.getElementById("searchCount").textContent = searchMatches.length ? (searchIndex + 1) + " / " + searchMatches.length : "Aucun résultat";
+}
+async function jumpToSearchMatch() {
+  const m = searchMatches[searchIndex];
+  if (!m) return;
+  if (m.pageIndex !== currentPageIndex) await goToPage(m.pageIndex);
+}
+document.getElementById("searchInput").addEventListener("input", (e) => runSearch(e.target.value));
+document.getElementById("searchNextBtn").addEventListener("click", () => { if (searchMatches.length) { searchIndex = (searchIndex + 1) % searchMatches.length; updateSearchCount(); jumpToSearchMatch(); } });
+document.getElementById("searchPrevBtn").addEventListener("click", () => { if (searchMatches.length) { searchIndex = (searchIndex - 1 + searchMatches.length) % searchMatches.length; updateSearchCount(); jumpToSearchMatch(); } });
+document.getElementById("replaceToggleBtn").addEventListener("click", () => {
+  const input = document.getElementById("replaceInput");
+  const btn = document.getElementById("replaceAllBtn");
+  const show = input.style.display === "none";
+  input.style.display = show ? "inline-block" : "none";
+  btn.style.display = show ? "inline-block" : "none";
+});
+document.getElementById("replaceAllBtn").addEventListener("click", async () => {
+  const term = document.getElementById("searchInput").value;
+  const replacement = document.getElementById("replaceInput").value;
+  if (!term) return;
+  for (const m of searchMatches) {
+    const data = pageTextCache.get(m.pageIndex);
+    const block = data.blocks.find((b) => b.id === m.blockId);
+    if (!block) continue;
+    const edits = getPageEdits(m.pageIndex);
+    const existing = edits.textEdits.find((t) => t.blockId === block.id);
+    const currentText = existing ? existing.text : block.text;
+    const newText = currentText.replace(new RegExp(escapeRegExp(term), "gi"), replacement);
+    withHistory(m.pageIndex, (pe) => {
+      const idx = pe.textEdits.findIndex((t) => t.blockId === block.id);
+      const bgColor = existing ? existing.bgColor : sampleBackgroundColor(block);
+      const record = Object.assign({ blockId: block.id, fontSize: block.fontSize, fontFamily: block.fontFamily, bold: block.bold, italic: block.italic, color: INK, x: block.x, y: block.y, baseline: block.baseline, width: block.width, height: block.height }, existing || {}, { text: newText, bgColor });
+      if (idx >= 0) pe.textEdits[idx] = record; else pe.textEdits.push(record);
+    });
+  }
+  showMsg("Remplacement effectué dans " + searchMatches.length + " ligne(s).");
+});
+function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+// ---------- Plein écran, aide, raccourcis clavier ----------
+document.getElementById("fullscreenBtn").addEventListener("click", () => {
+  document.getElementById("editorLayout").classList.toggle("fullscreen");
+});
+document.getElementById("helpBtn").addEventListener("click", () => document.getElementById("helpModal").classList.add("visible"));
+document.getElementById("closeHelpBtn").addEventListener("click", () => document.getElementById("helpModal").classList.remove("visible"));
+document.getElementById("undoBtn").addEventListener("click", undo);
+document.getElementById("redoBtn").addEventListener("click", redo);
+
+document.addEventListener("keydown", (e) => {
+  if (activeEditArea) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA") return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
+  else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) { e.preventDefault(); redo(); }
+  else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") { e.preventDefault(); document.getElementById("searchBox").classList.add("visible"); document.getElementById("searchInput").focus(); }
+  else if (e.key === "v") setTool("select");
+  else if (e.key === "t") setTool("text");
+  else if (e.key === "i") imageInput.click();
+  else if (e.key === "?") document.getElementById("helpModal").classList.add("visible");
+  else if (e.key === "Escape") {
+    document.getElementById("helpModal").classList.remove("visible");
+    document.getElementById("editorLayout").classList.remove("fullscreen");
   }
 });
 
-function terminerGeste(e) {
-  if (!dragState) return;
-  const pos = positionSurCanevas(e);
-  try { overlayCanvas.releasePointerCapture(dragState.pointerId); } catch (err) { /* ignoré */ }
-
-  const dx = pos.x - dragState.startX;
-  const dy = pos.y - dragState.startY;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  const outil = dragState.tool;
-
-  if (outil === "text") {
-    if (distance < SEUIL_CLIC_PX) {
-      ouvrirInputTexte(dragState.startX, dragState.startY);
-    }
-  } else if (outil === "freehand") {
-    dragState.points.push(pos);
-    if (dragState.points.length >= 2) {
-      ajouterAnnotation({ type: "freehand", points: dragState.points.slice() });
-    }
-    redessinerOverlay();
-  } else if (outil === "line") {
-    if (distance >= TAILLE_MIN_FORME_PX) {
-      ajouterAnnotation({ type: "line", x1Px: dragState.startX, y1Px: dragState.startY, x2Px: pos.x, y2Px: pos.y });
-    }
-    redessinerOverlay();
-  } else {
-    const x = Math.min(dragState.startX, pos.x);
-    const y = Math.min(dragState.startY, pos.y);
-    const w = Math.abs(pos.x - dragState.startX);
-    const h = Math.abs(pos.y - dragState.startY);
-    if (w >= TAILLE_MIN_FORME_PX && h >= TAILLE_MIN_FORME_PX) {
-      ajouterAnnotation({ type: outil, xPx: x, yPx: y, wPx: w, hPx: h });
-    }
-    redessinerOverlay();
-  }
-
-  dragState = null;
-}
-overlayCanvas.addEventListener("pointerup", terminerGeste);
-overlayCanvas.addEventListener("pointercancel", terminerGeste);
-overlayCanvas.addEventListener("pointerleave", (e) => {
-  // Un dessin libre commencé puis quitté sans relâcher le pointeur est tout de même conservé
-  if (dragState && dragState.tool !== "freehand") terminerGeste(e);
-});
-
-/* ---------- Annuler le dernier élément ---------- */
-
-undoBtn.addEventListener("click", () => {
-  hideMsg();
-  fermerInputTexte(false);
-  const liste = annotationsByPage[currentPageIndex];
-  if (!liste || !liste.length) {
-    showMsg("Il n'y a aucune annotation à annuler sur cette page.");
-    return;
-  }
-  liste.pop();
-  redessinerOverlay();
-});
-
-/* ---------- Génération du PDF modifié ---------- */
-
-/** Convertit un point en pixels (espace overlay) en point PDF, selon l'échelle et la hauteur de page de l'annotation. */
-function pixelVersPdf(xPx, yPx, echelle, pageHeightPt) {
-  return {
-    x: xPx / echelle,
-    y: pageHeightPt - (yPx / echelle)
-  };
+// ---------- Polices : chargement (Liberation, sous-ensembles au moment de l'export) ----------
+const fontBytesCache = {};
+async function fetchFontBytes(family, bold, italic) {
+  const key = family + "-" + (bold ? "b" : "") + (italic ? "i" : "");
+  if (fontBytesCache[key]) return fontBytesCache[key];
+  const files = FONT_FILES[family] || FONT_FILES.sans;
+  const name = bold && italic ? files.boldItalic : bold ? files.bold : italic ? files.italic : files.regular;
+  const resp = await fetch(LIBERATION_BASE + name);
+  const bytes = new Uint8Array(await resp.arrayBuffer());
+  fontBytesCache[key] = bytes;
+  return bytes;
 }
 
-function dessinerAnnotationSurPage(page, ann, font) {
-  const echelle = ann.canvasWidthPx / ann.pageWidthPt;
-  const pageHeightPt = ann.pageHeightPt;
-  const bleu = PDFLib.rgb(0.145, 0.388, 0.922);
-  const encre = PDFLib.rgb(0.12, 0.16, 0.22);
-
-  switch (ann.type) {
-    case "text": {
-      const p = pixelVersPdf(ann.xPx, ann.yPx, echelle, pageHeightPt);
-      page.drawText(ann.text, {
-        x: p.x,
-        y: p.y,
-        size: ann.size / echelle,
-        font: font,
-        color: encre
-      });
-      break;
-    }
-    case "highlight": {
-      const w = ann.wPx / echelle;
-      const h = ann.hPx / echelle;
-      const p = pixelVersPdf(ann.xPx, ann.yPx, echelle, pageHeightPt);
-      page.drawRectangle({
-        x: p.x,
-        y: p.y - h,
-        width: w,
-        height: h,
-        color: bleu,
-        opacity: 0.35
-      });
-      break;
-    }
-    case "rect": {
-      const w = ann.wPx / echelle;
-      const h = ann.hPx / echelle;
-      const p = pixelVersPdf(ann.xPx, ann.yPx, echelle, pageHeightPt);
-      page.drawRectangle({
-        x: p.x,
-        y: p.y - h,
-        width: w,
-        height: h,
-        borderColor: bleu,
-        borderWidth: 2
-      });
-      break;
-    }
-    case "circle": {
-      const w = ann.wPx / echelle;
-      const h = ann.hPx / echelle;
-      const centrePx = { x: ann.xPx + ann.wPx / 2, y: ann.yPx + ann.hPx / 2 };
-      const centre = pixelVersPdf(centrePx.x, centrePx.y, echelle, pageHeightPt);
-      page.drawEllipse({
-        x: centre.x,
-        y: centre.y,
-        xScale: Math.abs(w / 2),
-        yScale: Math.abs(h / 2),
-        borderColor: bleu,
-        borderWidth: 2
-      });
-      break;
-    }
-    case "line": {
-      const p1 = pixelVersPdf(ann.x1Px, ann.y1Px, echelle, pageHeightPt);
-      const p2 = pixelVersPdf(ann.x2Px, ann.y2Px, echelle, pageHeightPt);
-      page.drawLine({
-        start: p1,
-        end: p2,
-        thickness: 2,
-        color: bleu
-      });
-      break;
-    }
-    case "freehand": {
-      if (!ann.points || ann.points.length < 2) return;
-      const pts = ann.points.map((pt) => pixelVersPdf(pt.x, pt.y, echelle, pageHeightPt));
-      for (let i = 0; i < pts.length - 1; i++) {
-        page.drawLine({
-          start: pts[i],
-          end: pts[i + 1],
-          thickness: 2.5,
-          color: bleu
-        });
-      }
-      break;
-    }
-  }
-}
-
+// ---------- Enregistrement final ----------
 saveBtn.addEventListener("click", async () => {
   hideMsg();
-  fermerInputTexte(false);
-
-  if (!srcBytes) {
-    showMsg("Veuillez d'abord choisir un fichier PDF.");
-    return;
-  }
-
-  const indexAvecAnnotations = Object.keys(annotationsByPage).filter(
-    (k) => annotationsByPage[k] && annotationsByPage[k].length > 0
-  );
-  if (indexAvecAnnotations.length === 0) {
-    showMsg("Ajoutez au moins une annotation avant d'enregistrer le PDF.");
-    return;
-  }
-
+  document.getElementById("result").classList.remove("visible");
   saveBtn.disabled = true;
   try {
-    setProgress(15, "Ouverture du PDF…");
-    let doc;
-    try {
-      doc = await PDFLib.PDFDocument.load(srcBytes);
-    } catch (e) {
-      hideProgress();
-      showMsg("Impossible d'ouvrir ce PDF. Il est peut-être protégé par mot de passe ou endommagé.");
-      saveBtn.disabled = false;
-      return;
+    setProgress(5, "Chargement du document…");
+    const { PDFDocument, rgb } = PDFLib;
+    const doc = await PDFDocument.load(srcBytes);
+    doc.registerFontkit(window.fontkit);
+
+    const fontObjCache = {};
+    async function getEmbeddedFont(family, bold, italic) {
+      const key = family + "-" + (bold ? "b" : "") + (italic ? "i" : "");
+      if (fontObjCache[key]) return fontObjCache[key];
+      const bytes = await fetchFontBytes(family, bold, italic);
+      const font = await doc.embedFont(bytes, { subset: true });
+      fontObjCache[key] = font;
+      return font;
     }
 
-    setProgress(35, "Préparation de la police…");
-    const font = await doc.embedFont(PDFLib.StandardFonts.Helvetica);
     const pages = doc.getPages();
+    const pageIndices = Array.from(pageEditsMap.keys()).filter((i) => {
+      const e = pageEditsMap.get(i);
+      return e.textEdits.length || e.decorations.length || e.annotations.length || e.images.length;
+    });
 
-    setProgress(55, "Ajout des annotations…");
-    for (const cle of indexAvecAnnotations) {
-      const idx = parseInt(cle, 10);
-      if (idx < 0 || idx >= pages.length) continue;
-      const page = pages[idx];
-      const liste = annotationsByPage[cle];
-      for (const ann of liste) {
-        dessinerAnnotationSurPage(page, ann, font);
+    for (let n = 0; n < pageIndices.length; n++) {
+      const pageIndex = pageIndices[n];
+      setProgress(5 + Math.round(((n + 1) / Math.max(1, pageIndices.length)) * 80), "Application des modifications, page " + (pageIndex + 1) + "…");
+      const page = pages[pageIndex];
+      const edits = getPageEdits(pageIndex);
+
+      for (const t of edits.textEdits) {
+        const bg = t.bgColor || { r: 1, g: 1, b: 1 };
+        const w = t.width || 100, h = t.height || (t.fontSize * 1.3);
+        page.drawRectangle({ x: t.x - 1, y: t.y - 1, width: w + 2, height: h + 2, color: rgb(bg.r, bg.g, bg.b) });
+        if (t.deleted || !t.text) continue;
+        const font = await getEmbeddedFont(t.fontFamily || "sans", !!t.bold, !!t.italic);
+        const color = t.color || INK;
+        wrapAndDrawText(page, font, t.text, t.x, t.baseline != null ? t.baseline : t.y, w, t.fontSize, rgb(color.r, color.g, color.b));
+      }
+
+      const textData = pageTextCache.get(pageIndex);
+      for (const deco of edits.decorations) {
+        const block = textData ? textData.blocks.find((b) => b.id === deco.blockId) : null;
+        if (!block) continue;
+        const y = deco.type === "strikethrough" ? block.baseline + block.height * 0.28 : block.baseline - block.height * 0.08;
+        page.drawLine({ start: { x: block.x, y }, end: { x: block.x + block.width, y }, thickness: 1, color: rgb(BLUE.r, BLUE.g, BLUE.b) });
+      }
+
+      for (const ann of edits.annotations) drawAnnotationOnPdfPage(page, ann, rgb);
+
+      for (const img of edits.images) {
+        const bytes = dataUrlToBytes(img.dataUrl);
+        const embedded = img.mime === "image/png" ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
+        page.drawImage(embedded, { x: img.x, y: img.y, width: img.width, height: img.height });
       }
     }
 
-    setProgress(90, "Génération du fichier…");
-    const bytes = await doc.save();
+    setProgress(90, "Génération du fichier final…");
+    const out = await doc.save();
     hideProgress();
-    offerDownload(bytes, "tchadiapdf-modifie.pdf");
-  } catch (e) {
+    hasUnsavedChanges = false;
+    offerDownload(out, "tchadiapdf-modifie.pdf");
+  } catch (err) {
     hideProgress();
-    showMsg("La modification du PDF a échoué. Réessayez avec un autre fichier.");
+    showMsg(err.message || "L'enregistrement a échoué. Réessayez avec un autre fichier.");
   } finally {
     saveBtn.disabled = false;
   }
 });
+
+function dataUrlToBytes(dataUrl) {
+  const base64 = dataUrl.split(",")[1];
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+function wrapAndDrawText(page, font, text, x, baseline, maxWidth, fontSize, color) {
+  const words = text.split(" ");
+  let line = "";
+  const lineHeight = fontSize * 1.15;
+  const linesToDraw = [];
+  for (const word of words) {
+    const candidate = line ? line + " " + word : word;
+    let widthOk = true;
+    try { widthOk = font.widthOfTextAtSize(candidate, fontSize) <= maxWidth; } catch (e) { widthOk = true; }
+    if (!widthOk && line) { linesToDraw.push(line); line = word; } else { line = candidate; }
+  }
+  if (line) linesToDraw.push(line);
+  linesToDraw.forEach((l, i) => {
+    try {
+      page.drawText(l, { x, y: baseline - i * lineHeight, size: fontSize, font, color });
+    } catch (e) { /* caractère non supporté par la police de substitution, ignore ce fragment */ }
+  });
+}
+
+function drawAnnotationOnPdfPage(page, ann, rgb) {
+  const c = ann.color || BLUE;
+  if (ann.type === "whiteout") {
+    page.drawRectangle({ x: ann.x, y: ann.y, width: ann.width, height: ann.height, color: rgb(1, 1, 1) });
+  } else if (ann.type === "highlight") {
+    page.drawRectangle({ x: ann.x, y: ann.y, width: ann.width, height: ann.height, color: rgb(c.r, c.g, c.b), opacity: 0.35 });
+  } else if (ann.type === "rect") {
+    page.drawRectangle({ x: ann.x, y: ann.y, width: ann.width, height: ann.height, borderColor: rgb(c.r, c.g, c.b), borderWidth: ann.thickness || 2 });
+  } else if (ann.type === "circle") {
+    page.drawEllipse({ x: ann.x + ann.width / 2, y: ann.y + ann.height / 2, xScale: ann.width / 2, yScale: ann.height / 2, borderColor: rgb(c.r, c.g, c.b), borderWidth: ann.thickness || 2 });
+  } else if (ann.type === "line") {
+    page.drawLine({ start: { x: ann.x1, y: ann.y1 }, end: { x: ann.x2, y: ann.y2 }, thickness: ann.thickness || 2, color: rgb(c.r, c.g, c.b) });
+  } else if (ann.type === "arrow") {
+    page.drawLine({ start: { x: ann.x1, y: ann.y1 }, end: { x: ann.x2, y: ann.y2 }, thickness: ann.thickness || 2, color: rgb(c.r, c.g, c.b) });
+    const angle = Math.atan2(ann.y2 - ann.y1, ann.x2 - ann.x1);
+    const headLen = 10;
+    const a1x = ann.x2 - headLen * Math.cos(angle - Math.PI / 7), a1y = ann.y2 - headLen * Math.sin(angle - Math.PI / 7);
+    const a2x = ann.x2 - headLen * Math.cos(angle + Math.PI / 7), a2y = ann.y2 - headLen * Math.sin(angle + Math.PI / 7);
+    page.drawLine({ start: { x: ann.x2, y: ann.y2 }, end: { x: a1x, y: a1y }, thickness: ann.thickness || 2, color: rgb(c.r, c.g, c.b) });
+    page.drawLine({ start: { x: ann.x2, y: ann.y2 }, end: { x: a2x, y: a2y }, thickness: ann.thickness || 2, color: rgb(c.r, c.g, c.b) });
+  } else if (ann.type === "freehand") {
+    for (let i = 0; i < ann.points.length - 1; i++) {
+      page.drawLine({ start: { x: ann.points[i].x, y: ann.points[i].y }, end: { x: ann.points[i + 1].x, y: ann.points[i + 1].y }, thickness: 2.5, color: rgb(c.r, c.g, c.b) });
+    }
+  } else if (ann.type === "newtext") {
+    page.drawText(ann.text, { x: ann.x, y: ann.y, size: ann.size, color: rgb((ann.color || INK).r, (ann.color || INK).g, (ann.color || INK).b) });
+  }
+}
+
+setTool("select");
