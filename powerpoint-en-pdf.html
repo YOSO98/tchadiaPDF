@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PowerPoint en PDF gratuit en ligne, convertir un PPTX en PDF : tchadiaPdf</title>
+  <meta name="description" content="Convertissez vos présentations PowerPoint (.pptx) en PDF, une page par diapositive, gratuitement. Traitement 100% local, aucun fichier envoyé sur un serveur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .file-info {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .file-info.visible { display: flex; }
+    .file-info .f-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-info .f-meta { font-size: 0.8rem; color: var(--slate); white-space: nowrap; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+
+    /* Rendu interne d'une diapositive avant rasterisation (hors écran) */
+    .slide-render {
+      background: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #1E293B;
+      overflow: hidden;
+    }
+    .slide-render .shape-box { position: absolute; box-sizing: border-box; overflow: hidden; }
+    .slide-render .shape-box p { margin: 0 0 4px; }
+    .slide-render .shape-title { font-weight: 700; }
+    .slide-render img { max-width: 100%; max-height: 100%; display: block; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>PowerPoint en PDF</h1>
+  <p class="tool-sub">Convertissez vos présentations PowerPoint (.pptx) en PDF, une page par diapositive.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un ou plusieurs fichiers PowerPoint">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+    <strong>Choisir un ou plusieurs fichiers PowerPoint</strong>
+    <span>.pptx, ou glissez-les ici, jusqu'à 20 fichiers</span>
+    <input type="file" id="fileInput" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple>
+  </div>
+
+  <div class="file-info" id="fileInfo">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn" disabled>Convertir en PDF</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion...</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Chaque diapositive devient une page du PDF, au même format (4/3 ou 16/9) que votre présentation. Le texte, sa mise en forme de base et les images sont repositionnés à partir des coordonnées du fichier PowerPoint.</p>
+    <ul>
+      <li>Bien converti : texte des titres et zones de contenu, listes à puces, images intégrées, formes simples positionnées.</li>
+      <li>Important à savoir : le texte du PDF obtenu est une image (haute résolution), il n'est donc pas sélectionnable ni cherchable. Les positions des textes dont l'emplacement est hérité du modèle de diapositive (et non fixé manuellement) sont approximées.</li>
+      <li>Peut différer : graphiques natifs, tableaux natifs PowerPoint, SmartArt, animations et transitions (ignorées, une diapositive = un instant figé), objets OLE intégrés (feuilles de calcul, autres documents). Ces éléments non pris en charge sont signalés après la conversion.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir un PowerPoint en PDF gratuitement ?</summary>
+      <p>Déposez votre fichier .pptx dans la zone ci-dessus, puis cliquez sur "Convertir en PDF". La conversion se fait entièrement dans votre navigateur, sans envoi de votre présentation sur un serveur.</p>
+    </details>
+    <details>
+      <summary>Chaque diapositive devient-elle une page du PDF ?</summary>
+      <p>Oui, chaque diapositive de votre présentation devient exactement une page du PDF final, dans le même format (4/3 ou 16/9).</p>
+    </details>
+    <details>
+      <summary>Les graphiques et tableaux natifs sont-ils convertis ?</summary>
+      <p>Les graphiques natifs PowerPoint, les tableaux natifs et les SmartArt ne sont pas restitués visuellement : un message vous indique après la conversion quelles diapositives ont été simplifiées.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir plusieurs présentations en une seule fois ?</summary>
+      <p>Oui, jusqu'à 20 fichiers .pptx à la fois. Chaque présentation est convertie en un PDF distinct, puis l'ensemble est proposé en téléchargement sous forme d'une archive ZIP.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/powerpoint-en-pdf.js"></script>
+</body>
+</html>
