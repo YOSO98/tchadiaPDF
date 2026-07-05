@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JPG en PNG gratuit en ligne, convertir des images JPG en PNG : tchadiaPdf</title>
+  <meta name="description" content="Convertissez vos images JPG en PNG gratuitement, sans installation. Traitement 100% local, aucun fichier envoyé sur un serveur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>JPG en PNG</h1>
+  <p class="tool-sub">Convertissez vos images JPG en PNG, gratuitement et sans installation.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir des images JPG">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    <strong>Choisir des images JPG</strong>
+    <span>ou glissez-les ici, jusqu'à 20 fichiers</span>
+    <input type="file" id="fileInput" accept="image/jpeg" multiple>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn" disabled>Convertir en PNG</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre image est prête.</p>
+    <a class="btn-primary" href="#">Télécharger</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Le PNG est un format sans perte : la conversion ne dégrade pas davantage l'image. Toutefois, les défauts de compression déjà présents dans le JPG d'origine (artefacts de compression) restent visibles après conversion : convertir en PNG n'améliore pas la qualité d'un JPG existant.</p>
+    <ul>
+      <li>Les dimensions de l'image sont conservées à l'identique.</li>
+      <li>Le fichier PNG obtenu est généralement plus volumineux que le JPG d'origine.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir un JPG en PNG gratuitement ?</summary>
+      <p>Déposez votre ou vos images JPG dans la zone ci-dessus puis cliquez sur « Convertir en PNG ». Le fichier est généré directement dans votre navigateur et vous pouvez le télécharger immédiatement, sans inscription ni logiciel à installer.</p>
+    </details>
+    <details>
+      <summary>Convertir un JPG en PNG améliore-t-il la qualité de l'image ?</summary>
+      <p>Non. Le PNG est un format sans perte, mais il ne peut pas restaurer les détails déjà perdus lors de la compression JPG d'origine. La conversion change le format du fichier, pas la qualité visuelle de l'image.</p>
+    </details>
+    <details>
+      <summary>Pourquoi le fichier PNG est-il plus lourd que le JPG ?</summary>
+      <p>Le PNG utilise une compression sans perte, généralement moins efficace en taille que la compression JPG, surtout pour les photographies. C'est le compromis habituel entre qualité et poids du fichier.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir plusieurs images JPG en une seule fois ?</summary>
+      <p>Oui, vous pouvez déposer jusqu'à 20 fichiers JPG simultanément. Chaque image est convertie individuellement puis toutes les images sont regroupées dans une archive ZIP à télécharger.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/jpg-en-png.js"></script>
+</body>
+</html>
