@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown en PDF gratuit en ligne, convertir un fichier .md en PDF : tchadiaPdf</title>
+  <meta name="description" content="Convertissez du texte Markdown en document PDF gratuitement, avec aperçu en direct. Collez votre texte ou importez un fichier .md. Traitement 100% local.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    @media (max-width: 720px) {
+      .editor-grid { grid-template-columns: 1fr; }
+    }
+    .editor-col h2 {
+      font-size: 0.85rem;
+      color: var(--slate);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 8px;
+    }
+    #mdInput {
+      width: 100%;
+      height: 360px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 14px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 0.85rem;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    #mdInput:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .md-preview {
+      height: 360px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 16px 18px;
+      color: var(--ink);
+      font-size: 0.92rem;
+    }
+    /* Styles par défaut du rendu Markdown (et du contenu paginé pour le PDF) */
+    .doc-content { color: var(--ink); font-size: 14px; line-height: 1.6; }
+    .doc-content h1, .doc-content h2, .doc-content h3, .doc-content h4 {
+      color: var(--blue-dark);
+      margin: 0.8em 0 0.4em;
+      line-height: 1.3;
+    }
+    .doc-content h1 { font-size: 1.6em; }
+    .doc-content h2 { font-size: 1.35em; }
+    .doc-content h3 { font-size: 1.15em; }
+    .doc-content p, .doc-content ul, .doc-content ol { margin: 0 0 0.8em; }
+    .doc-content ul, .doc-content ol { padding-left: 1.4em; }
+    .doc-content a { color: var(--blue); }
+    .doc-content code {
+      background: var(--blue-50);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+      font-size: 0.9em;
+    }
+    .doc-content pre {
+      background: var(--blue-50);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      margin: 0 0 0.8em;
+    }
+    .doc-content pre code { background: none; padding: 0; }
+    .doc-content table { border-collapse: collapse; width: 100%; margin: 0 0 0.8em; }
+    .doc-content th, .doc-content td {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      text-align: left;
+      font-size: 0.9em;
+    }
+    .doc-content th { background: var(--blue-50); color: var(--blue-dark); }
+    .doc-content blockquote {
+      border-left: 3px solid var(--blue);
+      margin: 0 0 0.8em;
+      padding: 2px 14px;
+      color: var(--slate);
+    }
+    .doc-content img { max-width: 100%; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Markdown en PDF</h1>
+  <p class="tool-sub">Collez du texte Markdown ou importez un fichier .md : aperçu en direct, export en PDF paginé.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Importer un ou plusieurs fichiers Markdown">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <strong>Importer un ou plusieurs fichiers .md</strong>
+    <span>ou glissez-les ici, jusqu'à 20 fichiers, ou saisissez le texte ci-dessous</span>
+    <input type="file" id="fileInput" accept=".md,text/markdown,text/plain" multiple>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <div class="editor-grid" id="editorGrid">
+    <div class="editor-col">
+      <h2>Texte Markdown</h2>
+      <textarea id="mdInput" placeholder="# Titre&#10;&#10;Écrivez ou collez votre Markdown ici…"></textarea>
+    </div>
+    <div class="editor-col">
+      <h2>Aperçu</h2>
+      <div class="md-preview doc-content" id="mdPreview"></div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn">Convertir en PDF</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Le PDF est généré en capturant le rendu visuel de votre Markdown, page par page au format A4 : le texte du PDF obtenu n'est donc pas sélectionnable ni cherchable, contrairement à un PDF natif. La mise en forme (titres, listes, tableaux, blocs de code, liens) suit un style sobre prédéfini, qui peut différer légèrement de l'aperçu selon les éléments très volumineux (grandes images, longs blocs de code).</p>
+    <ul>
+      <li>Chaque élément (paragraphe, titre, ligne de tableau…) reste entier sur une même page, sans coupure au milieu.</li>
+      <li>Les liens restent visibles en couleur mais ne sont pas cliquables dans le PDF final.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir un fichier Markdown en PDF gratuitement ?</summary>
+      <p>Collez votre texte dans la zone de gauche ou importez un fichier .md, vérifiez l'aperçu à droite, puis cliquez sur « Convertir en PDF ». Le document est généré directement dans votre navigateur, sans envoi sur un serveur.</p>
+    </details>
+    <details>
+      <summary>Le texte du PDF est-il sélectionnable ?</summary>
+      <p>Non. Pour garantir une mise en page fidèle avec pagination automatique, le PDF est composé d'images de chaque page plutôt que de texte natif. Le texte n'est donc pas sélectionnable ni cherchable dans le PDF final.</p>
+    </details>
+    <details>
+      <summary>Quels éléments Markdown sont pris en charge ?</summary>
+      <p>Les titres, paragraphes, listes à puces ou numérotées, tableaux, blocs de code, citations et liens sont pris en charge, avec une mise en forme sobre et lisible.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir plusieurs fichiers Markdown en une seule fois ?</summary>
+      <p>Oui, jusqu'à 20 fichiers à la fois. Chaque fichier .md devient un PDF distinct et l'ensemble est regroupé dans une archive ZIP à télécharger.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/markdown-en-pdf.js"></script>
+</body>
+</html>
