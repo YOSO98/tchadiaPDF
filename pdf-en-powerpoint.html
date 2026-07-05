@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF en PowerPoint gratuit en ligne, convertir un PDF en PPTX : tchadiaPdf</title>
+  <meta name="description" content="Transformez chaque page d'un PDF en diapositive PowerPoint (.pptx), avec le texte de la page ajouté en note. Traitement 100% local, aucun fichier envoyé sur un serveur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .file-info {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .file-info.visible { display: flex; }
+    .file-info .f-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-info .f-meta { font-size: 0.8rem; color: var(--slate); white-space: nowrap; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>PDF en PowerPoint</h1>
+  <p class="tool-sub">Transformez chaque page de votre PDF en diapositive PowerPoint (.pptx), avec le texte de la page ajouté en note.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un ou plusieurs fichiers PDF">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un ou plusieurs fichiers PDF</strong>
+    <span>ou glissez-les ici, jusqu'à 20 fichiers</span>
+    <input type="file" id="fileInput" accept="application/pdf" multiple>
+  </div>
+
+  <div class="file-info" id="fileInfo">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn" disabled>Convertir en PowerPoint</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre diaporama est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Ce que tchadiaPdf reconstruit bien : chaque page du PDF devient une diapositive avec une image fidèle en haute résolution de la page entière, et le texte de la page est ajouté dans les notes du présentateur.</p>
+    <p>Ce qui peut différer : le contenu de la diapositive est une image, pas du texte ou des formes modifiables dans PowerPoint (vous ne pourrez pas éditer un titre ou un paragraphe directement sur la diapositive). Toutes les diapositives utilisent le format de la première page du document : si votre PDF mélange des pages portrait et paysage ou des tailles différentes, les pages qui diffèrent du format de la première page peuvent apparaître légèrement déformées.</p>
+    <p>Cette conversion privilégie la fidélité visuelle de chaque page plutôt qu'une reconstruction éditable, ce qui est le compromis le plus honnête pour préserver l'apparence exacte du document d'origine.</p>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir un PDF en PowerPoint gratuitement ?</summary>
+      <p>Déposez votre PDF dans la zone ci-dessus, puis cliquez sur "Convertir en PowerPoint". Un fichier .pptx est généré directement dans votre navigateur, avec une diapositive par page.</p>
+    </details>
+    <details>
+      <summary>Le texte sera-t-il modifiable dans les diapositives ?</summary>
+      <p>Non : chaque diapositive contient une image fidèle de la page du PDF, pas du texte modifiable. Le texte de la page est toutefois disponible dans les notes du présentateur de chaque diapositive.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir plusieurs PDF en PowerPoint d'un coup ?</summary>
+      <p>Oui, vous pouvez déposer jusqu'à 20 fichiers PDF à la fois. Un fichier .pptx est généré pour chacun, puis regroupé dans une archive ZIP à télécharger.</p>
+    </details>
+    <details>
+      <summary>Mes fichiers sont-ils envoyés sur un serveur ?</summary>
+      <p>Non. Toute la conversion se fait localement dans votre navigateur avec JavaScript. Aucun fichier n'est envoyé ni stocké en ligne.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="js/common.js"></script>
+<script src="js/pdf-en-powerpoint.js"></script>
+</body>
+</html>
