@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Texte en PDF gratuit en ligne, convertir un fichier TXT en PDF : tchadiaPdf</title>
+  <meta name="description" content="Convertissez vos fichiers texte (.txt) en PDF, gratuitement. Choisissez la police et la taille. Le texte reste sélectionnable. Traitement 100% local.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .file-info {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .file-info.visible { display: flex; }
+    .file-info .f-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-info .f-meta { font-size: 0.8rem; color: var(--slate); white-space: nowrap; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Texte en PDF</h1>
+  <p class="tool-sub">Convertissez vos fichiers .txt en PDF, avec un texte réellement sélectionnable et cherchable.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un ou plusieurs fichiers texte">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+    <strong>Choisir un ou plusieurs fichiers TXT</strong>
+    <span>ou glissez-les ici, jusqu'à 20 fichiers</span>
+    <input type="file" id="fileInput" accept=".txt,text/plain" multiple>
+  </div>
+
+  <div class="file-info" id="fileInfo">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <div class="options" id="txtOptions" style="display:none">
+    <div>
+      <label>Police :</label><br>
+      <div class="seg" id="fontSeg" style="margin-top:6px">
+        <button data-f="sans" class="active">Sans serif</button>
+        <button data-f="serif">Serif</button>
+        <button data-f="mono">Monospace</button>
+      </div>
+    </div>
+    <div>
+      <label>Taille :</label><br>
+      <div class="seg" id="sizeSeg" style="margin-top:6px">
+        <button data-s="10">10 pt</button>
+        <button data-s="12" class="active">12 pt</button>
+        <button data-s="14">14 pt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn" disabled>Convertir en PDF</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion...</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Cet outil recrée votre texte directement dans le PDF, ligne par ligne : le résultat reste donc un vrai texte sélectionnable, copiable et cherchable, pas une image. C'est un avantage réel par rapport à une conversion par capture d'écran.</p>
+    <ul>
+      <li>Les sauts de ligne et les paragraphes vides de votre fichier sont respectés.</li>
+      <li>Les lignes trop longues sont automatiquement redécoupées pour tenir dans la largeur de la page A4.</li>
+      <li>Les accents français courants (é, è, à, ç, ù, â, ê, î, ô, û...) s'affichent correctement.</li>
+      <li>Aucune mise en forme n'est conservée : un fichier .txt ne contient pas de gras, d'italique ni de couleurs, donc le PDF reste en texte simple avec la police choisie.</li>
+      <li>Certains caractères Unicode rares ou peu courants (émojis, ligatures spéciales comme « œ », symboles exotiques) peuvent être remplacés par un point d'interrogation, car les polices standard intégrées au PDF ne les prennent pas en charge.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir un fichier TXT en PDF gratuitement ?</summary>
+      <p>Déposez votre fichier .txt dans la zone ci-dessus, choisissez la police et la taille souhaitées, puis cliquez sur "Convertir en PDF". Le PDF est généré directement dans votre navigateur et téléchargé sur votre appareil, sans envoi sur un serveur.</p>
+    </details>
+    <details>
+      <summary>Le texte du PDF obtenu est-il sélectionnable ?</summary>
+      <p>Oui. Contrairement à une simple photo de texte, le PDF généré contient du vrai texte : vous pouvez le sélectionner, le copier ou le rechercher avec Ctrl+F dans votre lecteur PDF.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir plusieurs fichiers texte en une seule fois ?</summary>
+      <p>Oui, vous pouvez sélectionner jusqu'à 20 fichiers .txt à la fois. Chaque fichier est converti en un PDF distinct, puis l'ensemble est proposé en téléchargement sous forme d'une archive ZIP.</p>
+    </details>
+    <details>
+      <summary>Puis-je choisir la police et la taille du texte ?</summary>
+      <p>Oui, trois familles de police (sans serif, serif, monospace) et trois tailles (10, 12 ou 14 points) sont proposées avant la conversion, pour adapter la lisibilité du PDF à vos besoins.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/texte-en-pdf.js"></script>
+</body>
+</html>
