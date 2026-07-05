@@ -148,6 +148,8 @@
     }
     .banner.visible { display: block; }
     .banner a { font-weight: 600; }
+    .banner-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .word-select-hint { margin-top: 6px; font-size: 0.8rem; color: var(--slate); }
 
     /* Aide raccourcis (modale simple) */
     .help-modal {
@@ -210,7 +212,11 @@
   </div>
 
   <div class="banner" id="scannedBanner">
-    Ce PDF ne contient pas de texte détectable (probablement un document scanné). Vous pouvez tout de même y ajouter des annotations, mais pour modifier son texte, passez-le d'abord par <a href="ocr-pdf.html">l'outil OCR</a> afin de le rendre reconnaissable.
+    <p id="scannedBannerText">Cette page semble scannée : aucun texte fiable n'y a été détecté.</p>
+    <div class="banner-actions">
+      <button type="button" class="btn-primary" id="ocrBannerBtn" style="width:auto; margin-top:0">Lancer la reconnaissance de texte (OCR)</button>
+      <button type="button" class="btn-secondary" id="dismissBannerBtn">Continuer en mode annotation seule</button>
+    </div>
   </div>
   <div class="banner" id="protectedBanner">
     Ce PDF est protégé par mot de passe et ne peut pas être modifié directement. Utilisez d'abord <a href="deverrouiller-pdf.html">Déverrouiller PDF</a>.
@@ -297,7 +303,7 @@
           <canvas id="overlayCanvas"></canvas>
           <div class="context-bar" id="contextBar"></div>
         </div>
-        <p class="editor-hint" id="toolHint">Cliquez sur un texte existant pour le modifier directement, ou choisissez un outil dans la barre de gauche.</p>
+        <p class="editor-hint" id="toolHint">Cliquez sur un mot pour le sélectionner, cliquez-glissez pour sélectionner plusieurs mots, double-cliquez pour modifier le texte de la ligne.</p>
       </div>
     </div>
 

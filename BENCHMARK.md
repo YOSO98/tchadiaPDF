@@ -43,6 +43,76 @@ d'ingénierie dédiées. Notre approche masque l'ancien texte par un rectangle
 de la couleur de fond échantillonnée : sur un fond à motif ou dégradé (rare
 pour du texte de document), le masquage sera visible.
 
+#### Correction post-lancement : granularité mot/ligne (juillet 2026)
+
+Des tests sur un document administratif réel (lettre scannée en qualité
+normale) ont révélé deux bugs bloquants dans la première version de
+l'éditeur : un clic sélectionnait toute la ligne au lieu du mot visé, et
+l'édition ne s'ouvrait pas de façon fiable (un clic réel a presque toujours
+un micro-mouvement de souris, que l'ancienne logique interprétait à tort
+comme un glissement pour déplacer la ligne, empêchant l'ouverture de la
+zone de saisie). Cause racine identifiée par reproduction Playwright avant
+correction, comme demandé.
+
+Correction apportée :
+- Modèle de texte entièrement reconstruit : caractère → mot → ligne (plus
+  seulement ligne). Chaque caractère a sa position et sa largeur, calculées
+  par répartition proportionnelle de la largeur totale connue de pdf.js
+  (mesurée via `canvas measureText`, mise à l'échelle pour correspondre
+  exactement à la largeur réelle).
+- Un clic simple sélectionne désormais le mot exact sous le curseur
+  (surbrillance bleue). Un clic-glissé sélectionne une plage de mots
+  précise. Un double-clic ouvre l'édition de la ligne avec le curseur
+  placé au caractère exact cliqué.
+- Le double-clic est désormais détecté via l'événement natif `dblclick`
+  du navigateur plutôt qu'une minuterie maison : plus fiable, et cela a
+  révélé un second bug plus subtil (voir ci-dessous).
+- **Bug additionnel trouvé et corrigé en cours de route** : reconstruire les
+  éléments DOM de survol à chaque sélection de mot empêchait le navigateur
+  de reconnaître un double-clic (les deux clics doivent viser le même
+  élément DOM pour que `dblclick` se déclenche ; les recréer entre les deux
+  clics casse la détection, y compris sur un vrai double-clic humain, pas
+  seulement dans les tests automatisés). Corrigé en séparant clairement la
+  reconstruction des zones cliquables (une fois par page affichée) du
+  redessin du canevas de sélection (à chaque interaction).
+- Validation par le nouveau texte : seul le ou les mots réellement modifiés
+  sont masqués et redessinés (par comparaison du texte avant/après, préfixe
+  et suffixe communs conservés intacts), la baseline d'origine est
+  respectée.
+- Tests de non-régression Playwright obligatoires, tous vérifiés : clic sur
+  un mot au milieu d'un paragraphe (surbrillance étroite, ~420 pixels,
+  contre ~5300 pixels pour une plage de plusieurs mots glissée) ; double-clic
+  + frappe + validation avec vérification du texte réellement présent dans
+  le PDF exporté (extraction via pdf.js, pas seulement visuelle) ; édition
+  en début, milieu et fin de ligne ; PDF sans texte détecté déclenchant le
+  bandeau de proposition d'OCR ; le tout reproduit à l'identique en viewport
+  mobile 375px.
+
+**Limites connues restantes après cette correction :**
+- Les changements de style (gras, italique, taille, couleur) via la barre
+  contextuelle s'appliquent à toute la ligne, pas seulement au mot en cours
+  d'édition : un changement de style seul (sans modification de texte)
+  redessine donc toute la ligne avec la police de substitution, perdant le
+  rendu d'origine du reste de la ligne. Modifier uniquement le texte (sans
+  toucher au style) reste, lui, minimal.
+- Insérer un mot supplémentaire au milieu d'une ligne (sans remplacer un mot
+  existant) peut chevaucher visuellement la suite du texte non modifié : il
+  n'y a pas de réagencement automatique des mots suivants (pas de mise en
+  page dynamique complète de la ligne). Remplacer un mot par un autre, en
+  revanche, fonctionne correctement quelle que soit sa position.
+- Modifier une même ligne une seconde fois recompare le nouveau texte au
+  texte détecté à l'origine (pas à la version précédemment modifiée) : la
+  zone masquée peut alors être légèrement plus large que le strict minimum
+  en cas d'éditions répétées de la même ligne.
+- La sélection de mot(s) par simple clic ou glissement est uniquement
+  visuelle pour l'instant (surbrillance) : elle ne permet pas encore de
+  supprimer ou remplacer directement la sélection au clavier sans passer
+  par le double-clic pour ouvrir l'édition de la ligne.
+- Le texte issu de l'OCR (pages scannées) répartit les caractères d'un mot
+  de façon uniforme dans son rectangle englobant plutôt que par une mesure
+  précise : suffisant pour l'édition, mais moins exact que le texte
+  vectoriel d'origine.
+
 ### Protéger / Déverrouiller / Réparer PDF
 
 | Critère | tchadiaPdf | Concurrents |
