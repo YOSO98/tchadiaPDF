@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebP en PDF gratuit en ligne, convertir des images WebP en PDF : tchadiaPdf</title>
+  <meta name="description" content="Convertissez vos images WebP en document PDF gratuitement. Choisissez l'orientation et les marges. Traitement 100% local.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>WebP en PDF</h1>
+  <p class="tool-sub">Convertissez vos images WebP en documents PDF, une page par image.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir des images WebP">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    <strong>Choisir des images WebP</strong>
+    <span>ou glissez-les ici, jusqu'à 20 fichiers</span>
+    <input type="file" id="fileInput" accept="image/webp" multiple>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <div class="options" id="pdfOptions" style="display:none">
+    <div>
+      <label>Orientation :</label><br>
+      <div class="seg" id="orientSeg" style="margin-top:6px">
+        <button data-o="auto" class="active">Auto</button>
+        <button data-o="portrait">Portrait</button>
+        <button data-o="paysage">Paysage</button>
+      </div>
+    </div>
+    <div>
+      <label>Marges :</label><br>
+      <div class="seg" id="marginSeg" style="margin-top:6px">
+        <button data-m="0" class="active">Aucune</button>
+        <button data-m="20">Petites</button>
+        <button data-m="50">Grandes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn" disabled>Convertir en PDF</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Chaque image WebP devient une page PDF distincte, centrée en conservant ses proportions d'origine. L'image est réencodée (PNG ou JPG selon la présence de transparence) lors de l'intégration au PDF : la qualité visuelle est préservée au mieux mais le fichier n'est pas une copie bit à bit du WebP original.</p>
+    <ul>
+      <li>La transparence éventuelle du WebP est conservée si votre visionneuse PDF la prend en charge.</li>
+      <li>Les images animées (WebP animé) ne sont pas prises en charge : seule la première image est utilisée.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir une image WebP en PDF gratuitement ?</summary>
+      <p>Déposez votre ou vos fichiers WebP dans la zone ci-dessus, choisissez l'orientation et les marges puis cliquez sur « Convertir en PDF ». Le document est généré directement dans votre navigateur, sans envoi sur un serveur.</p>
+    </details>
+    <details>
+      <summary>Le format WebP est-il pris en charge par tous les navigateurs ?</summary>
+      <p>Oui, les navigateurs modernes (Chrome, Edge, Firefox, Safari récents) décodent nativement le WebP. Cet outil fonctionne directement dans votre navigateur sans bibliothèque externe pour la lecture de l'image.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir plusieurs images WebP en une seule fois ?</summary>
+      <p>Oui, jusqu'à 20 fichiers à la fois. Chaque image devient un PDF distinct et l'ensemble est regroupé dans une archive ZIP à télécharger.</p>
+    </details>
+    <details>
+      <summary>Les images WebP animées sont-elles converties correctement ?</summary>
+      <p>Non, seule la première image d'un WebP animé est utilisée pour créer la page PDF : l'animation elle-même n'a pas d'équivalent dans un document PDF statique.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/webp-en-pdf.js"></script>
+</body>
+</html>
