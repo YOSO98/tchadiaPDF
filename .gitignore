@@ -21,3 +21,8 @@ desktop.ini
 # Environnement local
 .env
 .env.local
+
+# Artefacts de tests (Playwright)
+playwright-report/
+test-results/
+blob-report/

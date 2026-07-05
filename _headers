@@ -1,0 +1,52 @@
+# Configuration Cloudflare Pages (fichier lu automatiquement au deploiement).
+# Voir DEPLOY.md pour la justification detaillee de chaque choix.
+#
+# IMPORTANT : la liste des hotes CDN autorises dans Content-Security-Policy
+# ci-dessous doit etre reverifiee une fois la Phase Conversions terminee
+# (elle ajoute encore de nouveaux outils qui pourraient utiliser d'autres
+# CDN). Voir DEPLOY.md, section "CSP a reverifier".
+
+# En-tetes de securite appliques a toutes les URLs du site.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+
+# Pages HTML : jamais de cache long, le site evolue frequemment (nouveaux
+# outils, corrections). "no-cache" autorise quand meme une revalidation
+# conditionnelle rapide (304) aupres de Cloudflare plutot qu'un
+# telechargement complet a chaque visite.
+/
+  Cache-Control: no-cache
+
+/*.html
+  Cache-Control: no-cache
+
+/ar/*
+  Cache-Control: no-cache
+
+/en/*
+  Cache-Control: no-cache
+
+/es/*
+  Cache-Control: no-cache
+
+/pt/*
+  Cache-Control: no-cache
+
+# CSS, JS et WebAssembly : cache long (un an), car ces fichiers changent
+# rarement et le gain de performance est important sur un site qui charge
+# pdf.js/pdf-lib/tesseract.js sur presque toutes les pages.
+# Attention : tant que le Bloc 1 (minification + noms de fichiers avec hash
+# de contenu) n'est pas en place, un changement de contenu d'un fichier
+# .css/.js existant ne sera pas vu par les visiteurs qui l'ont deja en
+# cache local avant l'expiration d'un an. Voir DEPLOY.md.
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.wasm
+  Cache-Control: public, max-age=31536000, immutable
