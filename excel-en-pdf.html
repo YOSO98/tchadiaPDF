@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel en PDF gratuit en ligne, convertir un XLSX ou CSV en PDF : tchadiaPdf</title>
+  <meta name="description" content="Convertissez vos fichiers Excel (.xlsx) ou CSV en PDF, gratuitement. Un tableau par feuille, orientation portrait ou paysage, ajustement à la largeur. Traitement 100% local.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .file-info {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .file-info.visible { display: flex; }
+    .file-info .f-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-info .f-meta { font-size: 0.8rem; color: var(--slate); white-space: nowrap; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+    .check-option { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 600; }
+    .check-option input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--blue); }
+
+    /* Rendu interne du contenu XLSX avant rasterisation (hors écran) */
+    .xlsx-render {
+      background: #ffffff;
+      color: #1E293B;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .xlsx-render h2 { font-size: 16px; margin: 0 0 10px; color: #1E293B; }
+    .xlsx-render table { border-collapse: collapse; margin: 0 0 10px; font-size: 12px; }
+    .xlsx-render table td, .xlsx-render table th {
+      border: 1px solid #94A3B8;
+      padding: 4px 7px;
+      text-align: left;
+    }
+    .xlsx-render table th { background: #EFF6FF; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Excel en PDF</h1>
+  <p class="tool-sub">Convertissez vos classeurs Excel (.xlsx) ou vos fichiers CSV en PDF, un tableau par feuille.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un ou plusieurs fichiers Excel ou CSV">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+    <strong>Choisir un ou plusieurs fichiers Excel ou CSV</strong>
+    <span>.xlsx ou .csv, ou glissez-les ici, jusqu'à 20 fichiers</span>
+    <input type="file" id="fileInput" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" multiple>
+  </div>
+
+  <div class="file-info" id="fileInfo">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <div class="options" id="xlsOptions" style="display:none">
+    <div>
+      <label>Orientation :</label><br>
+      <div class="seg" id="orientSeg" style="margin-top:6px">
+        <button data-o="portrait" class="active">Portrait</button>
+        <button data-o="paysage">Paysage</button>
+      </div>
+    </div>
+    <div>
+      <label class="check-option"><input type="checkbox" id="fitWidthChk" checked> Ajuster à la largeur de la page</label>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn" disabled>Convertir en PDF</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion...</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Chaque feuille de votre classeur devient un tableau distinct dans le PDF, avec sa ligne d'en-tête répétée automatiquement si le tableau continue sur la page suivante.</p>
+    <ul>
+      <li>Bien converti : valeurs de cellules, texte, nombres, plusieurs feuilles, orientation portrait ou paysage.</li>
+      <li>Important à savoir : le texte du PDF obtenu est une image (haute résolution), il n'est donc pas sélectionnable ni cherchable.</li>
+      <li>L'option "Ajuster à la largeur" réduit les colonnes pour qu'un tableau large tienne sur la largeur de la page. Si vous la désactivez sur un tableau à très nombreuses colonnes, les colonnes qui dépassent la largeur de la page ne seront pas visibles : préférez alors l'orientation paysage ou réactivez l'ajustement.</li>
+      <li>Peut différer : mises en forme conditionnelles avancées, graphiques Excel, formules affichées comme du texte brut plutôt que recalculées, macros.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir un fichier Excel en PDF gratuitement ?</summary>
+      <p>Déposez votre fichier .xlsx ou .csv dans la zone ci-dessus, choisissez l'orientation et l'ajustement à la largeur, puis cliquez sur "Convertir en PDF". Tout se passe dans votre navigateur, sans envoi sur un serveur.</p>
+    </details>
+    <details>
+      <summary>Toutes les feuilles du classeur sont-elles converties ?</summary>
+      <p>Oui, chaque feuille de votre classeur Excel devient un tableau distinct dans le PDF, chacune commençant sur une nouvelle page.</p>
+    </details>
+    <details>
+      <summary>Que faire si mon tableau a trop de colonnes pour tenir sur une page ?</summary>
+      <p>Activez l'option "Ajuster à la largeur" pour réduire automatiquement la taille des colonnes, ou choisissez l'orientation paysage pour disposer de plus de largeur.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir un fichier CSV en PDF ?</summary>
+      <p>Oui, les fichiers .csv sont pris en charge exactement comme les fichiers .xlsx, avec une seule feuille de tableau.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/excel-en-pdf.js"></script>
+</body>
+</html>
