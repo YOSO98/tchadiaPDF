@@ -94,6 +94,26 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 
+/* ---------- Catégories de la page d'accueil ---------- */
+.tool-category { margin-bottom: 8px; }
+.tool-category > h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 40px 0 4px;
+}
+.tool-category:first-of-type > h2 { margin-top: 8px; }
+.tool-category > .cat-sub { color: var(--slate); margin-bottom: 20px; font-size: 0.95rem; }
+.tool-subgroup > h3 {
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--blue-dark);
+  margin: 28px 0 12px;
+}
+.tool-subgroup:first-of-type > h3 { margin-top: 4px; }
+.cat-hub-link { text-align: center; margin: 24px 0 8px; }
+.cat-hub-link a { font-weight: 600; font-size: 0.95rem; }
+
 /* ---------- Grille d'outils ---------- */
 .tools-grid {
   display: grid;
@@ -387,6 +407,76 @@ a:hover { text-decoration: underline; }
 .content-page h1 { font-size: 1.8rem; margin-bottom: 20px; letter-spacing: -0.02em; }
 .content-page h2 { font-size: 1.2rem; margin: 28px 0 10px; }
 .content-page p { color: var(--slate); margin-bottom: 12px; }
+
+/* Encadré "Fidélité de conversion" : honnêteté sur les pages de conversion */
+.fidelity-box {
+  margin-top: 28px;
+  background: var(--blue-50);
+  border: 1px solid var(--blue);
+  border-radius: var(--radius-card);
+  padding: 18px 20px;
+  font-size: 0.9rem;
+}
+.fidelity-box h3 {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  color: var(--blue-dark);
+}
+.fidelity-box ul { margin: 6px 0 0 20px; color: var(--ink); }
+.fidelity-box li { margin-bottom: 4px; }
+.fidelity-box p { color: var(--ink); margin-bottom: 6px; }
+
+/* FAQ SEO, sur chaque page de conversion */
+.faq { margin-top: 40px; }
+.faq h2 { font-size: 1.2rem; margin-bottom: 14px; }
+.faq details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.faq summary {
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::before { content: "+ "; color: var(--blue); font-weight: 700; }
+.faq details[open] summary::before { content: "\2212 "; }
+.faq details p { color: var(--slate); margin-top: 10px; }
+
+/* Bandeau d'information avec action (proposition OCR, alternative d'outil…) */
+.banner {
+  display: none;
+  margin-bottom: 20px;
+  background: var(--blue-50);
+  border: 1px solid var(--blue);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.banner.visible { display: block; }
+.banner a { font-weight: 600; }
+.banner-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.banner-actions .btn-primary, .banner-actions .btn-secondary { width: auto; margin-top: 0; }
+
+/* Matrice de conversions (page pivot conversions.html) */
+.conv-matrix { margin-top: 24px; }
+.conv-group { margin-bottom: 32px; }
+.conv-group h2 { font-size: 1.1rem; margin-bottom: 14px; }
+.conv-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.conv-links a {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  padding: 12px 14px;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+.conv-links a:hover { border-color: var(--blue); background: var(--blue-50); text-decoration: none; color: var(--blue-dark); }
 
 /* Accessibilité */
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }

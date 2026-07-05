@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPUB en PDF gratuit en ligne, convertir un livre numérique en PDF : tchadiaPdf</title>
+  <meta name="description" content="Convertissez un fichier EPUB (livre numérique) en document PDF gratuitement. Un groupe de pages par chapitre. Traitement 100% local.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>EPUB en PDF</h1>
+  <p class="tool-sub">Convertissez un livre numérique EPUB en document PDF, un groupe de pages par chapitre.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir des fichiers EPUB">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <strong>Choisir des fichiers EPUB</strong>
+    <span>ou glissez-les ici, jusqu'à 20 fichiers</span>
+    <input type="file" id="fileInput" accept=".epub,application/epub+zip" multiple>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <iframe id="renderFrame" sandbox="allow-same-origin" style="position:fixed; left:-99999px; top:0; width:800px; height:600px; border:0;" aria-hidden="true"></iframe>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn" disabled>Convertir en PDF</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Chaque chapitre du livre EPUB est capturé visuellement et transformé en une ou plusieurs pages A4, regroupées dans l'ordre du livre : un chapitre ne commence jamais au milieu d'une page utilisée par le chapitre précédent. Le texte du PDF obtenu n'est donc pas sélectionnable ni cherchable, et la mise en page est très simplifiée par rapport à une liseuse EPUB native (pas de réglage de la taille du texte, pas de réadaptation de la mise en page, notes de bas de page et éléments interactifs éventuels non conservés).</p>
+    <ul>
+      <li>Les fichiers EPUB protégés par un DRM (verrou numérique) ne peuvent pas être ouverts par cet outil.</li>
+      <li>Les images et feuilles de style intégrées au livre sont conservées ; les polices très particulières peuvent être remplacées par une police proche.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir un EPUB en PDF gratuitement ?</summary>
+      <p>Déposez votre ou vos fichiers EPUB dans la zone ci-dessus puis cliquez sur « Convertir en PDF ». Le document est généré directement dans votre navigateur, sans envoi sur un serveur.</p>
+    </details>
+    <details>
+      <summary>Le texte du PDF obtenu est-il sélectionnable ?</summary>
+      <p>Non. Chaque page du PDF est une image du rendu du chapitre correspondant : le texte n'est ni sélectionnable ni cherchable dans le PDF final.</p>
+    </details>
+    <details>
+      <summary>Les EPUB protégés par DRM sont-ils pris en charge ?</summary>
+      <p>Non. Un fichier EPUB verrouillé par un DRM (par exemple provenant de certaines librairies numériques) ne peut pas être lu par cet outil, qui fonctionne uniquement avec des fichiers EPUB non protégés.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir plusieurs fichiers EPUB en une seule fois ?</summary>
+      <p>Oui, jusqu'à 20 fichiers à la fois. Chaque EPUB devient un PDF distinct et l'ensemble est regroupé dans une archive ZIP à télécharger.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/epub-en-pdf.js"></script>
+</body>
+</html>
