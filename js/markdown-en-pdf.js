@@ -45,7 +45,10 @@ function isValidFile(file) {
 let previewTimer = null;
 function updatePreview() {
   try {
-    mdPreview.innerHTML = marked.parse(mdInput.value || "");
+    // Le Markdown fourni peut provenir d'un fichier importé (donc non fiable) : marked.parse()
+    // ne neutralise aucun HTML brut qu'il contiendrait, on assainit systématiquement avant
+    // toute insertion dans le DOM réel de la page (voir js/security-utils.js).
+    mdPreview.innerHTML = sanitizeHtmlForDisplay(marked.parse(mdInput.value || ""));
   } catch (e) {
     mdPreview.innerHTML = "<p>Aperçu indisponible.</p>";
   }
@@ -58,7 +61,7 @@ updatePreview();
 
 /* ---------- Pagination générique (Markdown, HTML, EPUB) ---------- */
 
-/** Construit un conteneur hors-écran de largeur fixe et y injecte le HTML donné. */
+/** Construit un conteneur hors-écran de largeur fixe et y injecte le HTML donné (déjà assaini). */
 function createMeasureContainer(innerHtml) {
   const container = document.createElement("div");
   container.className = "doc-content";
@@ -66,7 +69,10 @@ function createMeasureContainer(innerHtml) {
   container.style.left = "-99999px";
   container.style.top = "0";
   container.style.width = CONTENT_W_PX + "px";
-  container.innerHTML = innerHtml;
+  // Ce conteneur est bien attaché au DOM réel de la page (nécessaire pour que html2canvas
+  // puisse le rasteriser), donc le HTML doit être assaini avant d'être injecté ici : un
+  // Markdown importé peut contenir du HTML brut (marked.parse() ne neutralise rien).
+  container.innerHTML = sanitizeHtmlForDisplay(innerHtml);
   document.body.appendChild(container);
   return container;
 }

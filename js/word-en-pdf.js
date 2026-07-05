@@ -2,6 +2,9 @@
 
 const MAX_SIZE = 25 * 1024 * 1024; // 25 Mo
 const MAX_BATCH_FILES = 20;
+// Delai maximal accorde au worker d'analyse mammoth avant d'abandonner (fichier trop
+// volumineux/pathologique ou corrompu au point de faire boucler le parseur).
+const MAMMOTH_WORKER_TIMEOUT_MS = 30000;
 
 // Dimensions de rendu hors écran (96 dpi), avant rasterisation.
 const PAGE_PX_W = 794;   // A4 largeur ~ 210mm
@@ -168,9 +171,80 @@ async function renderPagesToPdf(pageDivs, onPageProgress) {
   return pdfDoc.save();
 }
 
+/**
+ * Lance mammoth.convertToHtml() dans un Web Worker dédié (js/word-en-pdf.worker.js), avec un
+ * délai maximal. C'est l'étape de traitement la plus exposée de cet outil : elle parse une
+ * archive ZIP et du XML fournis par l'utilisateur. L'isoler dans un worker évite qu'un fichier
+ * pathologique ne gèle l'onglet, et le délai maximal permet d'abandonner proprement plutôt que
+ * d'attendre indéfiniment. Repli sur un appel direct dans le thread principal si les Web
+ * Workers ne sont pas disponibles (comportement identique à avant ce changement).
+ *
+ * Remarque de couverture (voir rapport de la Phase Sécurité, Bloc 3) : cette isolation par
+ * worker n'a été mise en place que sur cet outil, à titre de preuve de faisabilité. Elle n'est
+ * PAS généralisée aux autres convertisseurs du site.
+ */
+function convertToHtmlIsolated(arrayBuffer, timeoutMs) {
+  if (typeof Worker === "undefined") {
+    return mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+  }
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    let worker;
+    try {
+      worker = new Worker("js/word-en-pdf.worker.js");
+    } catch (e) {
+      mammoth.convertToHtml({ arrayBuffer: arrayBuffer }).then(resolve, reject);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      worker.terminate();
+      reject(new Error(
+        "L'analyse de ce document a dépassé le délai maximal (" + Math.round(timeoutMs / 1000) +
+        " s). Le fichier est peut-être trop volumineux ou corrompu."
+      ));
+    }, timeoutMs);
+
+    worker.onmessage = (e) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      worker.terminate();
+      const data = e.data || {};
+      if (data.ok) {
+        resolve({ value: data.html, messages: data.warnings || [] });
+      } else {
+        reject(new Error(data.error || "Le worker d'analyse du document a échoué."));
+      }
+    };
+    worker.onerror = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      worker.terminate();
+      reject(new Error("Le worker d'analyse du document a rencontré une erreur inattendue."));
+    };
+
+    worker.postMessage({ arrayBuffer: arrayBuffer }, [arrayBuffer]);
+  });
+}
+
 /** Convertit un fichier DOCX (ArrayBuffer) en PDF. Retourne { bytes, warnings }. */
 async function convertDocxToPdf(arrayBuffer, onPageProgress) {
-  const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+  // Validation par octets magiques : un .docx est une archive ZIP contenant "word/".
+  // On informe/refuse si le contenu réel est manifestement incohérent avec l'extension,
+  // plutôt que de se fier uniquement au nom de fichier ou au type MIME du navigateur.
+  const sniffed = sniffFileType(arrayBuffer);
+  if (sniffed !== "docx" && sniffed !== "ooxml" && sniffed !== "zip") {
+    throw new Error("Ce fichier ne semble pas être un document Word (.docx) valide (contenu détecté : " + sniffed + ").");
+  }
+
+  // arrayBuffer est transféré (detaché) au worker : on en garde une copie pour la suite
+  // (pagination/rasterisation), le worker n'en a besoin que pour son propre traitement.
+  const bufferForWorker = arrayBuffer.slice(0);
+  const result = await convertToHtmlIsolated(bufferForWorker, MAMMOTH_WORKER_TIMEOUT_MS);
   const html = result.value;
   const warnings = (result.messages || []).filter((m) => m.type === "warning" || m.type === "error");
 
@@ -180,7 +254,10 @@ async function convertDocxToPdf(arrayBuffer, onPageProgress) {
   measure.style.left = "-9999px";
   measure.style.top = "0";
   measure.style.width = CONTENT_W + "px";
-  measure.innerHTML = html || "<p></p>";
+  // Ce conteneur est attaché au DOM réel de la page (html2canvas doit pouvoir le rasteriser),
+  // et le HTML vient de mammoth.convertToHtml() sur un fichier .docx potentiellement malveillant :
+  // on l'assainit systématiquement avant insertion (voir js/security-utils.js).
+  measure.innerHTML = sanitizeHtmlForDisplay(html || "<p></p>");
   document.body.appendChild(measure);
 
   let bytes;
@@ -250,7 +327,11 @@ convertBtn.addEventListener("click", async () => {
     }
   } catch (e) {
     hideProgress();
-    showMsg("Impossible de convertir ce fichier. Vérifiez qu'il s'agit bien d'un fichier .docx valide et non protégé par un mot de passe.");
+    if (e && /(contenu détecté|délai maximal)/.test(e.message || "")) {
+      showMsg(e.message);
+    } else {
+      showMsg("Impossible de convertir ce fichier. Vérifiez qu'il s'agit bien d'un fichier .docx valide et non protégé par un mot de passe.");
+    }
   } finally {
     convertBtn.disabled = !currentFile;
   }
