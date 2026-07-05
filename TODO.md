@@ -1,11 +1,168 @@
-# TODO : tchadiaPdf, Phases 3 et 4
+# TODO : tchadiaPdf
 
 Ce fichier suit l'avancement du projet. Convention : `[x]` fait, `[ ]` à faire,
 `[~]` fait avec un périmètre volontairement réduit (voir note associée).
 
-**État : Phases 3 et 4 terminées.** Les Phases 1 et 2 (18 premiers outils,
-design system, sous-agents, revue de code, tests Playwright) sont
-terminées, cf. git log. Le site compte désormais 24 outils.
+**État : Phase Conversions en cours (Groupe 3 termine ses 2 derniers outils),
+Phase 6 (Déploiement) a livré ses blocs indépendants, Phase Sécurité lancée
+en parallèle sur ses blocs indépendants. Round final d'intégration (moi-même)
+à faire une fois tout rentré : Groupe 4, Bloc 1/Bloc 2 Phase 6, Bloc 1/Bloc 2
+Phase Sécurité, corrections de style, footer global.** Les Phases 1 à 4
+(24 outils, design system, moteur WASM, éditeur PDF professionnel) sont
+terminées, cf. git log et la suite de ce fichier.
+
+---
+
+## PHASE SÉCURITÉ : durcissement de tchadiaPdf
+
+Objectif : sécuriser le site, sa chaîne de dépendances et l'expérience
+utilisateur, de façon réaliste et vérifiable, sans jamais casser les règles
+permanentes du projet.
+
+Séquencement (même logique que la Phase 6) : les blocs qui touchent
+transversalement TOUTES les pages (en-têtes CSP finaux, attribut integrity
+SRI sur chaque balise script/link CDN) ne peuvent être faits proprement
+qu'une fois l'inventaire final des pages stable, donc après la fin complète
+de la Phase Conversions (Groupe 4 inclus). Ordre retenu :
+
+**Maintenant, en parallèle (sous-agents, fichiers indépendants)** :
+- [ ] BLOC 3 : `js/security-utils.js` (détection de type par octets magiques,
+      assainisseur HTML léger, garde-fous taille/nombre de pages), audit et
+      correction des injections `innerHTML` avec du contenu non fiable
+      (mammoth/XLSX/PPTX/EPUB/Markdown affichés hors d'un cadre sandboxé),
+      validation par octets magiques sur les outils les plus exposés.
+      EN COURS (sous-agent toujours actif).
+- [x] BLOC 4 + BLOC 5 : test Playwright prouvant qu'aucune requête réseau ne
+      part avec le contenu d'un fichier utilisateur, `securite.html`,
+      `SECURITY.md`, scan de secrets (rien trouvé), `.github/dependabot.yml`,
+      étape d'audit de dépendances (`npm audit`, 0 vulnérabilité) ajoutée à
+      `ci.yml`. 9/9 tests passent.
+
+**Round final (moi-même, après la fin de la Phase Conversions)** :
+- [ ] BLOC 1 : CSP durcie (nonces/hash pour le peu de scripts inline
+      restants), HSTS preload, Permissions-Policy, COOP/COEP, test réel que
+      rien ne casse.
+- [ ] BLOC 2 : attribut `integrity`/`crossorigin` SRI sur CHAQUE balise
+      CDN de CHAQUE page (script automatisé plutôt qu'édition manuelle,
+      pour garantir la cohérence), `DEPENDENCIES.md` (versions figées,
+      licences, sources), fallback local déjà présent/à compléter pour
+      chaque librairie.
+
+---
+
+## PHASE 6 : DÉPLOIEMENT ET LANCEMENT
+
+Objectif : préparer la mise en production réelle (hébergement, sécurité,
+mesure, monétisation prête à activer, découvrabilité, santé du dépôt
+communautaire), sans jamais casser les règles permanentes du projet.
+
+Séquencement important : certains blocs dépendent de l'inventaire FINAL des
+pages du site (celui-ci n'est stable qu'une fois la Phase Conversions
+entièrement terminée, Groupe 4 inclus). Ordre retenu :
+
+**Round 1 (lancé immédiatement, en parallèle de la fin de la Phase
+Conversions, sur des fichiers indépendants)** :
+- [x] BLOC 2 complet : config Cloudflare Pages (`_headers`), DEPLOY.md,
+      workflow GitHub Actions CI, fondation d'outillage Node de développement
+      (`package.json`, `tests/` avec une vraie suite Playwright committée,
+      `scripts/check-style-rules.js`). 5/5 tests locaux, 8 violations de
+      style préexistantes détectées (voir plus bas, à corriger au round final).
+- [x] BLOC 3 complet : `js/analytics.js` (Plausible, désactivé par défaut),
+      `js/ads.js` + `js/consent-banner.js`, `ADSENSE.md`, `mentions-legales.html`
+      (placeholders d'identité légale à compléter avant mise en ligne réelle),
+      `confidentialite.html` mis à jour. CSS du bandeau de consentement fourni
+      par l'agent, à intégrer dans `css/style.css` au round final. Balises
+      `<script>` non ajoutées aux pages (fait en une seule passe au Round 2).
+- [x] BLOC 5 (préparation) + PROMOTION.md : README (badges, section aperçu
+      avec captures à ajouter), CONTRIBUTING complété, CODE_OF_CONDUCT.md,
+      templates GitHub, CHANGELOG.md, PROMOTION.md. Chiffre d'outils et
+      badge CI (statique) à corriger au Round 2.
+
+**Round 2 (après la fin complète de la Phase Conversions, fait par moi
+directement, pas par sous-agent, car nécessite l'inventaire final des
+pages et une vue d'ensemble cohérente)** :
+- [ ] BLOC 1 : fallback local pour toutes les CDN + integrity/crossorigin,
+      minification CSS/JS via build.js, audit Lighthouse sur les 10 pages
+      les plus importantes, vérification de tous les liens internes,
+      sitemap à jour (toutes pages, toutes langues).
+- [ ] BLOC 4 : Open Graph/Twitter Card sur toutes les pages, images de
+      partage, JSON-LD sur chaque outil (PROMOTION.md déjà fait au Round 1).
+- [ ] Passe finale du BLOC 5 : lien mentions-legales dans le footer de
+      toutes les pages (ancien + nouveaux outils, en une seule opération),
+      chiffres réels dans le README, captures d'écran réelles.
+- [ ] Mise à jour finale de README.md et CHANGELOG.md, commit, push.
+
+---
+
+## PHASE CONVERSIONS : tchadiaPdf, centre de conversion complet
+
+Objectif : transformer tchadiaPdf en centre de conversion de fichiers
+complet (Office, images, formats modernes), en gardant les règles
+permanentes du projet : uniquement blanc/bleu, français comme langue par
+défaut (les 4 autres langues restent celles de la page d'accueil, périmètre
+existant non étendu automatiquement à ces 19 nouvelles pages sauf mention
+contraire), aucun tiret long ou moyen (—/–) nulle part, 100% navigateur
+(aucun envoi de fichier à un serveur), tests Playwright avant de considérer
+un outil terminé, et ne rien casser des 24 outils existants.
+
+Méthode : exécution autonome, un sous-agent dédié par groupe de conversions
+(Groupes 1, 2, 3), chaque sous-agent ne créant que des fichiers nouveaux
+(une page HTML + un script JS par outil, plus ses propres scripts de test
+dans le répertoire de travail temporaire) pour éviter tout conflit d'édition
+en parallèle. L'intégration transverse (Groupe 4 : accueil, page pivot
+`conversions.html`, composants CSS partagés `.fidelity-box`/`.faq`/`.banner`)
+est faite après coup, une fois les 3 groupes livrés, pour garantir la
+cohérence finale.
+
+### Composants partagés (faits en amont, avant les sous-agents)
+
+- [x] `css/style.css` : `.fidelity-box` (encadré bleu clair "Fidélité de
+      conversion"), `.faq` (accordéon `<details>/<summary>` pour la FAQ SEO),
+      `.banner`/`.banner-actions` (bandeau d'information avec bouton
+      d'action, généralisé pour toutes les pages de conversion),
+      `.conv-matrix`/`.conv-group`/`.conv-links` (page pivot).
+
+### GROUPE 1 : Office vers PDF (terminé)
+
+- [x] word-en-pdf, excel-en-pdf, powerpoint-en-pdf, texte-en-pdf. Testés avec
+      fixtures réelles (DOCX tableau+images, XLSX 3 feuilles, PPTX 5 slides,
+      TXT). 2 bugs trouvés et corrigés en cours de route (images mammoth non
+      chargées avant pagination, faux .xlsx accepté silencieusement).
+
+### GROUPE 2 : PDF vers Office (terminé)
+
+- [x] pdf-en-word, pdf-en-excel (aperçu avant téléchargement), pdf-en-powerpoint.
+      pdf-en-texte vérifié fonctionnel, non modifié.
+
+### GROUPE 3 : Images et formats modernes (terminé, 12/12)
+
+- [x] heic-en-jpg, heic-en-pdf, webp-en-pdf, tiff-en-pdf, bmp-en-pdf,
+      png-en-jpg, jpg-en-png, svg-en-pdf, svg-en-png, markdown-en-pdf,
+      html-en-pdf (sandbox vérifié contre XSS), epub-en-pdf (bug blob:
+      images trouvé et corrigé).
+
+### GROUPE 4 : Interface et honnêteté (terminé)
+
+- [x] Nouvelle catégorie "Convertir" sur `index.html`, en 2e position,
+      sous-sections Vers PDF (13) / Depuis PDF (5) / Images (4).
+- [x] Page pivot `conversions.html` : matrice des 22 conversions + FAQ.
+- [x] Encadré "Fidélité de conversion" et FAQ SEO sur chaque page (fait par
+      chaque groupe individuellement).
+- [x] Traitement par lots (20 fichiers, ZIP) sur chaque outil de conversion.
+
+### VALIDATION (reste à faire, après la fin du Bloc 3 Sécurité en cours)
+
+- [ ] Re-tester chaque conversion après les correctifs de sécurité du Bloc 3
+      (certains fichiers ont été modifiés pour l'assainissement HTML), fichier
+      de sortie rouvert et vérifié.
+- [ ] `BENCHMARK.md` : limites réelles de chaque conversion consignées
+      honnêtement (à partir des rapports des sous-agents, déjà en main).
+- [ ] Suite de tests Playwright complète (site entier) rejouée : 0 régression.
+- [ ] Commit et push (push différé à la toute fin de la session autonome).
+
+---
+
+## Historique : Phases 1 à 4 (terminées)
 
 ## Cadrage honnête (à lire avant tout)
 
