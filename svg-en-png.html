@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG en PNG gratuit en ligne, convertir des images vectorielles en PNG : tchadiaPdf</title>
+  <meta name="description" content="Convertissez vos fichiers SVG en image PNG gratuitement. Choisissez la résolution de sortie. Traitement 100% local.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustements propres à cette page, réutilisant uniquement les variables du design system */
+    .batch-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    .batch-actions .btn-primary,
+    .batch-actions .btn-secondary { width: auto; margin-top: 0; }
+    .file-list .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+      min-width: 130px;
+      text-align: right;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>SVG en PNG</h1>
+  <p class="tool-sub">Convertissez vos images vectorielles SVG en image PNG, à la résolution de votre choix.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir des fichiers SVG">
+    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    <strong>Choisir des fichiers SVG</strong>
+    <span>ou glissez-les ici, jusqu'à 20 fichiers</span>
+    <input type="file" id="fileInput" accept="image/svg+xml,.svg" multiple>
+  </div>
+
+  <div class="file-list" id="fileList" style="display:none"></div>
+
+  <div class="options" id="pngOptions" style="display:none">
+    <div>
+      <label>Résolution :</label><br>
+      <div class="seg" id="resSeg" style="margin-top:6px">
+        <button data-r="1">Standard (1x)</button>
+        <button data-r="2" class="active">Haute (2x)</button>
+        <button data-r="4">Très haute (4x)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="convertBtn" disabled>Convertir en PNG</button>
+
+  <div class="batch-actions" id="batchActions" style="display:none">
+    <button class="btn-primary" id="startBatchBtn">Démarrer le traitement</button>
+    <button class="btn-secondary" id="pauseBatchBtn" disabled>Mettre en pause</button>
+    <button class="btn-secondary" id="cancelBatchBtn" disabled>Tout annuler</button>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Fichiers traités : 0 / 0</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Conversion…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre image est prête.</p>
+    <a class="btn-primary" href="#">Télécharger</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Fidélité de conversion</h3>
+    <p>Le SVG est vectoriel et le PNG obtenu est une image matricielle (à points) : au-delà de la résolution choisie, l'image ne pourra plus être agrandie sans perte. La taille de sortie est calculée à partir des dimensions ou du viewBox déclarés dans le fichier SVG. Les SVG faisant appel à des polices externes non intégrées ou à des scripts embarqués peuvent ne pas se rendre parfaitement à l'identique de leur affichage dans un éditeur vectoriel.</p>
+    <ul>
+      <li>Choisissez une résolution plus élevée si vous prévoyez d'agrandir ou d'imprimer l'image.</li>
+      <li>Les animations SVG éventuelles ne sont pas prises en charge : seul l'état initial est capturé.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment convertir un SVG en PNG gratuitement ?</summary>
+      <p>Déposez votre ou vos fichiers SVG dans la zone ci-dessus, choisissez la résolution puis cliquez sur « Convertir en PNG ». L'image est générée directement dans votre navigateur, sans envoi sur un serveur.</p>
+    </details>
+    <details>
+      <summary>Quelle résolution choisir pour convertir un SVG en PNG ?</summary>
+      <p>Pour un usage web classique, la résolution standard suffit. Pour l'impression ou un affichage en grand format, préférez la résolution haute ou très haute afin d'éviter tout effet de flou ou de pixellisation.</p>
+    </details>
+    <details>
+      <summary>Le PNG obtenu conserve-t-il la transparence ?</summary>
+      <p>Oui, si votre SVG a un fond transparent, le PNG généré conserve cette transparence : c'est l'un des avantages du PNG par rapport au JPG pour ce type de conversion.</p>
+    </details>
+    <details>
+      <summary>Puis-je convertir plusieurs fichiers SVG en une seule fois ?</summary>
+      <p>Oui, jusqu'à 20 fichiers à la fois. Chaque SVG est converti individuellement puis toutes les images sont regroupées dans une archive ZIP à télécharger.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/svg-en-png.js"></script>
+</body>
+</html>
