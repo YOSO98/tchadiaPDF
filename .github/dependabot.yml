@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Dependances npm (outillage de developpement : tests Playwright, serveur
+  # statique local). Le site lui-meme n'a aucune dependance npm, ces paquets
+  # ne servent qu'a la CI et au developpement local.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Actions utilisees dans les workflows GitHub Actions (.github/workflows).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
