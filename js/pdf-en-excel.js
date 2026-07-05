@@ -2,6 +2,8 @@
 
 const MAX_SIZE = 100 * 1024 * 1024; // 100 Mo
 const MAX_BATCH_FILES = 20;
+// Protection contre un PDF "bombe" (des dizaines de milliers de pages) qui gèlerait l'onglet.
+const MAX_PAGES = 3000;
 
 let srcBytes = null;
 let currentFile = null;
@@ -155,8 +157,16 @@ function sanitizeSheetName(name) {
 }
 
 async function buildWorkbookFromPdf(bytes, onProgress) {
+  const sniffed = sniffFileType(bytes);
+  if (sniffed !== "pdf") {
+    throw new Error("Ce fichier ne semble pas être un PDF valide (contenu détecté : " + sniffed + ").");
+  }
+
   const pdf = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
   const numPages = pdf.numPages;
+  const pagesLimit = enforceLimits({ pageCount: numPages, maxPages: MAX_PAGES });
+  if (!pagesLimit.ok) throw new Error(pagesLimit.message);
+
   const sheets = [];
 
   for (let p = 1; p <= numPages; p++) {
@@ -244,7 +254,24 @@ async function setupSingleFile(newFiles) {
   try {
     setProgress(10, "Lecture du fichier…");
     srcBytes = await readAsArrayBuffer(file);
+
+    const sniffed = sniffFileType(srcBytes);
+    if (sniffed !== "pdf") {
+      hideProgress();
+      srcBytes = null;
+      showMsg("Ce fichier ne semble pas être un PDF valide (contenu détecté : " + sniffed + ").");
+      return;
+    }
+
     const pdf = await pdfjsLib.getDocument({ data: srcBytes.slice(0) }).promise;
+
+    const pagesLimit = enforceLimits({ pageCount: pdf.numPages, maxPages: MAX_PAGES });
+    if (!pagesLimit.ok) {
+      hideProgress();
+      srcBytes = null;
+      showMsg(pagesLimit.message);
+      return;
+    }
 
     currentFile = file;
     fileName.textContent = file.name;

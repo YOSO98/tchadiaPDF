@@ -41,6 +41,15 @@ function isValidFile(file) {
 
 /** Convertit un fichier HEIC en Blob JPG via heic2any. */
 async function convertOneFile(file) {
+  // Validation par octets magiques (boîte ISOBMFF "ftyp" + marque heic/heix/mif1...),
+  // indépendante de l'extension ou du type MIME déclaré par le navigateur. On ne lit que les
+  // tout premiers octets du fichier pour ne pas charger un gros fichier en mémoire juste pour cela.
+  const headBytes = new Uint8Array(await file.slice(0, 64).arrayBuffer());
+  const sniffed = sniffFileType(headBytes);
+  if (sniffed !== "heic") {
+    throw new Error("Ce fichier ne semble pas être une photo HEIC/HEIF valide (contenu détecté : " + sniffed + ").");
+  }
+
   const result = await heic2any({ blob: file, toType: "image/jpeg", quality: quality });
   // heic2any peut renvoyer un tableau de blobs pour les fichiers HEIC en rafale.
   const blob = Array.isArray(result) ? result[0] : result;
@@ -94,7 +103,11 @@ convertBtn.addEventListener("click", async () => {
     offerDownload(blob, outName(singleFile.name), "image/jpeg");
   } catch (e) {
     hideProgress();
-    showMsg("La conversion a échoué. Vérifiez que le fichier est bien une photo HEIC/HEIF valide.");
+    if (e && /contenu détecté/.test(e.message || "")) {
+      showMsg(e.message);
+    } else {
+      showMsg("La conversion a échoué. Vérifiez que le fichier est bien une photo HEIC/HEIF valide.");
+    }
   } finally {
     convertBtn.disabled = !singleFile;
   }

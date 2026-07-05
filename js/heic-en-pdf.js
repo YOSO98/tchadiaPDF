@@ -47,6 +47,14 @@ bindSeg("marginSeg", (d) => { margin = parseInt(d.m, 10); });
 
 /** Convertit un fichier HEIC en JPG puis l'intègre dans un PDF d'une page. */
 async function convertOneFile(file) {
+  // Validation par octets magiques (boîte ISOBMFF "ftyp" + marque heic/heix/mif1...), voir
+  // js/heic-en-jpg.js pour la même logique. On ne lit que les tout premiers octets du fichier.
+  const headBytes = new Uint8Array(await file.slice(0, 64).arrayBuffer());
+  const sniffed = sniffFileType(headBytes);
+  if (sniffed !== "heic") {
+    throw new Error("Ce fichier ne semble pas être une photo HEIC/HEIF valide (contenu détecté : " + sniffed + ").");
+  }
+
   const result = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
   const jpgBlob = Array.isArray(result) ? result[0] : result;
   if (!jpgBlob) throw new Error("La conversion HEIC a échoué.");
@@ -117,7 +125,11 @@ convertBtn.addEventListener("click", async () => {
     offerDownload(bytes, outName(singleFile.name), "application/pdf");
   } catch (e) {
     hideProgress();
-    showMsg("La conversion a échoué. Vérifiez que le fichier est bien une photo HEIC/HEIF valide.");
+    if (e && /contenu détecté/.test(e.message || "")) {
+      showMsg(e.message);
+    } else {
+      showMsg("La conversion a échoué. Vérifiez que le fichier est bien une photo HEIC/HEIF valide.");
+    }
   } finally {
     convertBtn.disabled = !singleFile;
   }

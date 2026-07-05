@@ -3,6 +3,9 @@
 const MAX_SIZE = 100 * 1024 * 1024; // 100 Mo
 const MAX_BATCH_FILES = 20;
 const RENDER_SCALE = 2.5; // même technique de rendu que pdf-en-jpg.js
+// Limite plus basse que les autres outils PDF -> * : chaque page est rasterisée à haute
+// résolution (RENDER_SCALE) en plus de l'extraction du texte, coût par page plus élevé.
+const MAX_PAGES = 1000;
 
 let srcBytes = null;
 let currentFile = null;
@@ -33,8 +36,15 @@ function sleep(ms) {
 
 /** Construit un PPTX : une diapositive plein cadre par page (image haute résolution), texte de la page en note. */
 async function buildPptxFromPdf(bytes, onProgress) {
+  const sniffed = sniffFileType(bytes);
+  if (sniffed !== "pdf") {
+    throw new Error("Ce fichier ne semble pas être un PDF valide (contenu détecté : " + sniffed + ").");
+  }
+
   const pdf = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
   const numPages = pdf.numPages;
+  const pagesLimit = enforceLimits({ pageCount: numPages, maxPages: MAX_PAGES });
+  if (!pagesLimit.ok) throw new Error(pagesLimit.message);
 
   // Le format des diapositives est calé sur la première page (en pouces, 72 points = 1 pouce),
   // pour que l'image remplisse exactement le cadre sans déformation sur un PDF à pages homogènes.
@@ -101,7 +111,24 @@ async function setupSingleFile(newFiles) {
   try {
     setProgress(10, "Lecture du fichier…");
     srcBytes = await readAsArrayBuffer(file);
+
+    const sniffed = sniffFileType(srcBytes);
+    if (sniffed !== "pdf") {
+      hideProgress();
+      srcBytes = null;
+      showMsg("Ce fichier ne semble pas être un PDF valide (contenu détecté : " + sniffed + ").");
+      return;
+    }
+
     const pdf = await pdfjsLib.getDocument({ data: srcBytes.slice(0) }).promise;
+
+    const pagesLimit = enforceLimits({ pageCount: pdf.numPages, maxPages: MAX_PAGES });
+    if (!pagesLimit.ok) {
+      hideProgress();
+      srcBytes = null;
+      showMsg(pagesLimit.message);
+      return;
+    }
 
     currentFile = file;
     fileName.textContent = file.name;

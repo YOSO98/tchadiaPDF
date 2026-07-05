@@ -3,6 +3,9 @@
 const MAX_SIZE = 40 * 1024 * 1024; // 40 Mo
 const MAX_BATCH_FILES = 20;
 const RENDER_PX_W = 960; // largeur de rendu hors écran, avant rasterisation
+// Nombre maximal de diapositives traitées (protection contre une présentation "bombe" qui
+// gèlerait l'onglet en rasterisant des milliers de diapositives une par une).
+const MAX_SLIDES = 800;
 
 let currentFile = null;
 
@@ -34,11 +37,6 @@ function isPptxFile(file) {
     file.name.toLowerCase().endsWith(".pptx") ||
     file.type === "application/vnd.openxmlformats-officedocument.presentationml.presentation"
   );
-}
-
-function hasZipSignature(arrayBuffer) {
-  const b = new Uint8Array(arrayBuffer);
-  return b.length > 2 && b[0] === 0x50 && b[1] === 0x4b; // "PK"
 }
 
 /** Attend que toutes les images d'un conteneur soient chargées avant la rasterisation. */
@@ -237,8 +235,11 @@ function buildSlideContainer(cx, cy, shapes, imagesMap, pxPerEmu) {
 
 /** Convertit un fichier PPTX (ArrayBuffer) en PDF, une page par diapositive. */
 async function convertPptxToPdf(arrayBuffer, onProgress) {
-  if (!hasZipSignature(arrayBuffer)) {
-    throw new Error("Ce fichier ne semble pas être une présentation PowerPoint valide.");
+  // Validation par octets magiques : un .pptx est une archive ZIP contenant "ppt/". On
+  // informe/refuse si le contenu réel est manifestement incohérent avec l'extension choisie.
+  const sniffed = sniffFileType(arrayBuffer);
+  if (["pptx", "ooxml", "zip"].indexOf(sniffed) === -1) {
+    throw new Error("Ce fichier ne semble pas être une présentation PowerPoint valide (contenu détecté : " + sniffed + ").");
   }
 
   const zip = await JSZip.loadAsync(arrayBuffer);
@@ -265,6 +266,9 @@ async function convertPptxToPdf(arrayBuffer, onProgress) {
     .map((rId) => "ppt/" + relMap[rId].replace(/^\.\//, ""));
 
   if (slidePaths.length === 0) throw new Error("Aucune diapositive trouvée dans ce fichier.");
+
+  const slidesLimit = enforceLimits({ pageCount: slidePaths.length, maxPages: MAX_SLIDES });
+  if (!slidesLimit.ok) throw new Error(slidesLimit.message);
 
   const pxPerEmu = RENDER_PX_W / cx;
   const pdfW = cx / 12700;
@@ -398,7 +402,11 @@ convertBtn.addEventListener("click", async () => {
     }
   } catch (e) {
     hideProgress();
-    showMsg("Impossible de convertir ce fichier. Vérifiez qu'il s'agit bien d'un fichier .pptx valide et non protégé par un mot de passe.");
+    if (e && /(contenu détecté|dépasse la limite de \d+ pages)/.test(e.message || "")) {
+      showMsg(e.message);
+    } else {
+      showMsg("Impossible de convertir ce fichier. Vérifiez qu'il s'agit bien d'un fichier .pptx valide et non protégé par un mot de passe.");
+    }
   } finally {
     convertBtn.disabled = !currentFile;
   }

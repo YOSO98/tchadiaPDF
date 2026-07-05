@@ -3,6 +3,9 @@
 const MAX_SIZE = 25 * 1024 * 1024; // 25 Mo
 const MAX_BATCH_FILES = 20;
 const PAD_PX = 60; // marges hors écran
+// Nombre maximal de pages générées (protection contre un classeur "bombe" : des dizaines de
+// milliers de lignes produiraient autant de pages à rasteriser en html2canvas et gèleraient l'onglet).
+const MAX_PAGES = 800;
 
 let currentFile = null;
 let orientation = "portrait";
@@ -171,8 +174,12 @@ async function convertSpreadsheetToPdf(file, orient, fit, onProgress) {
     workbook = XLSX.read(text, { type: "string" });
   } else {
     const arrayBuffer = await readAsArrayBuffer(file);
-    if (!hasValidSpreadsheetSignature(arrayBuffer)) {
-      throw new Error("Ce fichier ne semble pas être un classeur Excel valide.");
+    // Validation par octets magiques : un .xlsx est une archive ZIP (idéalement avec "xl/"
+    // dans ses premières entrées), l'ancien .xls est un conteneur OLE/CFB. On informe/refuse
+    // si le contenu réel est manifestement incohérent avec l'extension choisie.
+    const sniffed = sniffFileType(arrayBuffer);
+    if (["xlsx", "ooxml", "zip", "ole"].indexOf(sniffed) === -1) {
+      throw new Error("Ce fichier ne semble pas être un classeur Excel valide (contenu détecté : " + sniffed + ").");
     }
     workbook = XLSX.read(arrayBuffer, { type: "array" });
   }
@@ -209,6 +216,14 @@ async function convertSpreadsheetToPdf(file, orient, fit, onProgress) {
     allPageDivs.push(...pageDivs);
   });
 
+  // Garde-fou avant la rasterisation (coûteuse) : un classeur avec des dizaines de milliers
+  // de lignes produirait autant de pages et pourrait geler l'onglet.
+  const pagesLimit = enforceLimits({ pageCount: allPageDivs.length, maxPages: MAX_PAGES });
+  if (!pagesLimit.ok) {
+    allPageDivs.forEach((div) => { if (div.parentNode) document.body.removeChild(div); });
+    throw new Error(pagesLimit.message);
+  }
+
   const pdfDoc = await PDFDocument.create();
   const total = allPageDivs.length;
   for (let i = 0; i < allPageDivs.length; i++) {
@@ -224,15 +239,6 @@ async function convertSpreadsheetToPdf(file, orient, fit, onProgress) {
   }
 
   return pdfDoc.save();
-}
-
-/** Vérifie la signature binaire d'un classeur (zip pour .xlsx, OLE pour l'ancien .xls). */
-function hasValidSpreadsheetSignature(arrayBuffer) {
-  const b = new Uint8Array(arrayBuffer);
-  if (b.length < 4) return false;
-  const isZip = b[0] === 0x50 && b[1] === 0x4b; // "PK"
-  const isOle = b[0] === 0xd0 && b[1] === 0xcf && b[2] === 0x11 && b[3] === 0xe0;
-  return isZip || isOle;
 }
 
 function readAsText(file) {
@@ -305,7 +311,11 @@ convertBtn.addEventListener("click", async () => {
     offerDownload(bytes, "tchadiapdf-" + baseName + ".pdf", "application/pdf");
   } catch (e) {
     hideProgress();
-    showMsg("Impossible de convertir ce fichier. Vérifiez qu'il s'agit bien d'un fichier Excel (.xlsx) ou CSV valide.");
+    if (e && /(contenu détecté|dépasse la limite de \d+ pages)/.test(e.message || "")) {
+      showMsg(e.message);
+    } else {
+      showMsg("Impossible de convertir ce fichier. Vérifiez qu'il s'agit bien d'un fichier Excel (.xlsx) ou CSV valide.");
+    }
   } finally {
     convertBtn.disabled = !currentFile;
   }

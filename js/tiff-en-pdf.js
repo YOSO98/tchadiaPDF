@@ -3,6 +3,9 @@
 const MAX_SIZE = 150 * 1024 * 1024; // 150 Mo (les TIFF sont souvent volumineux)
 const MAX_BATCH_FILES = 20;
 const A4 = { w: 595.28, h: 841.89 }; // points
+// Protection contre un TIFF multi-pages "bombe" (des milliers de frames) qui gèlerait l'onglet :
+// chaque frame est décodée puis rasterisée individuellement.
+const MAX_FRAMES = 500;
 
 let singleFile = null;
 
@@ -46,8 +49,19 @@ function ifdToPngBytesSync(ifd) {
 /** Convertit un fichier TIFF (potentiellement multi-pages) en un PDF (une page par frame). */
 async function convertOneFile(file, onFrameProgress) {
   const buffer = await readAsArrayBuffer(file);
+
+  // Validation par octets magiques ("II*\0" ou "MM\0*"), indépendante de l'extension ou du
+  // type MIME déclaré par le navigateur.
+  const sniffed = sniffFileType(buffer);
+  if (sniffed !== "tiff") {
+    throw new Error("Ce fichier ne semble pas être un TIFF valide (contenu détecté : " + sniffed + ").");
+  }
+
   const ifds = UTIF.decode(buffer);
   if (!ifds || ifds.length === 0) throw new Error("Aucune page lisible dans ce TIFF.");
+
+  const framesLimit = enforceLimits({ pageCount: ifds.length, maxPages: MAX_FRAMES });
+  if (!framesLimit.ok) throw new Error(framesLimit.message);
 
   const { PDFDocument } = PDFLib;
   const doc = await PDFDocument.create();
@@ -124,7 +138,11 @@ convertBtn.addEventListener("click", async () => {
     offerDownload(bytes, outName(singleFile.name), "application/pdf");
   } catch (e) {
     hideProgress();
-    showMsg("La conversion a échoué. Vérifiez que le fichier est bien un TIFF valide.");
+    if (e && /(contenu détecté|dépasse la limite de \d+ pages)/.test(e.message || "")) {
+      showMsg(e.message);
+    } else {
+      showMsg("La conversion a échoué. Vérifiez que le fichier est bien un TIFF valide.");
+    }
   } finally {
     convertBtn.disabled = !singleFile;
   }
