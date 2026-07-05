@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sécurité et confidentialité : tchadiaPdf</title>
+  <meta name="description" content="Comment tchadiaPdf garantit techniquement que vos fichiers ne quittent jamais votre navigateur, et quelles en sont les limites honnêtes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+<main class="content-page">
+  <h1>Sécurité et confidentialité : la preuve, pas juste la promesse</h1>
+  <p>tchadiaPdf affirme que vos fichiers ne sont jamais envoyés sur un serveur. Cette page explique, en termes simples, comment cette promesse est techniquement tenue, ce qu'elle garantit réellement, et ce qu'elle ne garantit pas.</p>
+
+  <h2>Tout se passe dans votre navigateur</h2>
+  <p>tchadiaPdf est un site 100% statique : il n'y a aucun serveur applicatif derrière les outils. Quand vous fusionnez, convertissez ou modifiez un fichier, ce traitement est entièrement effectué par du code JavaScript qui s'exécute directement sur votre ordinateur ou votre téléphone, dans l'onglet de votre navigateur. Votre fichier est lu en mémoire localement, transformé localement, puis proposé au téléchargement localement (via un lien de type <code>blob:</code>, une simple zone mémoire du navigateur). À aucun moment son contenu n'est envoyé quelque part.</p>
+
+  <h2>Une preuve technique, pas seulement une promesse</h2>
+  <p>Une affirmation de confidentialité n'a de valeur que si elle est vérifiable. C'est pourquoi le dépôt de code de tchadiaPdf contient un test automatisé (<code>tests/no-network-leak.spec.js</code>, avec le framework Playwright) qui :</p>
+  <ul>
+    <li>intercepte absolument toutes les requêtes réseau d'un outil dès l'ouverture de la page ;</li>
+    <li>lui fait traiter un fichier de test contenant un marqueur unique inséré dans son contenu ;</li>
+    <li>va jusqu'au bout du traitement, jusqu'au téléchargement du résultat ;</li>
+    <li>vérifie ensuite qu'aucune requête interceptée ne contient ce marqueur, et qu'aucune requête ne vise un domaine qui ne soit pas un CDN de librairie déjà utilisé par le site.</li>
+  </ul>
+  <p>Ce test est exécuté automatiquement à chaque modification du code (intégration continue). Si un jour un outil venait à envoyer, même par erreur, le contenu d'un fichier vers un serveur, ce test échouerait et l'alerterait avant toute mise en ligne.</p>
+
+  <h2>Les seules requêtes réseau : charger le code, pas vos fichiers</h2>
+  <p>Les outils utilisent des librairies JavaScript spécialisées (lecture et écriture de PDF, d'images, de documents Word ou Excel...) pour effectuer les conversions. Pour rester rapide et léger, le site charge ces librairies depuis des CDN (réseaux de diffusion de contenu) publics et largement utilisés par l'industrie, plutôt que de les héberger lui-même. Ces requêtes ne transportent que du code (les librairies elles-mêmes), jamais vos fichiers. Les CDN utilisés par tchadiaPdf sont :</p>
+  <ul>
+    <li><strong>cdnjs.cloudflare.com</strong> : librairies de manipulation de PDF (pdf-lib, pdf.js) et de compression (JSZip).</li>
+    <li><strong>cdn.jsdelivr.net</strong> : librairies de conversion de documents (docx, mammoth, xlsx, pptxgenjs, marked, epub.js), d'images (heic2any, UTIF, html2canvas) et de reconnaissance de texte (Tesseract.js).</li>
+    <li><strong>fonts.googleapis.com</strong> et <strong>fonts.gstatic.com</strong> : la police de caractères Inter utilisée pour l'interface du site.</li>
+  </ul>
+  <p>Ces librairies ne sont chargées qu'une fois par visite (le navigateur les met ensuite en cache), et certaines ne sont chargées qu'au moment précis où elles deviennent nécessaires (par exemple, le moteur de reconnaissance de texte ne se charge que si vous utilisez l'OCR).</p>
+
+  <h2>Le code source est public et auditable</h2>
+  <p>tchadiaPdf est un projet open source sous licence MIT. L'intégralité du code, y compris celui de chaque outil et de ce test de non-fuite réseau, est publiquement consultable sur GitHub : <a href="https://github.com/YOSO98/tchadiaPDF" target="_blank" rel="noopener noreferrer">github.com/YOSO98/tchadiaPDF</a>. N'importe qui peut lire ce code, vérifier qu'il correspond bien à ce qui est décrit ici, et signaler un problème.</p>
+
+  <h2>Ce que cela garantit, honnêtement</h2>
+  <p><strong>Ce que ça garantit :</strong> le contenu de vos fichiers (PDF, images, documents) ne quitte jamais votre appareil pendant leur traitement par un outil tchadiaPdf. C'est une garantie d'architecture (il n'existe tout simplement pas de serveur à qui envoyer ces fichiers), pas une simple politique qu'on pourrait changer discrètement, et elle est vérifiée par un test automatisé plutôt que simplement affirmée.</p>
+  <p><strong>Ce que ça ne garantit pas :</strong></p>
+  <ul>
+    <li>La sécurité de votre propre appareil ou de votre navigateur reste de votre responsabilité (mises à jour, antivirus, extensions installées, etc.). tchadiaPdf ne peut rien garantir au-delà de ce qui se passe dans l'onglet du navigateur.</li>
+    <li>Un CDN tiers compromis reste, en théorie, un risque résiduel : si un de ces CDN était piraté et se mettait à distribuer du code malveillant, ce code s'exécuterait dans votre navigateur. Ce risque est réduit par des mesures d'intégrité des sous-ressources (SRI), en cours de déploiement sur l'ensemble des outils, qui empêchent le navigateur d'exécuter un fichier de librairie dont le contenu ne correspond pas exactement à celui attendu.
+    </li>
+    <li>Un futur outil ou une future mise à jour pourrait, par erreur humaine, introduire un bug qui enverrait des données par inadvertance. C'est précisément pour se prémunir contre ce risque que le test automatisé de non-fuite réseau existe et tourne en continu, et que le code source reste ouvert à l'audit de quiconque souhaite le vérifier.</li>
+  </ul>
+  <p>Pour toute question ou tout signalement d'un comportement inattendu, voir la <a href="https://github.com/YOSO98/tchadiaPDF/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">politique de sécurité du dépôt</a> ou nous écrire à contact@tchadiapdf.com.</p>
+</main>
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="confidentialite.html">Confidentialité</a>
+    <a href="securite.html">Sécurité</a>
+    <a href="mentions-legales.html">Mentions légales</a>
+  </nav>
+  © 2026 tchadiaPdf
+</footer>
+</body>
+</html>
