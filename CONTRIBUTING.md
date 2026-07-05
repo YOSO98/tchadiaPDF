@@ -84,6 +84,48 @@ Chaque outil suit exactement la même structure que `fusionner.html` /
    - qu'aucun tiret long ou moyen n'a été introduit
    - mettez à jour `README.md` (tableau des outils) et `TODO.md`
 
+## Proposer un nouvel outil de conversion
+
+Les outils de conversion (ex. Word en PDF, HEIC en JPG) suivent les mêmes
+règles que ci-dessus, avec quelques ajouts propres à cette famille d'outils :
+
+1. **Encadré « Fidélité de conversion »** (classe `.fidelity-box` dans
+   `css/style.css`) : expliquez honnêtement ce qui est préservé et ce qui ne
+   l'est pas (mise en forme complexe, polices non standard, animations,
+   macros, etc.). N'affirmez jamais une fidélité parfaite si elle n'a pas été
+   vérifiée sur des fichiers réels.
+2. **FAQ SEO** (classe `.faq`, accordéon `<details>/<summary>`) : quelques
+   questions/réponses courtes du type « Comment convertir X en Y
+   gratuitement ? ».
+3. **Traitement par lots** : jusqu'à 20 fichiers, export ZIP, cohérent avec
+   les autres outils de conversion.
+4. **Bibliothèque côté client uniquement** : toute nouvelle dépendance doit
+   s'exécuter entièrement dans le navigateur (ex. mammoth.js, SheetJS,
+   pptxgenjs, heic2any, UTIF.js, marked.js). Aucun appel à un service de
+   conversion distant.
+5. **Ajoutez l'outil à la page pivot** `conversions.html` (matrice des
+   conversions disponibles) en plus de la carte sur `index.html`.
+6. **Testez avec un vrai fichier généré** dans le format source (par exemple
+   un DOCX contenant un tableau et une image, pas seulement un fichier
+   texte trivial), puis rouvrez le fichier converti pour vérifier son
+   contenu, pas seulement son apparence.
+
+## Lancer les tests
+
+Une suite de tests [Playwright](https://playwright.dev/) est prévue dans le
+dépôt (répertoire `tests/`, une fois `package.json` en place). Une fois ces
+fichiers présents, installez les dépendances puis lancez la suite complète :
+
+```bash
+npm install
+npx playwright test
+```
+
+Si `package.json`/`tests/` ne sont pas encore présents au moment de votre
+contribution, testez au minimum manuellement dans un navigateur (voir la
+liste de vérifications de la section précédente) et décrivez vos tests
+manuels dans votre pull request.
+
 ## Style de code
 
 - JavaScript vanille, sans framework ni bundler.
@@ -93,7 +135,14 @@ Chaque outil suit exactement la même structure que `fusionner.html` /
 
 ## Signaler un bug
 
-Ouvrez une issue en décrivant le comportement attendu, le comportement
-observé, le navigateur utilisé et si possible un fichier PDF permettant
-de reproduire le problème (en vous assurant qu'il ne contient aucune
-donnée personnelle).
+Ouvrez une issue avec le modèle « Rapport de bug » (`.github/ISSUE_TEMPLATE`)
+en décrivant le comportement attendu, le comportement observé, le
+navigateur utilisé et si possible un fichier PDF permettant de reproduire
+le problème (en vous assurant qu'il ne contient aucune donnée
+personnelle). Pour proposer une idée d'outil ou d'amélioration, utilisez le
+modèle « Suggestion de fonctionnalité ».
+
+## Code de conduite
+
+Ce projet suit un [Code de conduite](CODE_OF_CONDUCT.md) inspiré du
+Contributor Covenant. En participant, vous acceptez de le respecter.

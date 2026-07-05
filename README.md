@@ -1,10 +1,24 @@
 # tchadiaPdf
 
+[![Licence](https://img.shields.io/badge/licence-MIT-2563EB)](LICENSE)
+<!-- Nombre d'outils a verifier/mettre a jour une fois la Phase Conversions terminee -->
+[![Outils](https://img.shields.io/badge/outils-42-2563EB)](README.md#outils-disponibles)
+[![Tests](https://img.shields.io/badge/tests-Playwright-2563EB)](CONTRIBUTING.md)
+
 Boîte à outils PDF gratuite, communautaire et open source. Tout le
 traitement se fait directement dans le navigateur : aucun fichier n'est
 jamais envoyé sur un serveur.
 
 Site 100% statique (HTML/CSS/JS), sans backend, sans base de données.
+
+## Aperçu
+
+![Capture d'ecran de la page d'accueil, a ajouter](TODO-screenshot-accueil.png)
+
+![Capture d'ecran de l'editeur Modifier PDF, a ajouter](TODO-screenshot-editeur.png)
+
+*Captures d'écran à mettre à jour une fois la nouvelle catégorie « Convertir »
+stabilisée sur la page d'accueil (Phase Conversions en cours).*
 
 ## Modifier PDF : l'éditeur phare
 
@@ -64,8 +78,10 @@ tchadiapdf/
 ├── <outil>.html            Une page dédiée par outil (ex. fusionner.html)
 ├── TODO.md                 Suivi du développement
 ├── BENCHMARK.md            Comparaison honnête avec les principaux concurrents
+├── CHANGELOG.md            Historique des versions et des phases livrées
 ├── LICENSE                 Licence MIT
-└── CONTRIBUTING.md         Guide de contribution
+├── CONTRIBUTING.md         Guide de contribution
+└── CODE_OF_CONDUCT.md      Code de conduite de la communauté
 ```
 
 Chaque outil suit le même schéma : une page HTML dédiée (bonne pour le
@@ -158,7 +174,10 @@ automatiquement.
 
 Les contributions sont les bienvenues. Consultez
 [CONTRIBUTING.md](CONTRIBUTING.md) pour les règles du design system et la
-marche à suivre pour proposer un nouvel outil.
+marche à suivre pour proposer un nouvel outil. La participation à ce projet
+est régie par notre [Code de conduite](CODE_OF_CONDUCT.md). L'historique des
+versions et des phases livrées est disponible dans
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Licence
 
