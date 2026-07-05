@@ -1,4 +1,8 @@
-/* tchadiaPdf : Compresser PDF, traitement lourd dans un Web Worker dédié */
+/* tchadiaPdf : Compresser PDF, traitement lourd dans un Web Worker dédié.
+   Ce worker est réutilisé séquentiellement pour chaque fichier d'un lot :
+   chaque appel à postMessage() est indépendant, aucun état n'est conservé
+   entre deux fichiers, donc le traitement par lots peut réutiliser la même
+   instance sans risque. */
 
 importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js");
 

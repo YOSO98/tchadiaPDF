@@ -984,6 +984,21 @@ async function fetchFontBytes(family, bold, italic) {
   return bytes;
 }
 
+/** Charge fontkit (nécessaire uniquement à l'enregistrement) à la demande, une seule fois. */
+let fontkitPromise = null;
+function loadFontkit() {
+  if (window.fontkit) return Promise.resolve(window.fontkit);
+  if (fontkitPromise) return fontkitPromise;
+  fontkitPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js";
+    script.onload = () => resolve(window.fontkit);
+    script.onerror = () => reject(new Error("Impossible de charger le module de polices (problème réseau)."));
+    document.head.appendChild(script);
+  });
+  return fontkitPromise;
+}
+
 // ---------- Enregistrement final ----------
 saveBtn.addEventListener("click", async () => {
   hideMsg();
@@ -993,7 +1008,7 @@ saveBtn.addEventListener("click", async () => {
     setProgress(5, "Chargement du document…");
     const { PDFDocument, rgb } = PDFLib;
     const doc = await PDFDocument.load(srcBytes);
-    doc.registerFontkit(window.fontkit);
+    doc.registerFontkit(await loadFontkit());
 
     const fontObjCache = {};
     async function getEmbeddedFont(family, bold, italic) {

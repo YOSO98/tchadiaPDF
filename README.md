@@ -100,10 +100,24 @@ progression, message d'erreur, téléchargement du résultat).
 | Métadonnées PDF | Consulte et modifie titre, auteur, mots-clés |
 | PDF en texte | Extrait le texte, avec repli OCR si nécessaire |
 | Livret PDF | Imposition 2 pages par feuille pour impression en livret |
+| Extraire les images | Récupère toutes les images embarquées d'un PDF (ZIP) |
+
+Compresser PDF, Rogner PDF, PDF en JPG, Faire pivoter PDF, Numéros de page
+et Filigrane acceptent aussi un traitement par lots (jusqu'à 50 fichiers,
+file d'attente avec pause/reprise, export ZIP).
 
 Le détail des choix techniques et le journal des vérifications se trouvent
 dans [TODO.md](TODO.md) ; une comparaison honnête avec les principaux
 concurrents (qualité, vitesse, limites) est dans [BENCHMARK.md](BENCHMARK.md).
+
+## Langues
+
+Le site est en français par défaut. La page d'accueil est aussi disponible
+en [anglais](en/index.html), [espagnol](es/index.html),
+[portugais](pt/index.html) et [arabe](ar/index.html) (avec mise en page
+adaptée de droite à gauche). Les pages d'outils elles-mêmes restent en
+français pour le moment ; traduire un outil est une bonne première
+contribution, voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Lancer le projet en local
 

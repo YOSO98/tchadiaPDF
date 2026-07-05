@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rogner un PDF gratuit en ligne : tchadiaPdf</title>
-  <meta name="description" content="Sélectionnez une zone de recadrage sur l'aperçu de votre PDF et appliquez-la à toutes les pages, gratuitement et sans envoi sur un serveur.">
+  <meta name="description" content="Sélectionnez une zone de recadrage sur l'aperçu de votre PDF et appliquez-la à toutes les pages, gratuitement et sans envoi sur un serveur. Jusqu'à 50 fichiers à la fois.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
@@ -57,6 +57,32 @@
     .crop-actions .btn-secondary {
       width: auto;
     }
+    .file-item .f-status {
+      font-size: 0.8rem;
+      color: var(--slate);
+      white-space: nowrap;
+    }
+    .queue-controls-secondary {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .queue-controls-secondary .btn-secondary {
+      display: none;
+      flex: 1;
+      justify-content: center;
+    }
+    #globalProgress {
+      margin-top: 24px;
+    }
+    #progress {
+      margin-top: 16px;
+    }
+    @media (max-width: 480px) {
+      .file-item { flex-wrap: wrap; }
+      .file-item .f-name { flex-basis: 100%; white-space: normal; }
+    }
   </style>
 </head>
 <body>
@@ -72,12 +98,14 @@
   <h1>Rogner un PDF</h1>
   <p class="tool-sub">Dessinez une zone de recadrage sur l'aperçu, elle sera appliquée à toutes les pages du document.</p>
 
-  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir des fichiers PDF">
     <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    <strong>Choisir un fichier PDF</strong>
-    <span>ou glissez-le ici</span>
-    <input type="file" id="fileInput" accept="application/pdf">
+    <strong>Choisir des fichiers PDF</strong>
+    <span>ou glissez-les ici, jusqu'à 50 fichiers, 100 Mo maximum chacun</span>
+    <input type="file" id="fileInput" accept="application/pdf" multiple>
   </div>
+
+  <div class="file-list" id="fileList"></div>
 
   <div class="crop-preview-holder" id="cropPreviewHolder" style="display:none">
     <div>
@@ -86,6 +114,7 @@
         <div class="crop-box" id="cropBox"></div>
       </div>
       <p class="crop-hint">Cliquez et glissez sur l'aperçu pour dessiner la zone à conserver.</p>
+      <p class="crop-hint">La zone sélectionnée sur le premier fichier sera appliquée à tous les fichiers du lot, proportionnellement à leur taille.</p>
     </div>
   </div>
 
@@ -95,7 +124,18 @@
 
   <div class="msg" id="msg"></div>
 
-  <button class="btn-primary" id="cropBtn" disabled>Rogner le PDF</button>
+  <div class="queue-controls" id="queueControls">
+    <button class="btn-primary" id="cropBtn" disabled>Rogner le PDF</button>
+    <div class="queue-controls-secondary">
+      <button class="btn-secondary" id="pauseBtn" type="button">Mettre en pause</button>
+      <button class="btn-secondary" id="cancelAllBtn" type="button">Tout annuler</button>
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="globalProgress">
+    <div class="progress-label" id="globalProgressLabel">Progression globale…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
 
   <div class="progress-wrap" id="progress">
     <div class="progress-label">Traitement…</div>
@@ -103,7 +143,8 @@
   </div>
 
   <div class="result" id="result">
-    <p>Votre PDF rogné est prêt.</p>
+    <p id="resultTitle">Votre PDF rogné est prêt.</p>
+    <p id="batchSummary" style="display:none"></p>
     <a class="btn-primary" href="#">Télécharger le PDF</a>
   </div>
 
@@ -120,6 +161,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="js/common.js"></script>
 <script src="js/rogner-pdf.js"></script>
 </body>
