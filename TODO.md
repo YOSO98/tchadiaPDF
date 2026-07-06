@@ -150,15 +150,14 @@ cohérence finale.
       chaque groupe individuellement).
 - [x] Traitement par lots (20 fichiers, ZIP) sur chaque outil de conversion.
 
-### VALIDATION (reste à faire, après la fin du Bloc 3 Sécurité en cours)
+### VALIDATION (terminée)
 
-- [ ] Re-tester chaque conversion après les correctifs de sécurité du Bloc 3
-      (certains fichiers ont été modifiés pour l'assainissement HTML), fichier
-      de sortie rouvert et vérifié.
-- [ ] `BENCHMARK.md` : limites réelles de chaque conversion consignées
-      honnêtement (à partir des rapports des sous-agents, déjà en main).
-- [ ] Suite de tests Playwright complète (site entier) rejouée : 0 régression.
-- [ ] Commit et push (push différé à la toute fin de la session autonome).
+- [x] Re-testé les 22 conversions après les correctifs de sécurité du Bloc 3,
+      fichier de sortie rouvert et vérifié programmatiquement : 22/22 OK.
+- [x] `BENCHMARK.md` mis à jour avec les limites réelles de chaque groupe.
+- [x] Suite de tests Playwright committée rejouée : 9/9, 0 régression.
+- [ ] Push différé à la toute fin de la session autonome (voir dernière
+      section de ce fichier).
 
 ---
 
