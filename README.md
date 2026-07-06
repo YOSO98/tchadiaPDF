@@ -1,184 +1,163 @@
-# tchadiaPdf
+Français | [English](README.en.md)
 
-[![Licence](https://img.shields.io/badge/licence-MIT-2563EB)](LICENSE)
-<!-- Nombre d'outils a verifier/mettre a jour une fois la Phase Conversions terminee -->
-[![Outils](https://img.shields.io/badge/outils-42-2563EB)](README.md#outils-disponibles)
-[![Tests](https://img.shields.io/badge/tests-Playwright-2563EB)](CONTRIBUTING.md)
+<h1 align="center">tchadiaPdf</h1>
 
-Boîte à outils PDF gratuite, communautaire et open source. Tout le
-traitement se fait directement dans le navigateur : aucun fichier n'est
-jamais envoyé sur un serveur.
+<p align="center">Boîte à outils PDF gratuite, illimitée et open source. Vos fichiers ne quittent jamais votre navigateur.</p>
 
-Site 100% statique (HTML/CSS/JS), sans backend, sans base de données.
+<p align="center">
+  <a href="LICENSE"><img alt="Licence MIT" src="https://img.shields.io/badge/licence-MIT-2563EB"></a>
+  <a href="#les-43-outils-disponibles"><img alt="43 outils" src="https://img.shields.io/badge/outils-43-2563EB"></a>
+  <a href="https://tchadiapdf.com"><img alt="Site en ligne" src="https://img.shields.io/website?url=https%3A%2F%2Ftchadiapdf.com"></a>
+  <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-2563EB"></a>
+  <a href="#contribuer"><img alt="5 langues" src="https://img.shields.io/badge/langues-5-2563EB"></a>
+</p>
+
+<p align="center"><a href="https://tchadiapdf.com"><strong>tchadiapdf.com</strong></a></p>
+
+<p align="center"><em>Free, unlimited, open source PDF toolkit. Your files never leave your browser.</em></p>
 
 ## Aperçu
 
-![Capture d'ecran de la page d'accueil, a ajouter](TODO-screenshot-accueil.png)
+![Page d'accueil de tchadiaPdf listant les catégories d'outils Modifier, Convertir et les autres outils PDF](docs/screenshots/accueil.png)
 
-![Capture d'ecran de l'editeur Modifier PDF, a ajouter](TODO-screenshot-editeur.png)
+![L'éditeur Modifier PDF avec un PDF chargé : barre d'outils latérale, miniature de page et zone d'édition du texte existant](docs/screenshots/editeur.png)
 
-*Captures d'écran à mettre à jour une fois la nouvelle catégorie « Convertir »
-stabilisée sur la page d'accueil (Phase Conversions en cours).*
+*Capture de l'éditeur prise dans son état actuel. Une refonte de l'interface (zones éditables affichées en pointillés, panneau de styles latéral) est en cours dans une branche séparée et sera reflétée ici une fois livrée.*
 
-## Modifier PDF : l'éditeur phare
+## Pourquoi tchadiaPdf
 
-L'outil [Modifier PDF](modifier-pdf.html) est le plus abouti du site : il
-permet de modifier le **texte déjà présent** dans un PDF (pas seulement
-d'ajouter des annotations par-dessus), ce que la plupart des concurrents
-réservent à leurs offres payantes.
+- **Gratuit sans limite** : pas de compte à créer, pas de quota journalier, aucune fonctionnalité réservée à une offre payante.
+- **100% privé** : tout le traitement a lieu dans l'onglet de votre navigateur, aucun fichier n'est envoyé sur un serveur. L'absence de trafic réseau est vérifiée par un test automatisé qui intercepte toutes les requêtes pendant une conversion réelle : [tests/no-network-leak.spec.js](tests/no-network-leak.spec.js).
+- **Open source** : code auditable sous licence MIT, contributions bienvenues.
 
-- Détection des blocs de texte existants (via pdf.js), édition directe au clic
-- Masquage de l'ancien texte par échantillonnage réel de la couleur de fond
-- Correspondance de police (serif / sans-serif / monospace, gras, italique)
-  avec les polices libres Liberation Sans/Serif/Mono (SIL OFL, métriques
-  compatibles Arial/Times New Roman/Courier New), embarquées en sous-ensembles
-- Retour à la ligne automatique si le texte modifié est plus long
-- Ajout de texte neuf, d'images, de formes (rectangle, cercle, flèche, trait),
-  masquage, surlignage, souligné, barré
-- Historique annuler/rétablir illimité, recherche et remplacement dans tout
-  le document, zoom, vignettes de navigation, plein écran
+## Les 43 outils disponibles
 
-Limite assumée : la correspondance de police est une substitution visuelle
-proche, pas un clone au pixel près de la police d'origine (un problème non
-résolu même par les éditeurs commerciaux pour du texte en police non
-standard).
+### Modifier
 
-## Confidentialité par construction
-
-tchadiaPdf s'appuie uniquement sur des bibliothèques qui s'exécutent
-côté client, ou sur des fichiers statiques servis par un CDN :
-
-- [pdf-lib](https://pdf-lib.js.org/) pour créer et modifier des documents PDF
-- [pdf.js](https://mozilla.github.io/pdf.js/) pour lire et afficher les PDF
-- [qpdf](https://qpdf.readthedocs.io/) compilé en WebAssembly ([qpdf-wasm](https://github.com/neslinesli93/qpdf-wasm)) pour le chiffrement AES-256 et la réparation de PDF
-- [Tesseract.js](https://tesseract.projectnaptha.com/) pour la reconnaissance de texte (OCR)
-- [JSZip](https://stuk.github.io/jszip/) pour regrouper des fichiers en une archive ZIP
-- [Liberation Fonts](https://github.com/liberationfonts/liberation-fonts) (SIL OFL) + [fontkit](https://github.com/Hopding/fontkit) pour la correspondance de police dans l'éditeur
-
-Aucune de ces bibliothèques ne communique avec un serveur pour traiter vos
-fichiers : tout se passe dans l'onglet de votre navigateur. Les modules les
-plus volumineux (qpdf, polices) ne sont téléchargés qu'au moment où vous
-utilisez réellement la fonctionnalité correspondante (chargement paresseux).
-
-## Structure du projet
-
-```
-tchadiapdf/
-├── index.html              Page d'accueil, liste des outils
-├── a-propos.html           Page « À propos »
-├── confidentialite.html    Politique de confidentialité
-├── css/
-│   └── style.css           Design system unique (blanc + bleu)
-├── js/
-│   ├── common.js           Utilitaires partagés (dropzone, progression, téléchargement…)
-│   ├── pdf-crypt.js        Chiffrement PDF RC4 128 bits (repli si qpdf-wasm indisponible)
-│   ├── qpdf-engine.js       Chargement paresseux de qpdf (WebAssembly)
-│   ├── compresser-pdf.worker.js   Web Worker dédié à la recompression d'images
-│   └── <outil>.js          Un fichier JS par outil
-├── <outil>.html            Une page dédiée par outil (ex. fusionner.html)
-├── TODO.md                 Suivi du développement
-├── BENCHMARK.md            Comparaison honnête avec les principaux concurrents
-├── CHANGELOG.md            Historique des versions et des phases livrées
-├── LICENSE                 Licence MIT
-├── CONTRIBUTING.md         Guide de contribution
-└── CODE_OF_CONDUCT.md      Code de conduite de la communauté
-```
-
-Chaque outil suit le même schéma : une page HTML dédiée (bonne pour le
-référencement) et un fichier JavaScript associé, qui réutilise les
-fonctions communes de `js/common.js` (zone de glisser-déposer, barre de
-progression, message d'erreur, téléchargement du résultat).
-
-## Outils disponibles
-
-| Outil | Description |
+| Outil | Lien |
 |---|---|
-| Modifier PDF | Modifie le texte existant, ajoute texte/images/formes/annotations |
-| Fusionner PDF | Combine plusieurs PDF en un seul document |
-| Compresser PDF | Réduit la taille en recompressant les images embarquées |
-| Diviser PDF | Extrait les pages choisies dans un nouveau PDF |
-| JPG en PDF | Convertit des images JPG/PNG en document PDF |
-| PDF en JPG | Exporte chaque page en image JPG (archive ZIP) |
-| Faire pivoter PDF | Tourne toutes les pages de 90, 180 ou 270 degrés |
-| Organiser PDF | Réordonne, supprime ou duplique des pages par glisser-déposer |
-| Numéros de page | Ajoute une numérotation personnalisable |
-| Filigrane | Ajoute un filigrane texte ou image sur toutes les pages |
-| Rogner PDF | Recadre toutes les pages sur une zone choisie |
-| Protéger PDF | Chiffrement AES-256 réel par mot de passe (qpdf) |
-| Réparer PDF | Reconstruit la structure d'un PDF endommagé (qpdf) |
-| Déverrouiller PDF | Supprime la protection par mot de passe (qpdf) |
-| Signer PDF | Dessine et place une signature manuscrite |
-| OCR PDF | Rend un PDF scanné recherchable (français et anglais) |
-| Formulaires PDF | Détecte et remplit les champs de formulaire existants |
-| Comparer PDF | Affiche deux PDF côte à côte avec leurs différences |
-| Scanner un document | Transforme une photo en PDF avec correction de perspective |
-| Aplatir PDF | Fige les champs de formulaire dans la page |
-| Métadonnées PDF | Consulte et modifie titre, auteur, mots-clés |
-| PDF en texte | Extrait le texte, avec repli OCR si nécessaire |
-| Livret PDF | Imposition 2 pages par feuille pour impression en livret |
-| Extraire les images | Récupère toutes les images embarquées d'un PDF (ZIP) |
+| Modifier PDF | [tchadiapdf.com/modifier-pdf.html](https://tchadiapdf.com/modifier-pdf.html) |
 
-Compresser PDF, Rogner PDF, PDF en JPG, Faire pivoter PDF, Numéros de page
-et Filigrane acceptent aussi un traitement par lots (jusqu'à 50 fichiers,
-file d'attente avec pause/reprise, export ZIP).
+### Convertir
 
-Le détail des choix techniques et le journal des vérifications se trouvent
-dans [TODO.md](TODO.md) ; une comparaison honnête avec les principaux
-concurrents (qualité, vitesse, limites) est dans [BENCHMARK.md](BENCHMARK.md).
+**Vers PDF**
 
-## Langues
+| Outil | Lien |
+|---|---|
+| JPG en PDF | [tchadiapdf.com/jpg-en-pdf.html](https://tchadiapdf.com/jpg-en-pdf.html) |
+| Word en PDF | [tchadiapdf.com/word-en-pdf.html](https://tchadiapdf.com/word-en-pdf.html) |
+| Excel en PDF | [tchadiapdf.com/excel-en-pdf.html](https://tchadiapdf.com/excel-en-pdf.html) |
+| PowerPoint en PDF | [tchadiapdf.com/powerpoint-en-pdf.html](https://tchadiapdf.com/powerpoint-en-pdf.html) |
+| Texte en PDF | [tchadiapdf.com/texte-en-pdf.html](https://tchadiapdf.com/texte-en-pdf.html) |
+| HEIC en PDF | [tchadiapdf.com/heic-en-pdf.html](https://tchadiapdf.com/heic-en-pdf.html) |
+| WebP en PDF | [tchadiapdf.com/webp-en-pdf.html](https://tchadiapdf.com/webp-en-pdf.html) |
+| TIFF en PDF | [tchadiapdf.com/tiff-en-pdf.html](https://tchadiapdf.com/tiff-en-pdf.html) |
+| BMP en PDF | [tchadiapdf.com/bmp-en-pdf.html](https://tchadiapdf.com/bmp-en-pdf.html) |
+| SVG en PDF | [tchadiapdf.com/svg-en-pdf.html](https://tchadiapdf.com/svg-en-pdf.html) |
+| Markdown en PDF | [tchadiapdf.com/markdown-en-pdf.html](https://tchadiapdf.com/markdown-en-pdf.html) |
+| HTML en PDF | [tchadiapdf.com/html-en-pdf.html](https://tchadiapdf.com/html-en-pdf.html) |
+| EPUB en PDF | [tchadiapdf.com/epub-en-pdf.html](https://tchadiapdf.com/epub-en-pdf.html) |
 
-Le site est en français par défaut. La page d'accueil est aussi disponible
-en [anglais](en/index.html), [espagnol](es/index.html),
-[portugais](pt/index.html) et [arabe](ar/index.html) (avec mise en page
-adaptée de droite à gauche). Les pages d'outils elles-mêmes restent en
-français pour le moment ; traduire un outil est une bonne première
-contribution, voir [CONTRIBUTING.md](CONTRIBUTING.md).
+**Depuis PDF**
 
-## Lancer le projet en local
+| Outil | Lien |
+|---|---|
+| PDF en JPG | [tchadiapdf.com/pdf-en-jpg.html](https://tchadiapdf.com/pdf-en-jpg.html) |
+| PDF en Word | [tchadiapdf.com/pdf-en-word.html](https://tchadiapdf.com/pdf-en-word.html) |
+| PDF en Excel | [tchadiapdf.com/pdf-en-excel.html](https://tchadiapdf.com/pdf-en-excel.html) |
+| PDF en PowerPoint | [tchadiapdf.com/pdf-en-powerpoint.html](https://tchadiapdf.com/pdf-en-powerpoint.html) |
+| PDF en texte | [tchadiapdf.com/pdf-en-texte.html](https://tchadiapdf.com/pdf-en-texte.html) |
 
-Le site est statique, aucune installation n'est nécessaire. Un simple
-serveur HTTP local suffit (nécessaire pour que les Web Workers et les
-imports fonctionnent correctement, un simple double-clic sur les fichiers
-ne suffit pas).
+**Images**
 
-Avec Python :
+| Outil | Lien |
+|---|---|
+| HEIC en JPG | [tchadiapdf.com/heic-en-jpg.html](https://tchadiapdf.com/heic-en-jpg.html) |
+| PNG en JPG | [tchadiapdf.com/png-en-jpg.html](https://tchadiapdf.com/png-en-jpg.html) |
+| JPG en PNG | [tchadiapdf.com/jpg-en-png.html](https://tchadiapdf.com/jpg-en-png.html) |
+| SVG en PNG | [tchadiapdf.com/svg-en-png.html](https://tchadiapdf.com/svg-en-png.html) |
+
+### Tous les autres outils
+
+| Outil | Lien |
+|---|---|
+| Fusionner PDF | [tchadiapdf.com/fusionner.html](https://tchadiapdf.com/fusionner.html) |
+| Compresser PDF | [tchadiapdf.com/compresser-pdf.html](https://tchadiapdf.com/compresser-pdf.html) |
+| Diviser PDF | [tchadiapdf.com/diviser.html](https://tchadiapdf.com/diviser.html) |
+| Faire pivoter PDF | [tchadiapdf.com/pivoter.html](https://tchadiapdf.com/pivoter.html) |
+| Organiser PDF | [tchadiapdf.com/organiser-pdf.html](https://tchadiapdf.com/organiser-pdf.html) |
+| Numéros de page | [tchadiapdf.com/numeros-de-pages.html](https://tchadiapdf.com/numeros-de-pages.html) |
+| Filigrane | [tchadiapdf.com/filigrane.html](https://tchadiapdf.com/filigrane.html) |
+| Rogner PDF | [tchadiapdf.com/rogner-pdf.html](https://tchadiapdf.com/rogner-pdf.html) |
+| Protéger PDF | [tchadiapdf.com/proteger-pdf.html](https://tchadiapdf.com/proteger-pdf.html) |
+| Réparer PDF | [tchadiapdf.com/reparer-pdf.html](https://tchadiapdf.com/reparer-pdf.html) |
+| Déverrouiller PDF | [tchadiapdf.com/deverrouiller-pdf.html](https://tchadiapdf.com/deverrouiller-pdf.html) |
+| Signer PDF | [tchadiapdf.com/signer-pdf.html](https://tchadiapdf.com/signer-pdf.html) |
+| OCR PDF | [tchadiapdf.com/ocr-pdf.html](https://tchadiapdf.com/ocr-pdf.html) |
+| Formulaires PDF | [tchadiapdf.com/formulaires-pdf.html](https://tchadiapdf.com/formulaires-pdf.html) |
+| Comparer PDF | [tchadiapdf.com/comparer-pdf.html](https://tchadiapdf.com/comparer-pdf.html) |
+| Scanner un document | [tchadiapdf.com/scanner-pdf.html](https://tchadiapdf.com/scanner-pdf.html) |
+| Aplatir PDF | [tchadiapdf.com/aplatir-pdf.html](https://tchadiapdf.com/aplatir-pdf.html) |
+| Métadonnées PDF | [tchadiapdf.com/metadonnees-pdf.html](https://tchadiapdf.com/metadonnees-pdf.html) |
+| Extraire les images | [tchadiapdf.com/extraire-images-pdf.html](https://tchadiapdf.com/extraire-images-pdf.html) |
+| Livret PDF | [tchadiapdf.com/livret-pdf.html](https://tchadiapdf.com/livret-pdf.html) |
+
+## Technologies
+
+tchadiaPdf est un site 100% statique : HTML, CSS et JavaScript sans framework ni étape de build. Le traitement des fichiers se fait entièrement côté client, avec ces bibliothèques (détail complet des versions et licences dans [DEPENDENCIES.md](DEPENDENCIES.md)) :
+
+- [pdf-lib](https://github.com/Hopding/pdf-lib) : lecture, écriture et assemblage de documents PDF
+- [pdf.js](https://github.com/mozilla/pdf.js) : rendu des pages et extraction du texte existant
+- [Tesseract.js](https://github.com/naptha/tesseract.js) : reconnaissance de texte (OCR) pour les PDF scannés
+- [qpdf](https://qpdf.readthedocs.io/) compilé en WebAssembly ([qpdf-wasm](https://github.com/neslinesli93/qpdf-wasm)) : chiffrement AES-256 et réparation de PDF corrompus
+
+D'autres bibliothèques ciblées (mammoth.js, SheetJS, docx, pptxgenjs, html2canvas, marked, epub.js, UTIF.js, heic2any, JSZip) prennent en charge les outils de conversion, chargées uniquement quand l'outil correspondant en a besoin. Deux traitements sont déportés dans un Web Worker pour ne pas bloquer l'interface : la recompression d'images de Compresser PDF (`js/compresser-pdf.worker.js`) et l'analyse DOCX de Word en PDF.
+
+## Lancer en local
+
+Le site est statique : aucune installation n'est nécessaire pour le consulter, seulement un serveur HTTP local (un simple double-clic sur les fichiers ne suffit pas, les Web Workers ont besoin d'une origine http/https).
+
+1. Clonez le dépôt :
+   ```bash
+   git clone git@github.com:YOSO98/tchadiaPDF.git
+   ```
+2. Servez le dossier avec un serveur statique, par exemple :
+   ```bash
+   npx http-server -p 8080
+   # ou
+   python -m http.server 8080
+   ```
+3. Ouvrez `http://localhost:8080` dans votre navigateur.
+
+### Lancer les tests
+
+La suite de tests [Playwright](https://playwright.dev/) se trouve dans `tests/`.
 
 ```bash
-python -m http.server 8080
+npm install
+npx playwright test
 ```
-
-Avec Node.js :
-
-```bash
-npx http-server -p 8080
-```
-
-Puis ouvrez `http://localhost:8080` dans votre navigateur.
-
-## Déployer sur Cloudflare Pages
-
-1. Poussez le dépôt sur GitHub (ou GitLab).
-2. Sur [Cloudflare Pages](https://pages.cloudflare.com/), créez un nouveau
-   projet et connectez le dépôt.
-3. Configuration de build :
-   - Commande de build : aucune (laisser vide)
-   - Répertoire de sortie : `/` (racine du dépôt)
-4. Déployez. Le site étant 100% statique, aucune variable d'environnement
-   n'est nécessaire.
-
-Toute mise à jour poussée sur la branche principale est redéployée
-automatiquement.
 
 ## Contribuer
 
-Les contributions sont les bienvenues. Consultez
-[CONTRIBUTING.md](CONTRIBUTING.md) pour les règles du design system et la
-marche à suivre pour proposer un nouvel outil. La participation à ce projet
-est régie par notre [Code de conduite](CODE_OF_CONDUCT.md). L'historique des
-versions et des phases livrées est disponible dans
-[CHANGELOG.md](CHANGELOG.md).
+Les contributions sont bienvenues : nouvel outil, traduction, correction de bug ou amélioration de la documentation. Consultez [CONTRIBUTING.md](CONTRIBUTING.md) pour les règles du design system (deux couleurs seulement, blanc et bleu) et la marche à suivre pour ajouter un outil. La participation au projet est régie par le [Code de conduite](CODE_OF_CONDUCT.md).
+
+Deux façons simples d'aider :
+
+- **Signaler un bug** : ouvrez une [issue sur GitHub](https://github.com/YOSO98/tchadiaPDF/issues).
+- **Proposer un outil ou une traduction** : la page d'accueil est disponible en 5 langues (français, anglais, espagnol, portugais, arabe) ; traduire une page d'outil ou en ajouter une nouvelle sont de bonnes premières contributions.
+
+## Soutenir le projet
+
+tchadiaPdf est gratuit et le restera. Le projet pourra à l'avenir être financé par de la publicité (déjà prévue dans le code, désactivée tant que l'utilisateur n'a pas donné son consentement) et par des dons.
+
+<!-- Lien Ko-fi à ajouter une fois le compte créé : https://ko-fi.com/tchadiapdf -->
+<!-- Lien GitHub Sponsors à ajouter une fois le compte créé : https://github.com/sponsors/YOSO98 -->
 
 ## Licence
 
 Projet distribué sous licence [MIT](LICENSE).
+
+## Remerciements
+
+tchadiaPdf s'appuie sur ces bibliothèques open source : pdf-lib, pdf.js, JSZip, mammoth.js, SheetJS, docx, pptxgenjs, html2canvas, marked, epub.js, UTIF.js, heic2any, Tesseract.js, @pdf-lib/fontkit et @neslinesli93/qpdf-wasm, ainsi que les polices Inter et Liberation Fonts. Détail complet des versions et des licences dans [DEPENDENCIES.md](DEPENDENCIES.md).
