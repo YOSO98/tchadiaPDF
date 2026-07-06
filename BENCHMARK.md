@@ -184,6 +184,130 @@ export ZIP : une fonctionnalité que la plupart des concurrents réservent à
 leurs offres payantes ou limitent en nombre de fichiers gratuits par jour.
 tchadiaPdf ne fixe aucune limite de ce type.
 
+## Phase Conversions : 22 nouvelles conversions de fichiers
+
+tchadiaPdf devient un centre de conversion complet : Office vers PDF (Word,
+Excel, PowerPoint, texte), PDF vers Office (Word, Excel, PowerPoint, texte
+déjà existant), et images/formats modernes (HEIC, WebP, TIFF, BMP, PNG,
+JPG, SVG, Markdown, HTML, EPUB). Chaque outil a été testé de bout en bout
+avec de vrais fichiers générés (DOCX avec tableau et images, XLSX
+multi-feuilles, PPTX 5 diapositives, EPUB multi-chapitres, TIFF
+multi-pages, etc.), fichier de sortie rouvert et vérifié par un script
+indépendant (pas seulement visuellement). **Validation finale rejouée après
+les correctifs de sécurité (voir plus bas) : 22/22 conversions passent, 0
+erreur console, 9/9 tests de la suite Playwright committée.**
+
+### Fidélité de conversion : ce qui est réellement acquis
+
+- **texte-en-pdf** : le seul outil "vers PDF" de cette phase qui produit un
+  texte réellement sélectionnable/cherchable dans le PDF (dessiné directement
+  avec pdf-lib). Limite réelle : les caractères Unicode hors Latin-1
+  (émojis, "œ", symboles rares) sont remplacés par "?" par la police
+  standard WinAnsi.
+- **word-en-pdf, excel-en-pdf, powerpoint-en-pdf, markdown-en-pdf,
+  html-en-pdf, epub-en-pdf** : technique de rendu HTML puis rasterisation
+  paginée (html2canvas + pdf-lib). Fidélité visuelle élevée (mise en page,
+  tableaux, images, polices, en-têtes de tableau répétés sur saut de page),
+  **mais le texte du PDF résultant n'est PAS sélectionnable ni cherchable**
+  (image haute résolution par page) : documenté explicitement dans
+  l'encadré "Fidélité de conversion" de chaque page, jamais caché.
+- **word-en-pdf** ne gère que le format .docx moderne (pas l'ancien .doc) ;
+  mises en page complexes (colonnes multiples, zones flottantes), macros,
+  objets OLE et SmartArt ne sont pas restitués.
+- **excel-en-pdf** : sans l'option "ajuster à la largeur", un tableau à
+  colonnes nombreuses (testé avec 19 colonnes) est coupé à droite en mode
+  portrait (comportement démontré et documenté, pas une supposition).
+  Mises en forme conditionnelles, graphiques natifs et formules ne sont pas
+  recalculés.
+- **powerpoint-en-pdf** : limite la plus significative du groupe : les
+  positions des placeholders (titre/contenu) hérités du modèle de
+  diapositive sans coordonnées explicites dans le XML sont approximées par
+  des zones fixes, car résoudre la chaîne d'héritage complète
+  slide→layout→master aurait représenté un travail bien plus important.
+  Tableaux natifs, graphiques natifs, SmartArt et formes décoratives sans
+  texte sont détectés et signalés après conversion (message listant les
+  diapositives concernées), mais ne sont pas dessinés.
+- **pdf-en-word** : détection des titres par taille de police relative
+  (>1.3x la médiane du document), listes par motif de préfixe, tableaux
+  simples par alignement de colonnes récurrent. Sur une mise en page
+  atypique (colonnes de journal, PDF sans hiérarchie de taille claire), la
+  détection peut se limiter à des paragraphes plats plutôt qu'une structure
+  fidèle : comportement voulu (ne jamais forcer une fausse structure) plutôt
+  qu'un bug, mais un vrai compromis de fidélité à connaître.
+- **pdf-en-excel** : même détection de colonnes par alignement récurrent
+  (tolérance de quelques points, seuil de 60% des lignes). Un aperçu HTML
+  du résultat est affiché avant téléchargement précisément parce que cette
+  détection est heuristique et peut se tromper sur un PDF au layout
+  inhabituel : c'est une aide honnête, pas une garantie.
+- **pdf-en-powerpoint** : une image haute résolution par page + texte de la
+  page en note ; pas d'extraction de texte modifiable sur la diapositive
+  elle-même (fidèle à la nature "capture visuelle" de cette conversion).
+- **HEIC/TIFF/WebP/BMP/SVG** : décodage réel testé (heic2any avec un vrai
+  fichier HEIC généré via pillow-heif, UTIF.js avec un TIFF réel à 3 pages
+  et à une page, décodage natif du navigateur pour WebP/BMP vérifié en
+  conditions réelles plutôt que supposé). SVG avec polices externes ou
+  scripts embarqués : rendu non garanti (documenté, cas non testé).
+- **html-en-pdf** : n'effectue jamais de récupération d'URL distante (message
+  explicite à l'utilisateur, qui doit enregistrer la page depuis son
+  navigateur d'abord) ; rendu dans une iframe sandboxée sans `allow-scripts`,
+  vérifié par un test avec un fichier piégé contenant une balise `<script>`
+  qui ne s'exécute jamais.
+- **epub-en-pdf** : ne prend pas en charge les EPUB protégés par DRM ; mise
+  en page fortement simplifiée par rapport à un lecteur EPUB natif ; un bug
+  réel a été trouvé et corrigé pendant les tests (images en URL `blob:`
+  invisibles à la capture html2canvas, corrigé en les reconvertissant en
+  URL `data:` avant rasterisation).
+
+### Traitement par lots
+
+Tous les outils de conversion acceptent un lot de 20 fichiers maximum avec
+export ZIP (limite volontairement plus basse que les 50 fichiers des outils
+PDF historiques, ces conversions étant individuellement plus coûteuses en
+calcul : parsing DOCX/PPTX, rasterisation HTML).
+
+### Sécurité (Phase Sécurité, appliquée pendant cette même session)
+
+- **Deux failles XSS réelles trouvées et corrigées**, avec preuve avant/après
+  par test Playwright automatisé (pas une simple relecture) :
+  - `markdown-en-pdf` : `marked.parse()` ne neutralise aucun HTML brut par
+    conception ; un Markdown piégé avec une image `onerror=` exécutait du
+    JavaScript arbitraire dans la page dès l'aperçu en direct. Corrigé par
+    assainissement (`js/security-utils.js`, fonction `sanitizeHtmlForDisplay`)
+    aux deux points d'insertion (aperçu visible et conteneur de rendu).
+  - `word-en-pdf` : un lien `href="javascript:..."` généré par mammoth.js à
+    partir d'un DOCX piégé était préservé tel quel dans le conteneur de
+    rasterisation. Corrigé par le même assainisseur.
+  - Vérifié sans faille (pas de correctif nécessaire) : `excel-en-pdf` et
+    `pdf-en-excel` insèrent déjà le texte des cellules via `textContent` ;
+    `powerpoint-en-pdf`/`pdf-en-word`/`pdf-en-powerpoint` n'injectent jamais
+    de HTML dérivé du fichier utilisateur ; `html-en-pdf` utilise déjà une
+    iframe sandboxée sans `allow-scripts`.
+- **Validation par octets magiques** (signature binaire réelle, pas
+  seulement l'extension du fichier) ajoutée sur 8 outils parmi les plus
+  exposés : word-en-pdf, excel-en-pdf, powerpoint-en-pdf, pdf-en-word,
+  pdf-en-excel, pdf-en-powerpoint, heic-en-jpg, heic-en-pdf, tiff-en-pdf.
+  **Limite honnête** : les ~35 autres outils du site (fusionner, diviser,
+  compresser, rogner, filigrane, jpg/png/webp/bmp/svg-en-pdf, etc.) n'ont
+  pas reçu cette validation dans cette itération.
+- **Limites de pages/diapositives** ajoutées sur les mêmes 8 outils (ex :
+  3000 pages max pour pdf-en-word/excel, 800 diapositives générées max pour
+  excel-en-pdf/powerpoint-en-pdf) pour éviter qu'un fichier "bombe" gèle
+  l'onglet. Non testé en conditions réelles (fixture d'une telle taille
+  jugée trop coûteuse à générer dans le temps disponible) : seule la
+  fonction de garde-fou elle-même est unit-testée.
+- **Isolation Web Worker** : faite sur un seul outil (word-en-pdf, parsing
+  mammoth avec timeout de 30 secondes et repli sur le thread principal si
+  `Worker` est indisponible), à titre de preuve de faisabilité. **Non
+  généralisée** aux 9 autres outils modifiés ni au reste du site : effort
+  restant estimé à 30-60 minutes par outil.
+- **Preuve automatisée de confidentialité** : `tests/no-network-leak.spec.js`
+  intercepte tout le trafic réseau pendant une conversion réelle (fusionner,
+  compresser-pdf, modifier-pdf, pdf-en-word) et échoue si une requête
+  contient le contenu du fichier utilisateur ou vise un domaine hors des
+  CDN de librairies légitimement utilisés par la page. 9/9 tests passent.
+- Scan de secrets sur le dépôt et l'historique Git complet : rien trouvé.
+  `npm audit --audit-level=high` : 0 vulnérabilité au moment de l'audit.
+
 ## Fiabilité (vérifiée dans ce dépôt)
 
 - Testé avec un PDF de 300 pages : organiser-pdf, numeros-de-pages et
@@ -241,3 +365,12 @@ meilleurs grâce au cache HTTP et à la répartition géographique du CDN
    portugais et arabe).
 5. Permissions de chiffrement PDF plus fines (impression/copie/modification
    désactivables séparément) pour proteger-pdf.
+6. Étendre la validation par octets magiques, les limites de pages et
+   l'isolation Web Worker aux ~35 outils du site qui ne l'ont pas encore
+   reçue (voir la section Phase Conversions ci-dessus pour le détail exact
+   de ce qui est déjà fait sur les 8 outils les plus exposés).
+7. SRI (`integrity`/`crossorigin`) sur chaque balise CDN de chaque page,
+   fallback local hashé pour chaque librairie, CSP durcie (nonces/hash,
+   HSTS preload, Permissions-Policy, COOP/COEP) : prévu au round final de
+   la Phase Sécurité, voir TODO.md et SECURITY.md pour l'état d'avancement
+   réel au moment de la lecture.
