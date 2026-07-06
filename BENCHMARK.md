@@ -351,6 +351,42 @@ Cloudflare Pages réel donnerait des chiffres définitifs, probablement
 meilleurs grâce au cache HTTP et à la répartition géographique du CDN
 (à refaire après mise en production, voir TODO.md).
 
+### Audit Lighthouse élargi (Phase 6 Bloc 1, 10 pages représentatives)
+
+| Page | Performance | Accessibilité | SEO | Bonnes pratiques |
+|---|---|---|---|---|
+| index.html | 96 | 96 | 100 | 96 |
+| conversions.html | 76 | 100 | 100 | 96 |
+| fusionner.html | 74 | 100 | 100 | 96 |
+| compresser-pdf.html | 79 | 100 | 100 | 96 |
+| jpg-en-pdf.html | 80 | 100 | 100 | 96 |
+| pdf-en-jpg.html | 82 | 100 | 100 | 96 |
+| word-en-pdf.html | 70 | 98 | 100 | 96 |
+| pdf-en-word.html | 68 | 98 | 100 | 96 |
+| markdown-en-pdf.html | 81 | 100 | 100 | 96 |
+| securite.html | 95 (69 avant correctif) | 96 | 100 | 96 |
+
+**Bug de performance réel trouvé et corrigé** : la passe globale ajoutant
+`js/analytics.js`, `js/ads.js` et `js/consent-banner.js` à chaque page
+(Phase 6 Bloc 3) les avait ajoutés sans l'attribut `defer`, ce que
+Lighthouse signalait comme requêtes bloquant le rendu (environ 1050 ms
+cumulés sur `securite.html`, qui n'a par ailleurs aucune bibliothèque
+lourde). Corrigé en ajoutant `defer` aux 3 balises sur les 49 pages,
+score de `securite.html` passé de 69 à 95, vérifié sans régression
+fonctionnelle (bandeau de consentement et sélecteur de langue toujours
+opérationnels).
+
+**Limite honnête restante** : les pages qui chargent des bibliothèques de
+conversion lourdes (mammoth, html2canvas, xlsx, pptxgenjs, docx) via CDN
+au chargement de la page plutôt qu'à la demande (`word-en-pdf.html`,
+`pdf-en-word.html`) restent sous 90 en performance (68-70). Passer ces
+bibliothèques en chargement paresseux (déclenché seulement à la sélection
+d'un fichier, comme cela a déjà été fait pour fontkit/qpdf-wasm/Tesseract
+sur d'autres outils) ferait probablement gagner plusieurs points, non
+fait dans cette itération faute de temps : piste inscrite dans la liste
+des efforts futurs ci-dessous. Ces mesures restent prises en local sans
+CDN de production ni cache HTTP réel (voir remarque plus haut).
+
 ## Où concentrer les efforts futurs (priorisé)
 
 1. Audit Lighthouse réel une fois le site déployé en production.
@@ -369,7 +405,11 @@ meilleurs grâce au cache HTTP et à la répartition géographique du CDN
    l'isolation Web Worker aux ~35 outils du site qui ne l'ont pas encore
    reçue (voir la section Phase Conversions ci-dessus pour le détail exact
    de ce qui est déjà fait sur les 8 outils les plus exposés).
-7. SRI (`integrity`/`crossorigin`) sur chaque balise CDN de chaque page,
+7. Chargement paresseux des bibliothèques de conversion lourdes
+   (mammoth, html2canvas, xlsx, pptxgenjs, docx) sur les outils qui les
+   chargent encore au chargement de la page (word-en-pdf, pdf-en-word,
+   principalement), pour repasser au-dessus de 90 en performance.
+8. SRI (`integrity`/`crossorigin`) sur chaque balise CDN de chaque page,
    fallback local hashé pour chaque librairie, CSP durcie (nonces/hash,
    HSTS preload, Permissions-Policy, COOP/COEP) : prévu au round final de
    la Phase Sécurité, voir TODO.md et SECURITY.md pour l'état d'avancement
