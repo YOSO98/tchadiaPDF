@@ -39,14 +39,83 @@ de la Phase Conversions (Groupe 4 inclus). Ordre retenu :
       `ci.yml`. 9/9 tests passent.
 
 **Round final (moi-même, après la fin de la Phase Conversions)** :
-- [ ] BLOC 1 : CSP durcie (nonces/hash pour le peu de scripts inline
-      restants), HSTS preload, Permissions-Policy, COOP/COEP, test réel que
-      rien ne casse.
+- [x] BLOC 1 : CSP durcie (attributs onclick/onchange retirés au profit
+      d'addEventListener, pas de nonce/hash nécessaire puisqu'aucun bloc
+      `<script>` inline n'existe sur le site), HSTS preload,
+      Permissions-Policy, Cross-Origin-Opener-Policy (COEP volontairement
+      non activée, risque de casser les CDN sans bénéfice prouvé,
+      documenté). Testé en conditions réelles (CSP injectée sur 4 pages
+      représentatives via Playwright) : 4/4 passent, 0 violation.
 - [ ] BLOC 2 : attribut `integrity`/`crossorigin` SRI sur CHAQUE balise
       CDN de CHAQUE page (script automatisé plutôt qu'édition manuelle,
-      pour garantir la cohérence), `DEPENDENCIES.md` (versions figées,
-      licences, sources), fallback local déjà présent/à compléter pour
-      chaque librairie.
+      pour garantir la cohérence), fallback local déjà présent/à compléter
+      pour chaque librairie. DEPENDENCIES.md déjà fait. Différé après la
+      refonte de modifier-pdf.html (ci-dessous) pour ne pas toucher ce
+      fichier pendant qu'il est en cours de refonte.
+
+---
+
+## PHASE EDITEUR PRO : refonte majeure de modifier-pdf.html
+
+Objectif : amener l'éditeur au niveau des éditeurs PDF professionnels :
+détection et affichage immédiat de toutes les zones éditables (pointillés
+bleus), classification des blocs (titre/sous-titre/paragraphe/image),
+détection de dates et d'e-mails, panneau de styles, édition avec reflow,
+remplacement d'image, deux modes clairs (Annoter/Modifier), barre de
+navigation de pages avec zoom et recherche. Fait par un sous-agent dédié
+(fichier unique et fortement couplé, pas de parallélisation interne
+possible sans risque de conflit) avec commits fréquents par étape.
+
+- [ ] Détection : regroupement intelligent des blocs (interligne,
+      changement de taille de police), détection d'images via
+      paintImageXObject, classification (titre/sous-titre/paragraphe/
+      ligne isolée/image), détection dates et e-mails.
+- [ ] Affichage : bordures pointillées bleues permanentes en mode
+      Modifier, hover = bordure pleine + fond bleu clair, actif = bordure
+      plus épaisse. Infobulle de classification au survol.
+- [ ] Panneau latéral droit "Styles de texte" (police, taille, gras,
+      italique, souligné, alignement, couleur), synchronisé sur la
+      sélection.
+- [ ] Édition : double-clic = édition sur place au caractère cliqué,
+      retour à la ligne automatique dans la largeur du bloc, extension
+      verticale si besoin avec avertissement de chevauchement, reflow des
+      blocs suivants optionnel (jamais forcé).
+- [ ] Images : cadre pointillé, poignées de redimensionnement, glisser
+      pour déplacer, bouton flottant Remplacer/Supprimer, ajout d'image
+      libre.
+- [ ] Deux modes (onglets Annoter/Modifier) avec sous-barre Modifier
+      (texte/insérer/images/formulaires), bouton "Enregistrer les
+      modifications" toujours visible, avertissement avant fermeture,
+      barre de navigation de page (zoom, ajuster largeur, recherche).
+- [ ] Robustesse : détection paresseuse par page visible (jusqu'à 100
+      pages sans geler), bandeau OCR pour PDF scannés déjà en place à
+      vérifier.
+- [ ] Tests Playwright obligatoires sur un PDF de contrat réaliste
+      (titres, paragraphes, tableaux, logos, dates, e-mails), desktop et
+      mobile 375px.
+- [ ] BENCHMARK.md : comparaison honnête des capacités atteintes et des
+      limites restantes.
+
+---
+
+## PHASE README : refonte professionnelle README.md + README.en.md
+
+Objectif : vitrine professionnelle pour le lancement (Hacker News,
+Product Hunt, Reddit). Structure exacte définie par l'utilisateur : en-tête
+avec badges et accroche bilingue, captures d'écran réelles (accueil +
+éditeur), 3 arguments factuels, liste des outils par catégorie, section
+technologies, lancer en local, contribuer, soutenir le projet, pied de
+page licence. Ton sobre, aucun superlatif creux, aucun tiret long/moyen.
+
+- [ ] Captures d'écran réelles générées via Playwright dans
+      `docs/screenshots/` (accueil, éditeur avec zones en pointillés une
+      fois la Phase Éditeur Pro livrée, ou l'éditeur actuel sinon, à
+      régénérer ensuite si besoin).
+- [ ] README.md complet selon la structure demandée, tous les liens
+      vérifiés (pas seulement supposés).
+- [ ] README.en.md, traduction fidèle, lien de bascule FR/EN en haut des
+      deux fichiers.
+- [ ] Commit "README professionnel avec captures", push.
 
 ---
 
