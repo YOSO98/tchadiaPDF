@@ -189,18 +189,27 @@
     document.body.appendChild(banner);
   }
 
+  // Relie chaque bouton ".consent-banner-reopen-link" du footer sans
+  // attribut onclick inline (CSP script-src sans 'unsafe-inline').
+  function wireReopenButtons() {
+    var buttons = document.querySelectorAll(".consent-banner-reopen-link");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", function () {
+        window.tchadiapdfReopenConsentBanner();
+      });
+    }
+  }
+
   function init() {
     var stored = getStoredConsent();
     if (stored !== CONSENT_GRANTED && stored !== CONSENT_DENIED) {
       showBanner();
     }
+    wireReopenButtons();
   }
 
-  // Expose une fonction globale pour rouvrir le bandeau depuis un lien
-  // discret du footer ("Gerer les publicites"), par exemple :
-  //   <button type="button" onclick="tchadiapdfReopenConsentBanner()">
-  //     Gerer les publicites
-  //   </button>
+  // Expose aussi une fonction globale (utile si un autre script veut
+  // rouvrir le bandeau par programme).
   window.tchadiapdfReopenConsentBanner = function () {
     removeBanner();
     showBanner();

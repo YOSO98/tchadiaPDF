@@ -34,7 +34,7 @@
     <nav class="nav-tools" style="display:flex; align-items:center;">
       <a href="#outils">Tous les outils</a>
       <span class="lang-switch">
-        <select id="langSwitch" aria-label="Choisir la langue" onchange="if(this.value) window.location.href=this.value;">
+        <select id="langSwitch" aria-label="Choisir la langue">
           <option value="" selected disabled>Français</option>
           <option value="en/index.html">English</option>
           <option value="es/index.html">Español</option>
@@ -367,10 +367,11 @@
     <a href="confidentialite.html">Confidentialité</a>
     <a href="mentions-legales.html">Mentions légales</a>
   </nav>
-  <button type="button" class="consent-banner-reopen-link" onclick="tchadiapdfReopenConsentBanner()">Gérer les publicités</button>
+  <button type="button" class="consent-banner-reopen-link">Gérer les publicités</button>
   © 2026 tchadiaPdf. Outils PDF gratuits, traitement 100% local.
 </footer>
 
+<script src="js/index-page.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/ads.js"></script>
 <script src="js/consent-banner.js"></script>
