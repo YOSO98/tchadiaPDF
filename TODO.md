@@ -115,7 +115,14 @@ page licence. Ton sobre, aucun superlatif creux, aucun tiret long/moyen.
       vérifiés (pas seulement supposés).
 - [ ] README.en.md, traduction fidèle, lien de bascule FR/EN en haut des
       deux fichiers.
-- [ ] Commit "README professionnel avec captures", push.
+- [x] Commit "README professionnel avec captures" fait (`0c80599`). Push a
+      faire par l'utilisateur ou moi (voir JOURNAL.md). 43 outils confirmes,
+      liens verifies (badges shields.io, fichiers du depot, pages du site).
+      Capture de l'editeur prise dans son etat ACTUEL (avant la refonte
+      Editeur Pro), a regenerer une fois cette derniere livree.
+      Point bloquant reel signale par l'agent : le depot GitHub semble
+      prive (404 en HTTPS anonyme alors que le SSH configure fonctionne),
+      a rendre public avant le lancement Hacker News/Product Hunt.
 
 ---
 
