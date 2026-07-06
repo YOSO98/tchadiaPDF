@@ -401,6 +401,64 @@ a:hover { text-decoration: underline; }
   font-size: 0.85rem;
 }
 .site-footer nav { margin-bottom: 10px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.consent-banner-reopen-link {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--slate);
+  background: none;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.consent-banner-reopen-link:hover { color: var(--blue); }
+
+/* Bandeau de consentement (publicite / analytics) */
+.consent-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 16px rgba(30, 41, 59, 0.08);
+  padding: 16px 20px;
+}
+.consent-banner-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.consent-banner-text {
+  color: var(--ink);
+  font-size: 0.9rem;
+  margin: 0;
+  flex: 1 1 320px;
+}
+.consent-banner-text a { font-weight: 600; }
+.consent-banner-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.consent-banner-actions .btn-primary,
+.consent-banner-actions .btn-secondary {
+  width: auto;
+  margin-top: 0;
+  padding: 10px 20px;
+}
+@media (max-width: 520px) {
+  .consent-banner-inner { flex-direction: column; align-items: stretch; }
+  .consent-banner-actions { justify-content: stretch; }
+  .consent-banner-actions .btn-primary,
+  .consent-banner-actions .btn-secondary { flex: 1; }
+}
 
 /* Page de contenu (à propos, confidentialité) */
 .content-page { max-width: 720px; margin: 0 auto; padding: 48px 20px 64px; }
