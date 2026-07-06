@@ -7,11 +7,55 @@
 # CDN). Voir DEPLOY.md, section "CSP a reverifier".
 
 # En-tetes de securite appliques a toutes les URLs du site.
+#
+# script-src ne contient plus 'unsafe-inline' : tous les attributs
+# onclick/onchange inline ont ete retires du HTML au profit de vrais
+# addEventListener (voir js/consent-banner.js, js/index-page.js), et
+# aucune page ne contient de bloc <script> inline (verifie par grep sur
+# tout le depot). Note honnete : une CSP a base de nonces est impossible
+# sur un site 100% statique (le HTML est identique pour chaque visiteur,
+# aucun serveur d'application ne peut generer un nonce par requete) ; le
+# retrait des attributs inline est donc la voie retenue plutot qu'un
+# nonce ou un hash.
+#
+# style-src garde 'unsafe-inline' : de nombreuses pages ont un bloc
+# <style> inline dans <head> (variantes de mise en page par page) ; les
+# migrer vers des fichiers .css externes serait un chantier separe, non
+# fait dans cette iteration. Documente comme limite reelle, pas cachee.
+#
+# script-src/connect-src incluent plausible.io et googlesyndication.com
+# car js/analytics.js et js/ads.js y font reference, meme si les deux
+# restent inactifs par defaut (ANALYTICS_ENABLED = false, chargement des
+# publicites conditionne au consentement). Limite honnete documentee
+# dans SECURITY.md : Google AdSense charge aussi des ressources depuis de
+# nombreux sous-domaines Google/DoubleClick non tous listes ici ; une CSP
+# strictement exhaustive pour AdSense reel n'a pas ete atteinte (elle
+# demanderait un compte AdSense actif pour observer le trafic reel).
+# Testee en conditions reelles (Playwright, consentement publicitaire
+# simule) : le chargement initial d'adsbygoogle.js declenche des appels
+# vers ep1.adtrafficquality.google (connect-src) et un iframe depuis
+# googleads.g.doubleclick.net (frame-src), tous deux ajoutes ici apres
+# avoir ete reellement observes. D'autres sous-domaines Google pourraient
+# apparaitre une fois un vrai compte AdSense actif : a revalider a ce
+# moment-la (voir SECURITY.md).
+#
+# Cross-Origin-Opener-Policy: same-origin isole le contexte de
+# navigation (protection contre certaines attaques de fenetres croisees)
+# sans casser le chargement de scripts CDN. Cross-Origin-Embedder-Policy
+# (COEP: require-corp) N'EST PAS active : elle bloquerait tout script
+# CDN qui ne renvoie pas d'en-tete CORP explicite, ce qui casserait
+# potentiellement le chargement de pdf.js/pdf-lib/mammoth/etc. depuis
+# cdnjs/jsdelivr sans garantie qu'ils l'envoient tous ; aucun outil du
+# site n'a de besoin reel de SharedArrayBuffer/threads WASM qui
+# justifierait ce risque. Choix documente, pas un oubli.
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), payment=(), magnetometer=(), gyroscope=(), accelerometer=(), midi=()
+  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://plausible.io https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://plausible.io https://ep1.adtrafficquality.google; frame-src https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
 # Pages HTML : jamais de cache long, le site evolue frequemment (nouveaux
 # outils, corrections). "no-cache" autorise quand meme une revalidation
