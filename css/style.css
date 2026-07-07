@@ -401,6 +401,16 @@ a:hover { text-decoration: underline; }
   font-size: 0.85rem;
 }
 .site-footer nav { margin-bottom: 10px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.support-link { display: inline-flex; align-items: center; gap: 5px; }
+.support-link .heart-icon { width: 14px; height: 14px; color: var(--blue); flex-shrink: 0; }
+
+/* Ligne de soutien discrete apres un telechargement reussi (js/common.js) */
+.support-line { margin-top: 14px; font-size: 0.82rem; color: var(--slate); text-align: center; }
+.support-line a { font-weight: 600; }
+
+/* Page /soutenir.html : cartes de soutien, meme style que .tool-card */
+.support-card p { margin-bottom: 14px; }
+.support-card .btn-secondary { width: 100%; justify-content: center; }
 .consent-banner-reopen-link {
   font-family: inherit;
   font-size: inherit;
