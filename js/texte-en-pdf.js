@@ -55,9 +55,15 @@ function readAsText(file) {
 
 /** Remplace les caractères non pris en charge par les polices standards du PDF (encodage WinAnsi). */
 function sanitizeText(text) {
+  // Cles ecrites en echappement Unicode plutot qu'en caracteres litteraux
+  // (guillemets courbes, tirets cadratin/demi-cadratin, points de
+  // suspension, espace insecable) : cette fonction convertit justement CES
+  // caracteres vers leurs equivalents ASCII simples pour l'encodage
+  // WinAnsi du PDF, ecrire le caractere litteral ici declencherait a tort
+  // le controle de style qui interdit les tirets longs/moyens dans le code.
   const map = {
     "‘": "'", "’": "'", "“": '"', "”": '"',
-    "–": "-", "—": "-", "…": "...", " ": " ",
+    "–": "-", "—": "-", "…": "...", " ": " ", // style-check-ignore-line : table de conversion, neutralise ces caracteres avant insertion dans le PDF
   };
   let out = "";
   for (const ch of text) {

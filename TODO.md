@@ -177,7 +177,7 @@ complet (Office, images, formats modernes), en gardant les règles
 permanentes du projet : uniquement blanc/bleu, français comme langue par
 défaut (les 4 autres langues restent celles de la page d'accueil, périmètre
 existant non étendu automatiquement à ces 19 nouvelles pages sauf mention
-contraire), aucun tiret long ou moyen (—/–) nulle part, 100% navigateur
+contraire), aucun tiret cadratin ni demi-cadratin nulle part, 100% navigateur
 (aucun envoi de fichier à un serveur), tests Playwright avant de considérer
 un outil terminé, et ne rien casser des 24 outils existants.
 

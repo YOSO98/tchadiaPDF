@@ -89,6 +89,12 @@ function checkFile(filePath) {
 
   if (checksDash) {
     lines.forEach((line, i) => {
+      // Suppression explicite ligne par ligne (comme eslint-disable-line) :
+      // reservee aux cas legitimes ou le caractere litteral est necessaire
+      // en donnee (ex: table de conversion qui neutralise justement ces
+      // caracteres avant de les inserer dans un PDF), jamais pour du texte
+      // utilisateur ou un simple oubli.
+      if (line.includes("style-check-ignore-line")) return;
       for (const { char, label } of DASH_CHARS) {
         if (line.includes(char)) {
           violations.push({

@@ -30,9 +30,9 @@ cohérent d'un outil à l'autre.
    options, boutons segmentés, boutons primaires/secondaires, barre de
    progression, résultat, message, emplacement publicitaire. Réutilisez
    ces classes plutôt que d'en créer de nouvelles.
-3. **Typographie** : jamais de tiret long (—) ni de tiret moyen (–) dans
-   les textes, titres ou messages. Utilisez les deux-points, la virgule
-   ou le point selon le contexte.
+3. **Typographie** : jamais de tiret cadratin (Unicode U+2014) ni de tiret
+   demi-cadratin (Unicode U+2013) dans les textes, titres ou messages.
+   Utilisez les deux-points, la virgule ou le point selon le contexte.
 4. **Tout est en français** : interface, messages d'erreur, commentaires
    de code.
 
