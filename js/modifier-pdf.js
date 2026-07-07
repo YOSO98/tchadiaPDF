@@ -35,6 +35,15 @@ const FONT_FILES = {
   mono: { regular: "LiberationMono-Regular.ttf", bold: "LiberationMono-Bold.ttf", italic: "LiberationMono-Italic.ttf", boldItalic: "LiberationMono-BoldItalic.ttf" },
 };
 
+// Motifs de détection automatique dans le texte (Partie 1 de la refonte "blocs")
+const DATE_PATTERNS = [
+  { re: /\b(\d{2})\/(\d{2})\/(\d{4})\b/, format: "dmy", sep: "/" },
+  { re: /\b(\d{2})-(\d{2})-(\d{4})\b/, format: "dmy", sep: "-" },
+  { re: /\b(\d{2})\.(\d{2})\.(\d{4})\b/, format: "dmy", sep: "." },
+  { re: /\b(\d{4})-(\d{2})-(\d{2})\b/, format: "ymd", sep: "-" },
+];
+const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+
 // ---------- État global ----------
 let currentFile = null;
 let srcBytes = null;
@@ -46,6 +55,8 @@ let currentTool = "select";
 let hasUnsavedChanges = false;
 
 const pageTextCache = new Map(); // pageIndex -> { lines: [...], isOcr: bool }
+const pageBlocksCache = new Map(); // pageIndex -> blocs [...] (regroupement de lignes, paresseux)
+const pageImagesCache = new Map(); // pageIndex -> images détectées [...] (getOperatorList, paresseux)
 const pageEditsMap = new Map(); // pageIndex -> { textEdits: [], decorations: [], annotations: [], images: [] }
 const history = []; // { pageIndex, before, after }
 let historyIndex = -1;
@@ -152,6 +163,8 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
   }
 
   pageTextCache.clear();
+  pageBlocksCache.clear();
+  pageImagesCache.clear();
   pageEditsMap.clear();
   history.length = 0;
   historyIndex = -1;
@@ -230,8 +243,32 @@ async function renderCurrentPage() {
     pageTextCache.set(currentPageIndex, { lines, isOcr: false });
   }
   updateScannedBanner();
+  await ensureBlocksForPage(currentPageIndex);
+  await ensureImagesForPage(currentPageIndex, currentPageObj);
   rebuildTextHitAreas();
+  rebuildBlockOverlays();
   renderOverlay();
+
+  // Détection paresseuse : uniquement page courante + voisines immédiates,
+  // jamais tout le document (important pour les gros documents, ex. 100 pages).
+  prefetchNeighborBlocks(currentPageIndex - 1);
+  prefetchNeighborBlocks(currentPageIndex + 1);
+}
+
+function prefetchNeighborBlocks(idx) {
+  if (idx < 0 || idx >= numPages) return;
+  if (pageBlocksCache.has(idx) && pageImagesCache.has(idx)) return;
+  (async () => {
+    try {
+      const page = await pdfjsDoc.getPage(idx + 1);
+      if (!pageTextCache.has(idx)) {
+        const content = await page.getTextContent();
+        pageTextCache.set(idx, { lines: buildLines(content.items, content.styles), isOcr: false });
+      }
+      await ensureBlocksForPage(idx);
+      await ensureImagesForPage(idx, page);
+    } catch (e) { /* préchargement facultatif, on ignore les erreurs */ }
+  })();
 }
 
 /** Affiche ou masque le bandeau de proposition d'OCR selon la qualité du texte détecté sur la page courante. */
@@ -406,6 +443,283 @@ function wordIndexAtCharIndex(line, charIdx) {
     if (dist < bestDist) { bestDist = dist; best = i; }
   }
   return best;
+}
+
+// ---------- Regroupement des lignes en BLOCS (paragraphe / titre / sous-titre / ligne isolée) ----------
+/**
+ * Deux lignes consécutives ne fusionnent dans le même bloc "paragraphe" que si
+ * elles ont la MÊME taille de police (tolérance ≤8%) et un interligne cohérent.
+ * Une ligne de taille différente (>1.3x la taille du corps de texte de la page)
+ * devient son propre bloc titre (la plus grande taille de la page) ou sous-titre ;
+ * une ligne isolée de taille proche du corps de texte, mais sans voisine avec
+ * laquelle fusionner (rupture d'interligne), devient une "ligne isolée".
+ */
+function buildBlocks(lines) {
+  if (!lines.length) return [];
+  const maxFont = Math.max.apply(null, lines.map((l) => l.fontSize));
+  const sortedSizes = lines.map((l) => l.fontSize).sort((a, b) => a - b);
+  const medianFont = sortedSizes[Math.floor(sortedSizes.length / 2)];
+
+  const groups = [];
+  let current = null;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const prev = i > 0 ? lines[i - 1] : null;
+    let canMerge = false;
+    if (prev && current) {
+      const sizeRatio = Math.max(line.fontSize, prev.fontSize) / Math.max(0.01, Math.min(line.fontSize, prev.fontSize));
+      const gap = prev.baseline - line.baseline;
+      const gapOk = gap > 0 && gap < Math.max(line.fontSize, prev.fontSize) * 1.9;
+      let gapConsistent = true;
+      if (current.lines.length >= 2) {
+        const prevGap = current.lines[current.lines.length - 2].baseline - current.lines[current.lines.length - 1].baseline;
+        gapConsistent = Math.abs(gap - prevGap) < Math.max(3, prevGap * 0.35);
+      }
+      const boldOk = line.bold === prev.bold;
+      canMerge = sizeRatio <= 1.08 && gapOk && gapConsistent && boldOk;
+    }
+    if (canMerge) current.lines.push(line);
+    else { if (current) groups.push(current); current = { lines: [line] }; }
+  }
+  if (current) groups.push(current);
+
+  return groups.map((g, idx) => finalizeBlock(g.lines, idx, maxFont, medianFont));
+}
+
+function finalizeBlock(blockLines, idx, maxFont, medianFont) {
+  const x = Math.min.apply(null, blockLines.map((l) => l.x));
+  const right = Math.max.apply(null, blockLines.map((l) => l.x + l.width));
+  const y = Math.min.apply(null, blockLines.map((l) => l.y));
+  const top = Math.max.apply(null, blockLines.map((l) => l.y + l.height));
+  const fontSize = blockLines[0].fontSize;
+  let type = "paragraphe";
+  if (blockLines.length === 1) {
+    const ratioToBody = fontSize / Math.max(0.01, medianFont);
+    if (fontSize >= maxFont - 0.4 && ratioToBody > 1.3) type = "titre";
+    else if (ratioToBody > 1.3) type = "sous-titre";
+    else if (ratioToBody > 1.08) type = "sous-titre";
+    else type = "ligne isolée";
+  }
+  const block = {
+    id: "block" + idx + "_" + Math.round(blockLines[0].baseline),
+    type,
+    lines: blockLines,
+    x, y, width: right - x, height: top - y,
+    fontSize,
+    fontFamily: blockLines[0].fontFamily,
+    bold: blockLines[0].bold,
+    italic: blockLines[0].italic,
+    text: blockLines.map((l) => l.text).join("\n"),
+  };
+  block.dateMatches = collectDateMatches(block);
+  block.emailMatches = collectEmailMatches(block);
+  return block;
+}
+
+function collectDateMatches(block) {
+  const matches = [];
+  block.lines.forEach((line, lineIndex) => {
+    for (const pat of DATE_PATTERNS) {
+      const m = line.text.match(pat.re);
+      if (m) matches.push({ lineIndex, start: m.index, end: m.index + m[0].length, raw: m[0], format: pat.format, sep: pat.sep });
+    }
+  });
+  return matches;
+}
+function collectEmailMatches(block) {
+  const matches = [];
+  block.lines.forEach((line, lineIndex) => {
+    const re = new RegExp(EMAIL_RE.source, "g");
+    let m;
+    while ((m = re.exec(line.text))) matches.push({ lineIndex, start: m.index, end: m.index + m[0].length, raw: m[0] });
+  });
+  return matches;
+}
+function blockTypeLabel(type) {
+  if (type === "titre") return "Titre";
+  if (type === "sous-titre") return "Sous-titre";
+  if (type === "ligne isolée") return "Ligne isolée";
+  return "Paragraphe";
+}
+async function ensureBlocksForPage(pageIndex) {
+  if (pageBlocksCache.has(pageIndex)) return;
+  const data = pageTextCache.get(pageIndex);
+  pageBlocksCache.set(pageIndex, buildBlocks(data ? data.lines : []));
+}
+
+// ---------- Détection des images de la page (getOperatorList + matrice cumulée) ----------
+function matMul(m1, m2) {
+  return [
+    m1[0] * m2[0] + m1[1] * m2[2],
+    m1[0] * m2[1] + m1[1] * m2[3],
+    m1[2] * m2[0] + m1[3] * m2[2],
+    m1[2] * m2[1] + m1[3] * m2[3],
+    m1[4] * m2[0] + m1[5] * m2[2] + m2[4],
+    m1[4] * m2[1] + m1[5] * m2[3] + m2[5],
+  ];
+}
+function matApply(m, x, y) { return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]]; }
+
+/** Reconstruit la position/taille de chaque image peinte sur la page en cumulant les matrices de transformation (save/restore/transform) jusqu'à chaque paintImageXObject. */
+async function detectPageImagesRaw(pageObj) {
+  const opList = await pageObj.getOperatorList();
+  const OPS = pdfjsLib.OPS;
+  const fnArray = opList.fnArray, argsArray = opList.argsArray;
+  const stack = [];
+  let ctm = [1, 0, 0, 1, 0, 0];
+  const rects = [];
+  for (let i = 0; i < fnArray.length; i++) {
+    const fn = fnArray[i];
+    if (fn === OPS.save) stack.push(ctm.slice());
+    else if (fn === OPS.restore) ctm = stack.pop() || ctm;
+    else if (fn === OPS.transform) ctm = matMul(argsArray[i], ctm);
+    else if (fn === OPS.paintImageXObject || fn === OPS.paintImageMaskXObject) {
+      const corners = [matApply(ctm, 0, 0), matApply(ctm, 1, 0), matApply(ctm, 1, 1), matApply(ctm, 0, 1)];
+      const xs = corners.map((c) => c[0]), ys = corners.map((c) => c[1]);
+      const x = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+      const y = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+      const w = x1 - x, h = y1 - y;
+      if (w > 3 && h > 3) rects.push({ x, y, width: w, height: h, objId: (argsArray[i] || [])[0] });
+    }
+  }
+  const merged = [];
+  for (const r of rects) {
+    const dup = merged.find((m) => Math.abs(m.x - r.x) < 1 && Math.abs(m.y - r.y) < 1 && Math.abs(m.width - r.width) < 1 && Math.abs(m.height - r.height) < 1);
+    if (!dup) merged.push(r);
+  }
+  return merged;
+}
+async function ensureImagesForPage(pageIndex, pageObj) {
+  if (pageImagesCache.has(pageIndex)) return;
+  try {
+    const raw = await detectPageImagesRaw(pageObj);
+    pageImagesCache.set(pageIndex, raw.map((r, i) => ({ id: "detimg" + pageIndex + "_" + i, x: r.x, y: r.y, width: r.width, height: r.height, objId: r.objId })));
+  } catch (e) {
+    pageImagesCache.set(pageIndex, []);
+  }
+}
+
+// ---------- Overlay permanent des blocs et images détectées (affichage, Partie 1) ----------
+function findNearestLineInBlock(block, pdfY) {
+  let best = block.lines[0], bestDist = Infinity;
+  for (const l of block.lines) {
+    const dist = Math.abs((l.y + l.height / 2) - pdfY);
+    if (dist < bestDist) { bestDist = dist; best = l; }
+  }
+  return best;
+}
+function selectBlockVisual(block) {
+  selection = { kind: "block", pageIndex: currentPageIndex, id: block.id };
+  document.querySelectorAll(".block-hit").forEach((el) => el.classList.toggle("active", el.dataset.blockId === block.id));
+}
+function rebuildBlockOverlays() {
+  previewWrap.querySelectorAll(".block-hit, .img-hit").forEach((el) => el.remove());
+  const blocks = pageBlocksCache.get(currentPageIndex) || [];
+  for (const block of blocks) {
+    const hit = document.createElement("div");
+    hit.className = "block-hit";
+    hit.dataset.blockId = block.id;
+    hit.dataset.blockType = block.type;
+    positionOverlayEl(hit, block.x, block.y, block.width, block.height);
+    let label = blockTypeLabel(block.type);
+    if (block.dateMatches.length) label += " (contient une date)";
+    if (block.emailMatches.length) label += " (contient un e-mail)";
+    hit.title = label;
+    hit.addEventListener("pointerdown", (e) => { if (currentTool === "select") selectBlockVisual(block); });
+    hit.addEventListener("dblclick", (e) => {
+      if (currentTool !== "select") return;
+      e.preventDefault();
+      const c = eventToCanvasPx(e);
+      const p = canvasPxToPdf(c.x, c.y);
+      const line = findNearestLineInBlock(block, p[1]);
+      openLineEditor(line, charIndexAtX(line, p[0]));
+    });
+    if (block.dateMatches.length) hit.addEventListener("contextmenu", (e) => onBlockContextMenu(e, block));
+    previewWrap.appendChild(hit);
+  }
+  const images = pageImagesCache.get(currentPageIndex) || [];
+  for (const img of images) {
+    const hit = document.createElement("div");
+    hit.className = "img-hit";
+    hit.title = "Image";
+    positionOverlayEl(hit, img.x, img.y, img.width, img.height);
+    previewWrap.appendChild(hit);
+  }
+}
+
+// ---------- Menu contextuel : modifier une date détectée ----------
+function onBlockContextMenu(e, block) {
+  if (currentTool !== "select" || !block.dateMatches.length) return;
+  e.preventDefault();
+  closeDateMenu();
+  const menu = document.createElement("div");
+  menu.className = "date-context-menu";
+  menu.id = "dateContextMenu";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = "Modifier cette date";
+  btn.addEventListener("click", () => openDatePopup(block, block.dateMatches[0]));
+  menu.appendChild(btn);
+  const cssPos = canvasPxToCssPx(eventToCanvasPx(e).x, eventToCanvasPx(e).y);
+  menu.style.left = cssPos.x + "px";
+  menu.style.top = cssPos.y + "px";
+  previewWrap.appendChild(menu);
+  setTimeout(() => document.addEventListener("pointerdown", closeDateMenuOnce), 0);
+}
+function closeDateMenuOnce(e) {
+  if (e.target.closest && e.target.closest("#dateContextMenu")) return;
+  closeDateMenu();
+}
+function closeDateMenu() {
+  const el = document.getElementById("dateContextMenu");
+  if (el) el.remove();
+  document.removeEventListener("pointerdown", closeDateMenuOnce);
+}
+function openDatePopup(block, match) {
+  closeDateMenu();
+  closeDatePopup();
+  const line = block.lines[match.lineIndex];
+  const popup = document.createElement("div");
+  popup.className = "date-edit-popup";
+  popup.id = "datePopup";
+  const input = document.createElement("input");
+  input.type = "date";
+  input.value = isoFromMatch(match);
+  const okBtn = document.createElement("button");
+  okBtn.type = "button";
+  okBtn.textContent = "Valider";
+  okBtn.className = "btn-primary";
+  okBtn.addEventListener("click", () => {
+    const iso = input.value;
+    if (iso) {
+      const newRaw = reformatDateLikeOriginal(iso, match);
+      const newLineText = line.text.slice(0, match.start) + newRaw + line.text.slice(match.end);
+      const existing = getPageEdits(currentPageIndex).textEdits.find((t) => t.lineId === line.id);
+      const data = existing || { text: line.text, fontSize: line.fontSize, fontFamily: line.fontFamily, bold: line.bold, italic: line.italic, color: INK };
+      commitLineEdit(currentPageIndex, line, data, newLineText, false);
+    }
+    closeDatePopup();
+  });
+  popup.appendChild(input);
+  popup.appendChild(okBtn);
+  positionOverlayEl(popup, block.x, block.y - 6, Math.max(block.width, 40), 10);
+  popup.style.width = "auto";
+  popup.style.height = "auto";
+  previewWrap.appendChild(popup);
+}
+function closeDatePopup() {
+  const el = document.getElementById("datePopup");
+  if (el) el.remove();
+}
+function isoFromMatch(match) {
+  const parts = match.format === "ymd" ? match.raw.split(match.sep) : match.raw.split(match.sep).reverse();
+  return parts[0] + "-" + parts[1] + "-" + parts[2];
+}
+function reformatDateLikeOriginal(isoValue, match) {
+  const bits = isoValue.split("-");
+  const Y = bits[0], M = bits[1], D = bits[2];
+  if (match.format === "ymd") return Y + match.sep + M + match.sep + D;
+  return D + match.sep + M + match.sep + Y;
 }
 
 // ---------- Conversion de coordonnées (PDF <-> pixels du canvas) ----------

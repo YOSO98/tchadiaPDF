@@ -94,6 +94,35 @@
     .text-block-hit.editing { background: var(--white); outline: 2px solid var(--blue); }
     .text-block-hit.unsupported:hover { background: rgba(100, 116, 139, 0.18); cursor: not-allowed; }
 
+    /* Blocs détectés (Partie 1) : toujours visibles en pointillés bleus en mode Modifier */
+    .block-hit {
+      position: absolute; box-sizing: border-box; cursor: text;
+      border: 1px dashed var(--blue); border-radius: 2px; background: transparent;
+      touch-action: none;
+    }
+    .block-hit:hover { border-style: solid; background: var(--blue-50); }
+    .block-hit.active { border-width: 2px; border-style: solid; background: var(--blue-50); }
+    .img-hit {
+      position: absolute; box-sizing: border-box; pointer-events: none;
+      border: 1px dashed var(--blue); border-radius: 2px;
+    }
+    .date-context-menu {
+      position: absolute; z-index: 8; background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-btn); box-shadow: 0 4px 14px rgba(30, 41, 59, 0.16); padding: 4px;
+    }
+    .date-context-menu button {
+      display: block; width: 100%; text-align: left; border: none; background: none;
+      padding: 8px 12px; font-size: 0.85rem; color: var(--ink); cursor: pointer; border-radius: 6px;
+    }
+    .date-context-menu button:hover { background: var(--blue-50); color: var(--blue); }
+    .date-edit-popup {
+      position: absolute; z-index: 8; display: flex; gap: 6px; align-items: center;
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-btn);
+      box-shadow: 0 4px 14px rgba(30, 41, 59, 0.16); padding: 6px;
+    }
+    .date-edit-popup input[type="date"] { font-family: inherit; font-size: 0.85rem; padding: 5px 6px; border: 1px solid var(--border); border-radius: 6px; }
+    .date-edit-popup button { width: auto; margin-top: 0; padding: 6px 10px; font-size: 0.82rem; }
+
     .text-edit-area {
       position: absolute; z-index: 6; box-sizing: border-box;
       font-family: inherit; color: #1E293B; background: var(--white);
