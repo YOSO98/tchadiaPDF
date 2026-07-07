@@ -6,6 +6,18 @@ if (window.pdfjsLib) {
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 }
 
+// Support hors ligne (PWA) : enregistre le service worker une fois la page
+// chargee, jamais avant (pour ne jamais retarder le premier affichage).
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // Echec silencieux volontaire : le site fonctionne normalement sans
+      // support hors ligne (navigation privee, navigateur ancien, etc.),
+      // ce n'est jamais une fonctionnalite bloquante.
+    });
+  });
+}
+
 /**
  * Initialise une zone de glisser-déposer.
  * @param {string} dzId       id de la dropzone

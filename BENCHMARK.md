@@ -533,6 +533,49 @@ de bout en bout, détection de date et menu contextuel, viewport mobile
 scénarios, non-régression OCR et document de 100 pages) : 17/17 au
 moment de la livraison.
 
+## Différenciation : recherche, routage intelligent, hors ligne
+
+Trois fonctionnalités ajoutées pour se démarquer d'acteurs comme Smallpdf
+ou iLovePDF, en exploitant l'avantage structurel d'un site 100% local
+(aucun backend à maintenir, aucune limite d'usage à imposer pour des
+raisons de coût serveur).
+
+- **Recherche d'outils** (accueil) : filtre en temps réel les 43 cartes
+  par titre/description, raccourci clavier `/`, insensible à la casse et
+  aux accents. Limite honnête : correspondance par sous-chaîne simple,
+  pas de recherche floue tolérante aux fautes de frappe.
+- **Routage intelligent par dépôt de fichier** : déposer un fichier
+  n'importe où sur l'accueil (overlay plein écran pendant le glisser)
+  détecte son vrai type par octets magiques (`js/security-utils.js`,
+  déjà utilisé par le Bloc 3 Sécurité) et redirige automatiquement vers
+  l'outil le plus pertinent, avec le fichier déjà chargé sur la page
+  d'arrivée (transfert par IndexedDB, quota bien supérieur à
+  `sessionStorage`, consommé automatiquement par `initDropzone` sans
+  modifier chaque outil individuellement). Limite honnête : la table de
+  correspondance couvre les formats les plus courants ; un format sans
+  outil dédié (GIF, ancien .doc/.xls) affiche un message clair plutôt
+  qu'une redirection inventée.
+- **Support hors ligne (PWA)** : `manifest.json` (installable sur mobile
+  et ordinateur) et `sw.js` (service worker) avec une stratégie
+  volontairement prudente : réseau d'abord partout (jamais de contenu
+  périmé servi à un visiteur en ligne), secours sur le cache uniquement
+  hors connexion, jamais d'interception des bibliothèques CDN
+  (laissées au cache HTTP long déjà en place et à leur intégrité SRI).
+  Testé réellement en conditions hors ligne (émulation Playwright) :
+  l'accueil déjà visité reste pleinement utilisable sans connexion,
+  une page jamais visitée affiche `offline.html` (message honnête)
+  plutôt que l'erreur de navigateur brute. Limites honnêtes : seule une
+  poignée de pages vedettes (accueil, fusionner, compresser, éditeur)
+  sont mises en cache au premier chargement du service worker, les
+  autres outils ne deviennent disponibles hors ligne qu'après une
+  première visite en ligne ; l'enregistrement du service worker se fait
+  via `js/common.js`, donc pas sur les 7 pages qui ne le chargent pas
+  (mentions légales, confidentialité, à propos, sécurité, conversions,
+  soutenir et ses traductions) ni sur les pages de langue (en/es/pt/ar) :
+  si la toute première visite d'un utilisateur se fait directement sur
+  une de ces pages, le service worker ne s'enregistre pas à cette
+  occasion (il s'enregistrera dès la première visite d'un outil).
+
 ## Où concentrer les efforts futurs (priorisé)
 
 1. Audit Lighthouse réel une fois le site déployé en production.
