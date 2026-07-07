@@ -35,6 +35,59 @@ function initDropzone(dzId, inputId, onFiles) {
     const files = Array.from(e.dataTransfer.files);
     if (files.length) onFiles(files);
   });
+
+  // Si un fichier a ete depose sur l'accueil et route automatiquement vers
+  // cet outil (js/index-page.js), le charge ici comme s'il venait d'etre
+  // selectionne normalement. Ne fait rien si aucun transfert n'est en attente.
+  consumePendingFile().then((file) => {
+    if (file) onFiles([file]);
+  });
+}
+
+const PENDING_FILE_DB = "tchadiapdf-handoff";
+
+/** Enregistre un fichier pour le transferer vers la prochaine page (routage
+ * intelligent depuis l'accueil). Utilise IndexedDB plutot que sessionStorage :
+ * un fichier peut depasser largement le quota de sessionStorage (quelques Mo),
+ * IndexedDB accepte des blobs bien plus volumineux. */
+function savePendingFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) { resolve(); return; }
+    const req = indexedDB.open(PENDING_FILE_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore("files");
+    req.onsuccess = () => {
+      const db = req.result;
+      const tx = db.transaction("files", "readwrite");
+      tx.objectStore("files").put(file, "pending");
+      tx.oncomplete = () => { db.close(); resolve(); };
+      tx.onerror = () => { db.close(); reject(tx.error); };
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/** Recupere (et efface, usage unique) le fichier en attente de transfert, le
+ * cas echeant. Ne echoue jamais silencieusement : resout `null` si rien
+ * n'est en attente ou si IndexedDB n'est pas disponible. */
+function consumePendingFile() {
+  return new Promise((resolve) => {
+    if (!window.indexedDB) { resolve(null); return; }
+    const req = indexedDB.open(PENDING_FILE_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore("files");
+    req.onsuccess = () => {
+      const db = req.result;
+      const tx = db.transaction("files", "readwrite");
+      const store = tx.objectStore("files");
+      const getReq = store.get("pending");
+      getReq.onsuccess = () => {
+        const file = getReq.result || null;
+        store.delete("pending");
+        tx.oncomplete = () => { db.close(); resolve(file); };
+      };
+      getReq.onerror = () => { db.close(); resolve(null); };
+    };
+    req.onerror = () => resolve(null);
+  });
 }
 
 /** Affiche la barre de progression (0 à 100) avec un texte. */

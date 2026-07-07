@@ -94,6 +94,75 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 
+/* ---------- Recherche d'outils (accueil) ---------- */
+.tool-search {
+  position: relative;
+  max-width: 480px;
+  margin: 24px auto 0;
+}
+.tool-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--slate);
+  pointer-events: none;
+}
+.tool-search input[type="search"] {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 13px 44px 13px 44px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
+}
+.tool-search input[type="search"]:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+.tool-search input[type="search"]::-webkit-search-cancel-button { display: none; }
+.tool-search-kbd {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--slate);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 7px;
+  pointer-events: none;
+}
+.tool-search input[type="search"]:focus ~ .tool-search-kbd { display: none; }
+.tool-search-empty { text-align: center; color: var(--slate); padding: 40px 20px; }
+.tool-card.search-hidden { display: none !important; }
+.tool-category.search-hidden, .tool-subgroup.search-hidden { display: none; }
+
+/* ---------- Depot de fichier n'importe ou sur la page (routage intelligent) ---------- */
+.drop-router-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(255, 255, 255, 0.92);
+  align-items: center;
+  justify-content: center;
+}
+.drop-router-overlay.visible { display: flex; }
+.drop-router-box {
+  border: 3px dashed var(--blue);
+  border-radius: var(--radius-card);
+  padding: 56px 64px;
+  text-align: center;
+  background: var(--blue-50);
+}
+.drop-router-box svg { width: 48px; height: 48px; color: var(--blue); margin-bottom: 16px; }
+.drop-router-box p { font-size: 1.2rem; font-weight: 700; color: var(--ink); }
+.drop-router-box span { display: block; margin-top: 6px; font-size: 0.9rem; font-weight: 400; color: var(--slate); }
+
 /* ---------- Catégories de la page d'accueil ---------- */
 .tool-category { margin-bottom: 8px; }
 .tool-category > h2 {
