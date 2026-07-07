@@ -13,7 +13,7 @@
     .editor-shell { max-width: 1180px; }
     .editor-layout {
       display: grid;
-      grid-template-columns: 64px 168px 1fr;
+      grid-template-columns: 64px 168px 1fr 220px;
       gap: 16px;
       margin-top: 20px;
       align-items: start;
@@ -22,6 +22,84 @@
       position: fixed; inset: 0; z-index: 200; background: var(--white);
       max-width: none; margin: 0; padding: 16px; overflow: auto;
     }
+
+    /* Onglets de mode : Annoter / Modifier */
+    .mode-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .mode-tabs button {
+      display: inline-flex; align-items: center; gap: 6px; width: auto;
+      padding: 9px 16px; border-radius: var(--radius-btn); border: 1px solid var(--border);
+      background: var(--white); color: var(--ink); font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer;
+    }
+    .mode-tabs button svg { width: 16px; height: 16px; }
+    .mode-tabs button.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .mode-tabs button:not(.active):hover { background: var(--blue-50); border-color: var(--blue); }
+
+    /* Sous-barre du mode Modifier */
+    .edit-subbar { display: none; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    body.mode-edit .edit-subbar { display: flex; }
+    .edit-subbar button {
+      display: inline-flex; align-items: center; gap: 6px; width: auto;
+      padding: 8px 14px; border-radius: var(--radius-btn); border: 1px solid var(--border);
+      background: var(--white); color: var(--ink); font-family: inherit; font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .edit-subbar button.active { background: var(--blue-50); border-color: var(--blue); color: var(--blue); }
+    .edit-subbar button:hover { border-color: var(--blue); }
+
+    /* En mode Annoter : masque les outils propres au mode Modifier dans la barre laterale, et inversement */
+    body.mode-edit .side-tools button[data-tool="whiteout"],
+    body.mode-edit .side-tools button[data-tool="highlight"],
+    body.mode-edit .side-tools button[data-tool="underline"],
+    body.mode-edit .side-tools button[data-tool="strikethrough"],
+    body.mode-edit .side-tools button[data-tool="rect"],
+    body.mode-edit .side-tools button[data-tool="circle"],
+    body.mode-edit .side-tools button[data-tool="arrow"],
+    body.mode-edit .side-tools button[data-tool="line"],
+    body.mode-edit .side-tools button[data-tool="freehand"],
+    body.mode-edit .side-tools .sep:nth-of-type(2) {
+      display: none;
+    }
+
+    /* Panneau latéral droit : Styles de texte */
+    .right-panel {
+      display: flex; flex-direction: column; gap: 14px;
+      position: sticky; top: 76px;
+      border: 1px solid var(--border); border-radius: var(--radius-card);
+      padding: 14px; font-size: 0.85rem;
+    }
+    .right-panel h3 { font-size: 0.85rem; margin: 0 0 4px; color: var(--ink); }
+    .right-panel .field { display: flex; flex-direction: column; gap: 4px; }
+    .right-panel label { color: var(--slate); font-size: 0.78rem; }
+    .right-panel select, .right-panel input[type="number"] {
+      font-family: inherit; font-size: 0.85rem; padding: 6px 8px;
+      border: 1px solid var(--border); border-radius: 6px; width: 100%;
+    }
+    .right-panel .row { display: flex; gap: 6px; }
+    .right-panel .row button {
+      flex: 1; border: 1px solid var(--border); background: var(--white); color: var(--ink);
+      border-radius: 6px; height: 32px; cursor: pointer;
+    }
+    .right-panel .row button.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .right-panel input[type="color"] { width: 100%; height: 32px; padding: 0; border: 1px solid var(--border); border-radius: 6px; }
+    .right-panel .empty-hint { color: var(--slate); font-size: 0.8rem; }
+    .right-panel .sep { height: 1px; background: var(--border); }
+    @media (max-width: 1100px) { .right-panel { display: none; } .editor-layout { grid-template-columns: 64px 168px 1fr; } }
+
+    /* Bouton d'enregistrement flottant, toujours visible */
+    .save-fixed-btn {
+      position: fixed; right: 24px; bottom: 24px; z-index: 150;
+      width: auto; padding: 14px 22px; margin: 0; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+    }
+    @media (max-width: 640px) { .save-fixed-btn { right: 12px; bottom: 12px; padding: 12px 18px; font-size: 0.85rem; } }
+
+    /* Barre de navigation de page (bas) */
+    .page-nav-bar {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      margin-top: 14px; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-btn);
+      font-size: 0.85rem; color: var(--ink);
+    }
+    .page-nav-bar button.icon-btn { width: 32px; height: 32px; }
 
     /* Barre d'outils latérale fixe */
     .side-tools {
@@ -239,7 +317,7 @@
     }
   </style>
 </head>
-<body>
+<body class="mode-edit">
 
 <header class="site-header">
   <div class="container">
@@ -276,6 +354,22 @@
   </div>
 
   <div id="editorSection" style="display:none">
+    <div class="mode-tabs" id="modeTabs" role="tablist" aria-label="Mode d'édition">
+      <button type="button" data-mode="annotate" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21l4-1 11-11-3-3L4 17z"/></svg>
+        Annoter
+      </button>
+      <button type="button" data-mode="edit" class="active" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l7 17 2-7 7-2z"/></svg>
+        Modifier
+      </button>
+    </div>
+    <div class="edit-subbar" id="editSubbar">
+      <button type="button" data-subtool="select" class="active">Modifier le texte</button>
+      <button type="button" data-subtool="text">Insérer du texte</button>
+      <button type="button" data-subtool="image">Images</button>
+      <button type="button" data-subtool="forms">Formulaires</button>
+    </div>
     <div class="editor-topbar">
       <button type="button" class="icon-btn" id="zoomOutBtn" title="Réduire le zoom" aria-label="Réduire le zoom">−</button>
       <span class="zoom-value" id="zoomValue">100 %</span>
@@ -293,9 +387,6 @@
         <button type="button" class="btn-secondary" id="replaceAllBtn" style="width:auto;display:none">Tout remplacer</button>
       </div>
       <span class="spacer"></span>
-      <label class="reflow-toggle" title="Quand un bloc s'agrandit (texte plus long que l'original), decale automatiquement les blocs situes en dessous sur la meme page.">
-        <input type="checkbox" id="reflowToggle"> Decaler les blocs suivants (reflow)
-      </label>
       <button type="button" class="icon-btn" id="helpBtn" title="Aide et raccourcis (?)" aria-label="Aide et raccourcis clavier">?</button>
       <button type="button" class="icon-btn" id="fullscreenBtn" title="Plein écran" aria-label="Basculer en plein écran">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
@@ -361,6 +452,57 @@
         </div>
         <p class="editor-hint" id="toolHint">Cliquez sur un mot pour le sélectionner, cliquez-glissez pour sélectionner plusieurs mots, double-cliquez pour modifier le texte de la ligne.</p>
       </div>
+
+      <div class="right-panel" id="rightPanel">
+        <h3>Styles de texte</h3>
+        <div id="rightPanelEmpty" class="empty-hint">Sélectionnez un bloc de texte pour voir et modifier son style.</div>
+        <div id="rightPanelFields" style="display:none">
+          <div class="field">
+            <label for="rpFontFamily">Police de substitution</label>
+            <select id="rpFontFamily">
+              <option value="sans">Sans serif</option>
+              <option value="serif">Serif</option>
+              <option value="mono">Monospace</option>
+            </select>
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label for="rpFontSize">Taille</label>
+            <input type="number" id="rpFontSize" min="6" max="96">
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label>Style</label>
+            <div class="row">
+              <button type="button" id="rpBold" title="Gras"><strong>G</strong></button>
+              <button type="button" id="rpItalic" title="Italique"><em>I</em></button>
+              <button type="button" id="rpUnderline" title="Souligné"><u>S</u></button>
+            </div>
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label>Alignement</label>
+            <div class="row">
+              <button type="button" id="rpAlignLeft" title="Gauche">◀</button>
+              <button type="button" id="rpAlignCenter" title="Centre">■</button>
+              <button type="button" id="rpAlignRight" title="Droite">▶</button>
+            </div>
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label for="rpColor">Couleur du texte</label>
+            <input type="color" id="rpColor">
+          </div>
+        </div>
+        <div class="sep"></div>
+        <label class="reflow-toggle-panel" style="display:flex;align-items:flex-start;gap:6px;font-size:0.78rem;color:var(--slate)">
+          <input type="checkbox" id="reflowTogglePanel"> Décaler automatiquement les blocs suivants quand un bloc s'agrandit (reflow)
+        </label>
+      </div>
+    </div>
+
+    <div class="page-nav-bar" id="pageNavBar">
+      <button type="button" class="icon-btn" id="prevPageBtn" title="Page précédente" aria-label="Page précédente">◀</button>
+      <span id="pageNavLabel">Page 1 / 1</span>
+      <button type="button" class="icon-btn" id="nextPageBtn" title="Page suivante" aria-label="Page suivante">▶</button>
+      <span style="width:1px;height:20px;background:var(--border)"></span>
+      <button type="button" class="btn-secondary" id="fitWidthBtn" style="width:auto">Ajuster à la largeur</button>
     </div>
 
     <div class="mobile-toolbar" id="mobileToolbar"></div>
@@ -371,6 +513,7 @@
   <div class="msg" id="msg"></div>
 
   <button class="btn-primary" id="saveBtn" disabled>Télécharger le PDF modifié</button>
+  <button class="btn-primary save-fixed-btn" id="saveFixedBtn" disabled style="display:none">Enregistrer les modifications</button>
 
   <div class="progress-wrap" id="progress">
     <div class="progress-label">Traitement…</div>
