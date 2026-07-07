@@ -147,12 +147,28 @@
     .img-annotation {
       position: absolute; cursor: move; border: 1px dashed transparent;
     }
-    .img-annotation.selected { border-color: var(--blue); }
+    .img-annotation.selected { border-color: var(--blue); border-width: 2px; }
     .img-annotation img { width: 100%; height: 100%; display: block; }
+    .img-annotation.img-detected { border: 1px dashed var(--blue); }
+    .img-annotation.img-detected:hover { background: var(--blue-50); }
+    .img-annotation.img-placeholder { background: transparent; }
+    .img-deleted { position: absolute; box-sizing: border-box; background: rgba(255,255,255,0.85); border: 1px dashed var(--slate); pointer-events: none; }
     .img-resize-handle {
       position: absolute; width: 14px; height: 14px; right: -7px; bottom: -7px;
       background: var(--blue); border-radius: 50%; cursor: nwse-resize;
     }
+    .floating-actions {
+      position: absolute; z-index: 7; display: flex; gap: 6px;
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-btn);
+      box-shadow: 0 4px 14px rgba(30, 41, 59, 0.16); padding: 6px;
+    }
+    .floating-actions button {
+      width: auto; margin-top: 0; padding: 6px 10px; font-size: 0.8rem;
+      border: 1px solid var(--border); background: var(--white); color: var(--ink);
+      border-radius: 6px; cursor: pointer; white-space: nowrap;
+    }
+    .floating-actions button:hover { background: var(--blue-50); color: var(--blue); border-color: var(--blue); }
+    .floating-actions button.danger:hover { color: #b91c1c; }
 
     /* Barre contextuelle sous le bloc sélectionné */
     .context-bar {

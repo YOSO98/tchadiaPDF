@@ -54,6 +54,7 @@ let zoomFactor = 1;
 let currentTool = "select";
 let hasUnsavedChanges = false;
 let reflowEnabled = false;
+let replaceTargetImg = null; // image en attente de remplacement (Partie 3), défini juste avant d'ouvrir le sélecteur de fichier
 
 const pageTextCache = new Map(); // pageIndex -> { lines: [...], isOcr: bool }
 const pageBlocksCache = new Map(); // pageIndex -> blocs [...] (regroupement de lignes, paresseux)
@@ -612,6 +613,7 @@ function findNearestLineInBlock(block, pdfY) {
 function selectBlockVisual(block) {
   selection = { kind: "block", pageIndex: currentPageIndex, id: block.id };
   document.querySelectorAll(".block-hit").forEach((el) => el.classList.toggle("active", el.dataset.blockId === block.id));
+  renderFloatingActions();
 }
 function rebuildBlockOverlays() {
   previewWrap.querySelectorAll(".block-hit, .img-hit").forEach((el) => el.remove());
@@ -637,14 +639,7 @@ function rebuildBlockOverlays() {
     if (block.dateMatches.length) hit.addEventListener("contextmenu", (e) => onBlockContextMenu(e, block));
     previewWrap.appendChild(hit);
   }
-  const images = pageImagesCache.get(currentPageIndex) || [];
-  for (const img of images) {
-    const hit = document.createElement("div");
-    hit.className = "img-hit";
-    hit.title = "Image";
-    positionOverlayEl(hit, img.x, img.y, img.width, img.height);
-    previewWrap.appendChild(hit);
-  }
+  // Les images (détectées + ajoutées) sont gérées séparément par rebuildImageAnnotations (Partie 3), appelée à chaque renderOverlay.
 }
 
 // ---------- Menu contextuel : modifier une date détectée ----------
@@ -834,10 +829,72 @@ function rebuildTextHitAreas() {
   }
 }
 
+/** Fusionne les images détectées (Partie 1) avec leurs éventuelles éditions (remplacement/suppression/déplacement) et les images ajoutées par l'utilisateur. */
+function getEffectiveImages(pageIndex) {
+  const detected = pageImagesCache.get(pageIndex) || [];
+  const edits = getPageEdits(pageIndex);
+  const overridesByDetected = new Map();
+  const userImages = [];
+  for (const im of edits.images) {
+    if (im.source === "detected") overridesByDetected.set(im.detectedId, im);
+    else userImages.push(im);
+  }
+  const result = [];
+  for (const d of detected) {
+    const ov = overridesByDetected.get(d.id);
+    if (ov) result.push(Object.assign({}, d, ov, { isDetected: true }));
+    else result.push(Object.assign({}, d, { isDetected: true, source: "detected", origX: d.x, origY: d.y, origWidth: d.width, origHeight: d.height }));
+  }
+  for (const u of userImages) result.push(Object.assign({}, u, { isDetected: false }));
+  return result;
+}
+
 function rebuildImageAnnotations() {
-  previewWrap.querySelectorAll(".img-annotation").forEach((el) => el.remove());
-  const edits = getPageEdits(currentPageIndex);
-  for (const img of edits.images) renderImageAnnotation(img);
+  previewWrap.querySelectorAll(".img-annotation, .img-deleted").forEach((el) => el.remove());
+  for (const img of getEffectiveImages(currentPageIndex)) renderImageAnnotation(img);
+}
+
+function selectImage(img) {
+  selection = { kind: "image", pageIndex: currentPageIndex, id: img.id, isDetected: !!img.isDetected };
+  document.querySelectorAll(".block-hit.active").forEach((el) => el.classList.remove("active"));
+  renderOverlay();
+}
+
+/** Met à jour la géométrie (position/taille) d'une image, qu'elle soit détectée (crée un enregistrement de dérogation si besoin) ou ajoutée par l'utilisateur. */
+function updateImageGeom(pageIndex, img, patch) {
+  withHistory(pageIndex, (pe) => {
+    if (img.isDetected) {
+      let rec = pe.images.find((x) => x.source === "detected" && x.detectedId === img.id);
+      if (!rec) {
+        rec = { id: img.id, source: "detected", detectedId: img.id, x: img.x, y: img.y, width: img.width, height: img.height, origX: img.origX, origY: img.origY, origWidth: img.origWidth, origHeight: img.origHeight };
+        pe.images.push(rec);
+      }
+      Object.assign(rec, patch);
+    } else {
+      const rec = pe.images.find((x) => x.id === img.id);
+      if (rec) Object.assign(rec, patch);
+    }
+  });
+}
+
+function deleteSelectedImage() {
+  if (!selection || selection.kind !== "image" || selection.pageIndex !== currentPageIndex) return;
+  const img = getEffectiveImages(currentPageIndex).find((i) => i.id === selection.id);
+  if (!img) return;
+  withHistory(currentPageIndex, (pe) => {
+    if (img.isDetected) {
+      let rec = pe.images.find((x) => x.source === "detected" && x.detectedId === img.id);
+      if (!rec) {
+        rec = { id: img.id, source: "detected", detectedId: img.id, x: img.x, y: img.y, width: img.width, height: img.height, origX: img.origX, origY: img.origY, origWidth: img.origWidth, origHeight: img.origHeight };
+        pe.images.push(rec);
+      }
+      rec.deleted = true;
+    } else {
+      const idx = pe.images.findIndex((x) => x.id === img.id);
+      if (idx >= 0) pe.images.splice(idx, 1);
+    }
+  });
+  deselect();
 }
 
 /** Redessine uniquement le canevas transparent (texte édité, sélection, décorations, formes). Ne touche jamais au DOM des zones cliquables. */
@@ -887,6 +944,45 @@ function renderOverlay() {
   rebuildImageAnnotations();
   updateContextBarVisibility();
   updateBlockHitGeometry();
+  renderFloatingActions();
+}
+
+/** Barre d'actions flottante (Supprimer, et Remplacer l'image pour une image) sous l'élément sélectionné (Partie 2/3). */
+function renderFloatingActions() {
+  const old = document.getElementById("floatingActionsBar");
+  if (old) old.remove();
+  if (!selection || selection.pageIndex !== currentPageIndex) return;
+  const bar = document.createElement("div");
+  bar.className = "floating-actions";
+  bar.id = "floatingActionsBar";
+  let geom;
+  if (selection.kind === "block") {
+    const block = (pageBlocksCache.get(currentPageIndex) || []).find((b) => b.id === selection.id);
+    if (!block) return;
+    geom = getEffectiveBlockGeom(currentPageIndex, block);
+    const delBtn = document.createElement("button");
+    delBtn.type = "button"; delBtn.className = "danger"; delBtn.textContent = "Supprimer le bloc";
+    delBtn.addEventListener("click", () => deleteSelectedBlock());
+    bar.appendChild(delBtn);
+  } else if (selection.kind === "image") {
+    const img = getEffectiveImages(currentPageIndex).find((i) => i.id === selection.id);
+    if (!img || img.deleted) return;
+    geom = img;
+    const replaceBtn = document.createElement("button");
+    replaceBtn.type = "button"; replaceBtn.textContent = "Remplacer l'image";
+    replaceBtn.addEventListener("click", () => { replaceTargetImg = img; imageInput.click(); });
+    bar.appendChild(replaceBtn);
+    const delBtn = document.createElement("button");
+    delBtn.type = "button"; delBtn.className = "danger"; delBtn.textContent = "Supprimer";
+    delBtn.addEventListener("click", () => deleteSelectedImage());
+    bar.appendChild(delBtn);
+  } else {
+    return;
+  }
+  positionOverlayEl(bar, geom.x, geom.y + geom.height + 2, Math.max(geom.width, 10), 10);
+  bar.style.width = "auto";
+  bar.style.height = "auto";
+  previewWrap.appendChild(bar);
 }
 
 /** Repositionne (sans les recréer) les cadres de blocs déjà affichés selon leur géométrie effective, et signale visuellement un bloc qui a dû s'étendre (Partie 2). Ne recrée JAMAIS les éléments .block-hit ici (casserait la détection du double-clic natif). */
@@ -1506,7 +1602,8 @@ function setTool(tool) {
 })();
 
 overlayCanvas.addEventListener("pointerdown", (e) => {
-  if (currentTool === "select" || currentTool === "text") return;
+  if (currentTool === "select") { deselect(); return; }
+  if (currentTool === "text") return;
   const c = eventToCanvasPx(e);
   const p = canvasPxToPdf(c.x, c.y);
 
@@ -1573,16 +1670,24 @@ function buildAnnotationFromDrag(tool, start, end, freehandPoints) {
 imageInput.addEventListener("change", async () => {
   const file = imageInput.files[0];
   imageInput.value = "";
-  if (!file || !pdfjsDoc) return;
+  if (!file || !pdfjsDoc) { replaceTargetImg = null; return; }
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const blob = new Blob([bytes], { type: file.type });
-    const bitmap = await createImageBitmap(blob);
     const dataUrl = await new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
       reader.readAsDataURL(blob);
     });
+
+    if (replaceTargetImg) {
+      const target = replaceTargetImg;
+      replaceTargetImg = null;
+      updateImageGeom(currentPageIndex, target, { dataUrl, mime: file.type, deleted: false });
+      return;
+    }
+
+    const bitmap = await createImageBitmap(blob);
     const pageW = currentPageObj.getViewport({ scale: 1 }).width;
     const pageH = currentPageObj.getViewport({ scale: 1 }).height;
     const w = Math.min(pageW * 0.4, bitmap.width);
@@ -1595,23 +1700,41 @@ imageInput.addEventListener("change", async () => {
 });
 
 function renderImageAnnotation(img) {
+  if (img.deleted) {
+    const del = document.createElement("div");
+    del.className = "img-deleted";
+    positionOverlayEl(del, img.x, img.y, img.width, img.height);
+    previewWrap.appendChild(del);
+    return;
+  }
   const el = document.createElement("div");
-  el.className = "img-annotation";
+  el.className = "img-annotation" + (img.isDetected ? " img-detected" : "");
+  el.dataset.imgId = img.id;
   positionOverlayEl(el, img.x, img.y, img.width, img.height);
-  const imgEl = document.createElement("img");
-  imgEl.src = img.dataUrl;
-  imgEl.draggable = false;
-  el.appendChild(imgEl);
+  if (img.dataUrl) {
+    const imgEl = document.createElement("img");
+    imgEl.src = img.dataUrl;
+    imgEl.draggable = false;
+    el.appendChild(imgEl);
+  } else {
+    // Image détectée non remplacée : déjà visible dans le rendu de la page (raster) ; seul le cadre/interactions sont ajoutés ici.
+    el.classList.add("img-placeholder");
+  }
   const handle = document.createElement("div");
   handle.className = "img-resize-handle";
   el.appendChild(handle);
+  if (selection && selection.kind === "image" && selection.id === img.id) el.classList.add("selected");
 
   el.addEventListener("pointerdown", (e) => {
     if (currentTool !== "select" || e.target === handle) return;
     e.preventDefault();
+    selectImage(img);
     const startX = e.clientX, startY = e.clientY;
     const origX = img.x, origY = img.y;
+    let dragged = false;
     function onMove(ev) {
+      if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > 3) dragged = true;
+      if (!dragged) return;
       const c1 = eventToCanvasPx({ clientX: startX, clientY: startY });
       const c2 = eventToCanvasPx(ev);
       const p1 = canvasPxToPdf(c1.x, c1.y);
@@ -1621,14 +1744,12 @@ function renderImageAnnotation(img) {
     function onUp(ev) {
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
+      if (!dragged) return;
       const c1 = eventToCanvasPx({ clientX: startX, clientY: startY });
       const c2 = eventToCanvasPx(ev);
       const p1 = canvasPxToPdf(c1.x, c1.y);
       const p2 = canvasPxToPdf(c2.x, c2.y);
-      withHistory(currentPageIndex, (pe) => {
-        const im = pe.images.find((x) => x.id === img.id);
-        if (im) { im.x = origX + (p2[0] - p1[0]); im.y = origY + (p2[1] - p1[1]); }
-      });
+      updateImageGeom(currentPageIndex, img, { x: origX + (p2[0] - p1[0]), y: origY + (p2[1] - p1[1]) });
     }
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
@@ -1636,6 +1757,7 @@ function renderImageAnnotation(img) {
 
   handle.addEventListener("pointerdown", (e) => {
     e.preventDefault(); e.stopPropagation();
+    selectImage(img);
     const startX = e.clientX;
     const origW = img.width, origH = img.height, ratio = img.height / img.width;
     function onMove(ev) {
@@ -1652,10 +1774,7 @@ function renderImageAnnotation(img) {
       const dxCss = ev.clientX - startX;
       const dxPdf = dxCss / rect.width * currentPageObj.getViewport({ scale: 1 }).width;
       const newW = Math.max(20, origW + dxPdf);
-      withHistory(currentPageIndex, (pe) => {
-        const im = pe.images.find((x) => x.id === img.id);
-        if (im) { im.y = im.y - (newW * ratio - im.height); im.width = newW; im.height = newW * ratio; }
-      });
+      updateImageGeom(currentPageIndex, img, { y: img.y - (newW * ratio - img.height), width: newW, height: newW * ratio });
     }
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
@@ -2020,6 +2139,17 @@ saveBtn.addEventListener("click", async () => {
       for (const ann of edits.annotations) drawAnnotationOnPdfPage(page, ann, rgb);
 
       for (const img of edits.images) {
+        if (img.source === "detected") {
+          // Une image détectée n'est modifiée que si elle a été supprimée ou remplacée : la
+          // masquer (rectangle blanc) à sa position D'ORIGINE, jamais à une position déplacée
+          // sans remplacement (limite connue, voir BENCHMARK.md : déplacer une image détectée
+          // sans la remplacer n'est pas répercuté dans le PDF final).
+          if (img.deleted || img.dataUrl) {
+            const ox = img.origX, oy = img.origY, ow = img.origWidth, oh = img.origHeight;
+            page.drawRectangle({ x: ox - 1, y: oy - 1, width: ow + 2, height: oh + 2, color: rgb(1, 1, 1) });
+          }
+          if (img.deleted || !img.dataUrl) continue;
+        }
         const bytes = dataUrlToBytes(img.dataUrl);
         const embedded = img.mime === "image/png" ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
         page.drawImage(embedded, { x: img.x, y: img.y, width: img.width, height: img.height });
