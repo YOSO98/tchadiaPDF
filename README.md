@@ -149,10 +149,10 @@ Deux façons simples d'aider :
 
 ## Soutenir le projet
 
-tchadiaPdf est gratuit et le restera. Le projet pourra à l'avenir être financé par de la publicité (déjà prévue dans le code, désactivée tant que l'utilisateur n'a pas donné son consentement) et par des dons.
+tchadiaPdf est gratuit et le restera. Le projet pourra à l'avenir être financé par de la publicité (déjà prévue dans le code, désactivée tant que l'utilisateur n'a pas donné son consentement) et par des dons. Voir la page [Soutenir tchadiaPdf](https://tchadiapdf.com/soutenir.html) pour le détail.
 
-<!-- Lien Ko-fi à ajouter une fois le compte créé : https://ko-fi.com/tchadiapdf -->
-<!-- Lien GitHub Sponsors à ajouter une fois le compte créé : https://github.com/sponsors/YOSO98 -->
+- [Faire un don ponctuel sur Ko-fi](https://ko-fi.com/souleman)
+- [Devenir sponsor sur GitHub Sponsors](https://github.com/sponsors/YOSO98)
 
 ## Licence
 

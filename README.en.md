@@ -149,10 +149,10 @@ Two simple ways to help:
 
 ## Supporting the project
 
-tchadiaPdf is free and will stay free. The project may in the future be funded through advertising (already built into the code, disabled until the user gives consent) and through donations.
+tchadiaPdf is free and will stay free. The project may in the future be funded through advertising (already built into the code, disabled until the user gives consent) and through donations. See the [Support tchadiaPdf](https://tchadiapdf.com/en/soutenir.html) page for details.
 
-<!-- Ko-fi link to add once the account is created: https://ko-fi.com/tchadiapdf -->
-<!-- GitHub Sponsors link to add once the account is created: https://github.com/sponsors/YOSO98 -->
+- [Make a one time donation on Ko-fi](https://ko-fi.com/souleman)
+- [Become a sponsor on GitHub Sponsors](https://github.com/sponsors/YOSO98)
 
 ## License
 
