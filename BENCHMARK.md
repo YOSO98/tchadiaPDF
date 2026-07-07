@@ -387,6 +387,152 @@ fait dans cette itération faute de temps : piste inscrite dans la liste
 des efforts futurs ci-dessous. Ces mesures restent prises en local sans
 CDN de production ni cache HTTP réel (voir remarque plus haut).
 
+## Éditeur professionnel : refonte de modifier-pdf (blocs, images, deux modes)
+
+Refonte majeure de `modifier-pdf.html`/`js/modifier-pdf.js` pour se
+rapprocher du niveau des éditeurs professionnels (Acrobat, PDFgear) en
+mode "Modifier" : détection et affichage permanent de toutes les zones
+éditables dès le chargement, édition multi-lignes avec retour à la ligne
+automatique, gestion des images détectées, deux modes clairs (Annoter /
+Modifier). Le moteur existant (lignes/mots/caractères, masquage par
+échantillonnage de couleur, polices Liberation via fontkit) a été étendu
+avec un nouveau modèle de BLOCS plutôt que réécrit.
+
+### Ce qui fonctionne réellement, vérifié par des tests Playwright
+
+- **Détection et affichage des blocs** : les lignes détectées par pdf.js
+  sont regroupées en blocs (paragraphe/titre/sous-titre/ligne isolée)
+  selon la taille de police (tolérance ≤8% pour fusionner deux lignes
+  dans le même paragraphe) et la cohérence de l'interligne. Chaque bloc
+  affiche un cadre en pointillés bleus **permanent** (pas seulement au
+  survol), avec infobulle de classification. Sur un contrat de test
+  généré (titre, 2 sous-titres, 2 paragraphes, un tableau, une ligne de
+  signature isolée, un logo), 9 blocs sont détectés correctement, dans
+  le bon ordre et avec le bon type, pour 18 lignes de texte brutes.
+- **Détection d'images** : implémentée via `page.getOperatorList()` de
+  pdf.js en cumulant les matrices `save`/`transform`/`restore` jusqu'à
+  chaque `paintImageXObject`, pour reconstruire le rectangle exact de
+  chaque image en coordonnées PDF. Validée d'abord isolément côté Node
+  (position/taille exactes retrouvées au point près sur un PDF de test)
+  avant intégration au navigateur.
+- **Détection de dates et e-mails** : expressions régulières sur le texte
+  de chaque bloc (JJ/MM/AAAA, JJ-MM-AAAA, JJ.MM.AAAA, AAAA-MM-JJ, e-mail),
+  clic droit sur un bloc contenant une date affiche un menu contextuel
+  "Modifier cette date" ouvrant un `<input type="date">` qui réinjecte la
+  nouvelle date au format d'origine (même séparateur, même ordre
+  jour/mois/année).
+- **Édition multi-lignes d'un bloc** : double-clic ouvre une zone de texte
+  couvrant tout le paragraphe, curseur placé au caractère exact cliqué
+  (réutilise `charIndexAtX`). Entrée insère une ligne, Échap annule, un
+  clic en dehors valide (documenté dans l'aide "?"). Le texte est
+  réhabillé dans la largeur du bloc (retour à la ligne automatique par
+  `canvas measureText`) ; si le nombre de lignes physiques ne change pas,
+  seul le mot modifié est masqué/redessiné (chemin minimal, hérité de la
+  correction précédente) ; sinon tout le bloc est masqué et reconstruit,
+  avec extension vers le bas si besoin (liseré bleu foncé + infobulle
+  d'avertissement en cas de chevauchement possible avec le bloc suivant).
+  Une case à cocher optionnelle "reflow" décale alors les blocs suivants
+  de la même page pour absorber l'extension (translation simple, ne
+  réhabille pas leur propre texte, voir limite ci-dessous).
+- **Remplacement/suppression d'image** : chaque image (détectée ou
+  ajoutée) a désormais sélection, poignée de redimensionnement, glisser-
+  déplacer, et une barre d'actions flottante (Remplacer/Supprimer).
+  Remplacer ouvre un sélecteur de fichier et insère la nouvelle image aux
+  mêmes position/dimensions ; l'originale est masquée par un rectangle
+  blanc à sa position d'origine. Vérifié de bout en bout : le PDF exporté
+  s'ouvre sans erreur et contient une image différente de l'originale.
+- **Deux modes** : onglets "Annoter" (comportement historique : formes,
+  surlignage, masquage, soulignage/barré) et "Modifier" (nouveau, mode
+  par défaut) avec sous-barre dédiée (Modifier le texte / Insérer du
+  texte / Images / Formulaires, ce dernier renvoyant vers
+  `formulaires-pdf.html`). Panneau latéral droit "Styles de texte"
+  synchronisé sur le bloc sélectionné (police de substitution, taille,
+  gras, italique, souligné, alignement, couleur), rendu à l'écran et à
+  l'export PDF. Bouton "Enregistrer les modifications" fixe toujours
+  visible, navigation de page (précédent/suivant, "Page X / N",
+  "Ajuster à la largeur") en bas de l'éditeur.
+- **Robustesse** : la détection de blocs et d'images est **paresseuse**
+  (page courante + une page voisine de chaque côté préchargée en tâche de
+  fond, jamais tout le document). Vérifié sur un document généré de 100
+  pages : première page affichée et interactive en ~2,3 s, seules 2 pages
+  sur 100 ont leurs blocs/images calculés à ce moment-là, navigation vers
+  la page 100 en ~0,5 s. Le bandeau de proposition d'OCR (page scannée
+  sans texte détecté) continue de fonctionner sans régression avec le
+  nouveau modèle de blocs.
+- **Bug réel trouvé et corrigé par les tests** (pas caché, comme demandé) :
+  la barre d'actions flottante (Supprimer/Remplacer) sous un bloc ou une
+  image sélectionnés était positionnée AU-DESSUS du bloc au lieu d'en
+  dessous (erreur de signe liée à l'axe Y de PDF, orienté vers le haut de
+  la page, contrairement à l'écran). Conséquence concrète découverte en
+  testant l'édition sur mobile : la barre chevauchait la zone cliquable
+  du bloc, si bien que le second clic d'un double-clic tombait sur le
+  bouton "Supprimer" au lieu du bloc, empêchant le navigateur de
+  reconnaître un double-clic natif et donc d'ouvrir l'édition. Isolé avec
+  un test Playwright dédié (inspection de l'élément réellement présent
+  sous le point de clic juste après le premier clic), puis corrigé.
+
+### Limites connues et honnêtes
+
+- **Déplacer une image détectée sans la remplacer ne modifie pas le PDF
+  final.** L'interface permet de glisser n'importe quelle image (détectée
+  ou ajoutée) et affiche le déplacement en aperçu, mais pour une image
+  détectée dans le PDF d'origine, seul un remplacement ou une suppression
+  agit réellement sur le fichier exporté : les octets de l'image
+  d'origine ne sont pas extraits/ré-encodés depuis le PDF source pour être
+  redessinés ailleurs (l'extraction fiable via `page.objs`/`commonObjs`
+  de pdf.js couvre trop de cas d'encodage exotiques, JPX, palettes
+  indexées, masques alpha, pour être traitée de façon robuste dans le
+  temps imparti). Un déplacement seul (sans remplacement) reste donc
+  cosmétique dans l'aperçu et n'est pas répercuté à l'enregistrement.
+- **Le "reflow" des blocs suivants est une translation simple**, pas une
+  ré-habillage complet de mise en page : quand un bloc s'agrandit et que
+  l'option reflow est activée, les blocs situés en dessous sont décalés
+  verticalement d'une quantité fixe, mais leur propre texte n'est pas
+  ré-enveloppé ni leur police recalculée. Pour la grande majorité des cas
+  (un paragraphe qui pousse le suivant vers le bas) c'est suffisant et
+  correct ; ça ne gère pas un réagencement en cascade sur plusieurs pages.
+- **Les changements de style (police, taille, gras, italique, couleur,
+  alignement, souligné) via le panneau de droite s'appliquent à tout le
+  bloc**, pas à une portion sélectionnée : cette limite, déjà présente
+  dans la version précédente au niveau de la ligne, existe maintenant au
+  niveau du bloc. Modifier uniquement le texte (sans toucher au style)
+  reste, lui, minimal (un seul mot masqué/redessiné) quand c'est possible.
+- **L'ancien système de sélection de mot par simple clic/glissé (avec
+  surbrillance bleue) a été volontairement remplacé** par la sélection de
+  bloc entier (clic = sélection du bloc, double-clic = édition), conforme
+  à la nouvelle spécification. Le code de l'ancien système
+  (`rebuildTextHitAreas`, `onLineHitPointerDown`, `wordSelection`,
+  `drawWordHighlight`, la barre contextuelle `context-bar`) reste présent
+  dans le fichier mais est désormais inerte : les nouveaux éléments
+  `.block-hit` sont ajoutés par-dessus et interceptent les événements en
+  premier. Non nettoyé faute de temps disponible dans cette itération ;
+  sans risque fonctionnel (le code mort ne s'exécute jamais) mais à
+  retirer dans un futur passage de nettoyage pour la lisibilité du fichier.
+- **La classification titre/sous-titre/paragraphe repose sur la taille de
+  police et l'interligne**, pas sur une analyse sémantique : un document
+  qui utilise la même taille de police pour un titre et le corps du texte
+  (mise en forme uniquement par le gras, par exemple) sera classé
+  "paragraphe" ou fusionné avec le texte voisin si le gras n'est pas
+  détectable par pdf.js pour la police en question (les polices standard
+  PDF14 embarquées sans descripteur complet, ex. Helvetica standard, ne
+  remontent pas toujours l'information gras/italique via
+  `getTextContent()` : constaté et documenté pendant le développement,
+  contournement partiel via la détection du nom de police quand elle
+  contient explicitement "Bold"/"Italic").
+
+### Méthodologie de test
+
+PDF de contrat réaliste généré par script (Node + pdf-lib) : titre, deux
+sous-titres, deux paragraphes (dont un avec une date JJ/MM/AAAA et un
+avec une adresse e-mail), un tableau simple en colonnes, une ligne de
+signature isolée, un logo. Suite Playwright de 17 vérifications couvrant
+les 7 scénarios demandés (zones encadrées au chargement, édition d'un mot
+vérifiée dans le PDF réexporté via pdf.js, remplacement d'image vérifié
+de bout en bout, détection de date et menu contextuel, viewport mobile
+375px pour les zones et l'édition, absence d'erreur console sur tous les
+scénarios, non-régression OCR et document de 100 pages) : 17/17 au
+moment de la livraison.
+
 ## Où concentrer les efforts futurs (priorisé)
 
 1. Audit Lighthouse réel une fois le site déployé en production.
