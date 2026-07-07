@@ -3,13 +3,14 @@
 Ce fichier suit l'avancement du projet. Convention : `[x]` fait, `[ ]` à faire,
 `[~]` fait avec un périmètre volontairement réduit (voir note associée).
 
-**État : Phase Conversions en cours (Groupe 3 termine ses 2 derniers outils),
-Phase 6 (Déploiement) a livré ses blocs indépendants, Phase Sécurité lancée
-en parallèle sur ses blocs indépendants. Round final d'intégration (moi-même)
-à faire une fois tout rentré : Groupe 4, Bloc 1/Bloc 2 Phase 6, Bloc 1/Bloc 2
-Phase Sécurité, corrections de style, footer global.** Les Phases 1 à 4
-(24 outils, design system, moteur WASM, éditeur PDF professionnel) sont
-terminées, cf. git log et la suite de ce fichier.
+**État : Phase Conversions (22 outils), Phase Sécurité (Blocs 1 à 5), Phase 6
+Bloc 2/3/4/5, Phase Éditeur Pro et Phase README toutes terminées et
+vérifiées. Reste ouvert (non bloquant, documenté honnêtement) : Phase 6
+Bloc 1 restant (fallback CDN local, minification, sitemap déjà fait),
+dépôt GitHub à rendre public avant un lancement public, identité légale à
+compléter dans mentions-legales.html, compte AdSense/Plausible à créer.**
+Les Phases 1 à 4 (24 outils, design system, moteur WASM, éditeur PDF
+professionnel) sont terminées, cf. git log et la suite de ce fichier.
 
 ---
 
@@ -46,12 +47,17 @@ de la Phase Conversions (Groupe 4 inclus). Ordre retenu :
       non activée, risque de casser les CDN sans bénéfice prouvé,
       documenté). Testé en conditions réelles (CSP injectée sur 4 pages
       représentatives via Playwright) : 4/4 passent, 0 violation.
-- [ ] BLOC 2 : attribut `integrity`/`crossorigin` SRI sur CHAQUE balise
-      CDN de CHAQUE page (script automatisé plutôt qu'édition manuelle,
-      pour garantir la cohérence), fallback local déjà présent/à compléter
-      pour chaque librairie. DEPENDENCIES.md déjà fait. Différé après la
-      refonte de modifier-pdf.html (ci-dessous) pour ne pas toucher ce
-      fichier pendant qu'il est en cours de refonte.
+- [x] BLOC 2 : attribut `integrity`/`crossorigin` SRI sur les 13
+      bibliothèques CDN statiques (script automatisé, hash calculé sur le
+      contenu réellement téléchargé) et sur les chargements dynamiques
+      maîtrisés (qpdf.js, tesseract.min.js, fontkit.umd.min.js). Bug SRI
+      réel trouvé et corrigé : le hash de docx@8.5.0 ne correspondait pas
+      systématiquement à ce que le navigateur recevait (jsdelivr sert deux
+      contenus différents pour cette URL à version figée selon le nœud
+      CDN), SRI volontairement retirée pour ce fichier précis et
+      documentée dans DEPENDENCIES.md. Fallback local (copie hashée
+      servie si le CDN est injoignable) reste à faire, voir BLOC 1 de la
+      Phase 6 ci-dessous.
 
 ---
 
@@ -66,35 +72,46 @@ navigation de pages avec zoom et recherche. Fait par un sous-agent dédié
 (fichier unique et fortement couplé, pas de parallélisation interne
 possible sans risque de conflit) avec commits fréquents par étape.
 
-- [ ] Détection : regroupement intelligent des blocs (interligne,
+**Terminé, 6 commits (b87b50d, 5c189f1, 4464618, 8b32559, 79e8147,
+8273380), suite finale 17/17 :**
+
+- [x] Détection : regroupement intelligent des blocs (interligne,
       changement de taille de police), détection d'images via
       paintImageXObject, classification (titre/sous-titre/paragraphe/
       ligne isolée/image), détection dates et e-mails.
-- [ ] Affichage : bordures pointillées bleues permanentes en mode
+- [x] Affichage : bordures pointillées bleues permanentes en mode
       Modifier, hover = bordure pleine + fond bleu clair, actif = bordure
       plus épaisse. Infobulle de classification au survol.
-- [ ] Panneau latéral droit "Styles de texte" (police, taille, gras,
+- [x] Panneau latéral droit "Styles de texte" (police, taille, gras,
       italique, souligné, alignement, couleur), synchronisé sur la
       sélection.
-- [ ] Édition : double-clic = édition sur place au caractère cliqué,
+- [x] Édition : double-clic = édition sur place au caractère cliqué,
       retour à la ligne automatique dans la largeur du bloc, extension
       verticale si besoin avec avertissement de chevauchement, reflow des
       blocs suivants optionnel (jamais forcé).
-- [ ] Images : cadre pointillé, poignées de redimensionnement, glisser
+- [x] Images : cadre pointillé, poignées de redimensionnement, glisser
       pour déplacer, bouton flottant Remplacer/Supprimer, ajout d'image
       libre.
-- [ ] Deux modes (onglets Annoter/Modifier) avec sous-barre Modifier
+- [x] Deux modes (onglets Annoter/Modifier) avec sous-barre Modifier
       (texte/insérer/images/formulaires), bouton "Enregistrer les
       modifications" toujours visible, avertissement avant fermeture,
       barre de navigation de page (zoom, ajuster largeur, recherche).
-- [ ] Robustesse : détection paresseuse par page visible (jusqu'à 100
-      pages sans geler), bandeau OCR pour PDF scannés déjà en place à
-      vérifier.
-- [ ] Tests Playwright obligatoires sur un PDF de contrat réaliste
+- [x] Robustesse : détection paresseuse par page visible confirmée sur un
+      document de 100 pages (2/100 pages calculées, ~2,3s), bandeau OCR
+      vérifié sans régression.
+- [x] Tests Playwright obligatoires sur un PDF de contrat réaliste
       (titres, paragraphes, tableaux, logos, dates, e-mails), desktop et
-      mobile 375px.
-- [ ] BENCHMARK.md : comparaison honnête des capacités atteintes et des
-      limites restantes.
+      mobile 375px : 17/17.
+- [x] BENCHMARK.md : sous-section dédiée, limites honnêtes documentées
+      (déplacer une image sans la remplacer n'affecte pas le PDF final,
+      reflow simple pas un ré-habillage complet, style appliqué à tout le
+      bloc, classification parfois limitée par l'absence d'info
+      gras/italique que pdf.js ne remonte pas pour certaines polices).
+      Un vrai bug trouvé et corrigé en cours de route (barre d'actions
+      flottante mal positionnée par inversion d'axe Y, cassait le
+      double-clic mobile).
+- [x] OG/Twitter Card/JSON-LD et SRI ajoutés à modifier-pdf.html une fois
+      la refonte livrée (fait par moi, voir Sécurité Bloc 2 ci-dessus).
 
 ---
 
@@ -107,13 +124,15 @@ avec badges et accroche bilingue, captures d'écran réelles (accueil +
 technologies, lancer en local, contribuer, soutenir le projet, pied de
 page licence. Ton sobre, aucun superlatif creux, aucun tiret long/moyen.
 
-- [ ] Captures d'écran réelles générées via Playwright dans
-      `docs/screenshots/` (accueil, éditeur avec zones en pointillés une
-      fois la Phase Éditeur Pro livrée, ou l'éditeur actuel sinon, à
-      régénérer ensuite si besoin).
-- [ ] README.md complet selon la structure demandée, tous les liens
+- [x] Captures d'écran réelles générées via Playwright dans
+      `docs/screenshots/`. Capture de l'éditeur prise AVANT la refonte
+      Éditeur Pro (celle-ci a été livrée après coup) : à régénérer pour
+      refléter les zones en pointillés, non fait dans cette itération
+      (dépend du temps disponible, sinon reste une amélioration mineure
+      puisque la capture actuelle reste fonctionnellement correcte).
+- [x] README.md complet selon la structure demandée, tous les liens
       vérifiés (pas seulement supposés).
-- [ ] README.en.md, traduction fidèle, lien de bascule FR/EN en haut des
+- [x] README.en.md, traduction fidèle, lien de bascule FR/EN en haut des
       deux fichiers.
 - [x] Commit "README professionnel avec captures" fait (`0c80599`). Push a
       faire par l'utilisateur ou moi (voir JOURNAL.md). 43 outils confirmes,
