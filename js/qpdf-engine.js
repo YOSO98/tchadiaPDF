@@ -65,6 +65,13 @@ function loadQpdf(onProgress) {
     await new Promise((resolve, reject) => {
       const script = document.createElement("script");
       script.src = QPDF_JS_URL;
+      // Integrite du glue JS verifiee (SRI) : qpdf.js est servi a version
+      // figee (0.3.0), le hash n'a donc pas de raison de changer sous nos
+      // pieds. qpdf.wasm lui-meme est recupere en interne par ce glue JS
+      // via son propre fetch, hors de notre controle : la SRI classique ne
+      // s'y applique pas (limite documentee dans SECURITY.md).
+      script.integrity = "sha384-viHHfnvZlwDzjAQCrTUX3UR1zDr3OW9ItyLOqwH2wTHYHXWK8NdKi5LFp++BT8NL";
+      script.crossOrigin = "anonymous";
       script.onload = resolve;
       script.onerror = () => reject(new Error("Impossible de charger le moteur qpdf (problème réseau)."));
       document.head.appendChild(script);
