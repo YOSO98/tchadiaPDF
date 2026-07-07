@@ -126,6 +126,7 @@
     if (existing && existing.parentNode) {
       existing.parentNode.removeChild(existing);
     }
+    document.body.classList.remove("has-consent-banner");
   }
 
   function handleChoice(value) {
@@ -187,6 +188,7 @@
     injectStyles();
     var banner = buildBanner();
     document.body.appendChild(banner);
+    document.body.classList.add("has-consent-banner");
   }
 
   // Relie chaque bouton ".consent-banner-reopen-link" du footer sans

@@ -69,7 +69,31 @@ function offerDownload(bytes, filename, mime) {
   link.download = filename;
   result.classList.add("visible");
   result.scrollIntoView({ behavior: "smooth", block: "center" });
+  showFunLine(result);
   showSupportLine(result);
+}
+
+const FUN_LINES = [
+  "Votre fichier est prêt, il n'a même pas eu le temps de s'ennuyer.",
+  "Terminé, plus vite qu'un café qui refroidit.",
+  "Et voilà, sans effort... enfin, le vôtre en tout cas.",
+  "Mission accomplie, aucun octet n'a été blessé.",
+  "C'est prêt, même pas eu besoin de croiser les doigts.",
+  "Fait. Votre PDF vous remercie de ne pas l'avoir imprimé pour rien.",
+  "Voilà votre fichier, tout frais, tout chaud.",
+  "Prêt ! Ça a pris moins de temps qu'à le raconter.",
+];
+
+/** Petite phrase legere au succes d'une action, en plus de (jamais a la
+ * place de) la ligne de soutien sobre juste en dessous. */
+function showFunLine(result) {
+  let line = result.querySelector(".fun-line");
+  if (!line) {
+    line = document.createElement("p");
+    line.className = "fun-line";
+    result.appendChild(line);
+  }
+  line.textContent = FUN_LINES[Math.floor(Math.random() * FUN_LINES.length)];
 }
 
 const SUPPORT_CLICKED_KEY = "tchadiapdf_support_clicked";
