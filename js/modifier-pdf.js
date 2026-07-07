@@ -1998,6 +1998,8 @@ function loadTesseract() {
   tesseractPromise = new Promise((resolve, reject) => {
     const s = document.createElement("script");
     s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+    s.integrity = "sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F";
+    s.crossOrigin = "anonymous";
     s.onload = () => resolve(window.Tesseract);
     s.onerror = () => reject(new Error("Impossible de charger le moteur de reconnaissance de texte (problème réseau)."));
     document.head.appendChild(s);
@@ -2150,6 +2152,8 @@ function loadFontkit() {
   fontkitPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = "https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js";
+    script.integrity = "sha384-2p6U+1mmqF10USehFeRiyG2ESG9FwIqN+jxULn5w9jjQIihSn9Pt13dVCn/Hawjn";
+    script.crossOrigin = "anonymous";
     script.onload = () => resolve(window.fontkit);
     script.onerror = () => reject(new Error("Impossible de charger le module de polices (problème réseau)."));
     document.head.appendChild(script);

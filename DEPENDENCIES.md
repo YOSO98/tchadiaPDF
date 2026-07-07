@@ -40,6 +40,23 @@ testée de ce dépôt.
 | Inter | fonts.googleapis.com (Google Fonts) | SIL OFL 1.1 | Police d'interface du site |
 | Liberation Sans/Serif/Mono | `cdn.jsdelivr.net/gh/shantigilbert/liberation-fonts-ttf@master/` (miroir TTF du projet officiel Liberation Fonts) | SIL OFL 1.1 | Police de substitution embarquée dans le PDF lors de l'édition de texte (modifier-pdf), métriques compatibles Arial/Times New Roman/Courier New |
 
+## Exception SRI vérifiée : docx@8.5.0
+
+`https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js` (utilisé
+par `pdf-en-word.html`) n'a PAS d'attribut `integrity` (SRI), contrairement
+à toutes les autres bibliothèques CDN de ce projet. Ce n'est pas un oubli :
+vérifié en conditions réelles (rechargements successifs, requêtes HTTP
+directes), ce fichier a été observé avec DEUX contenus différents (donc
+deux hachages SHA-384 différents, `sha384-TcLTgu6f...` et
+`sha384-Fycsog...`) selon le nœud périphérique jsdelivr qui répond, alors
+que la version est pourtant figée (`@8.5.0`, cense être immuable par
+principe chez jsdelivr). Un attribut `integrity` fixe ferait donc échouer
+le chargement de façon aléatoire selon le nœud CDN qui répond à chaque
+visiteur, ce qui serait pire que l'absence de SRI. À revérifier
+périodiquement (l'incohérence peut se résorber avec le temps côté
+jsdelivr) ; en attendant, ce fichier reste sans SRI en connaissance de
+cause.
+
 ## Note sur les fallbacks locaux
 
 Chaque librairie ci-dessus est un candidat au fallback local (copie du
