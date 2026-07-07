@@ -69,23 +69,22 @@ reelle sur l'accueil, et des fonctionnalites qui exploitent l'avantage
 structurel du site (100% local, pas de backend) que les gros acteurs
 (Smallpdf, iLovePDF, Adobe) ne peuvent pas repliquer aussi simplement.
 
-- [ ] Barre de recherche sur l'accueil : filtre les cartes d'outils en
+- [x] Barre de recherche sur l'accueil : filtre les cartes d'outils en
       temps reel (titre + description), raccourci clavier "/" pour la
       cibler, Echap pour vider, aucun outil de recherche externe.
-- [ ] Routage intelligent : deposer un fichier n'importe ou sur l'accueil
+- [x] Routage intelligent : deposer un fichier n'importe ou sur l'accueil
       detecte son vrai type (octets magiques, js/security-utils.js deja
       existant) et redirige automatiquement vers le bon outil avec le
       fichier deja charge (transfert via IndexedDB, generique dans
       initDropzone pour fonctionner sur tous les outils sans les
-      modifier un par un).
-- [ ] Support hors ligne (PWA) : manifest.json + service worker mettant
-      en cache l'app shell (accueil, CSS, JS propre au site) avec une
-      strategie prudente (jamais les bibliotheques CDN externes, deja
-      gerees par le cache HTTP long de Cloudflare), page de repli hors
-      ligne honnete pour les pages jamais visitees. Installable sur
-      mobile et desktop.
-- [ ] Tests Playwright sur chaque fonctionnalite, BENCHMARK.md mis a
-      jour avec les limites reelles.
+      modifier un par un). Teste de bout en bout avec un vrai .docx.
+- [x] Support hors ligne (PWA) : manifest.json + service worker (reseau
+      d'abord partout, secours cache hors ligne, jamais les
+      bibliotheques CDN). Teste en conditions reelles (emulation hors
+      ligne Playwright) : accueil deja visite fonctionne hors ligne,
+      page jamais visitee affiche offline.html.
+- [x] Tests Playwright sur chaque fonctionnalite (11 scenarios au total),
+      BENCHMARK.md mis a jour avec les limites reelles.
 
 ---
 
