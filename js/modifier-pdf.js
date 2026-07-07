@@ -80,6 +80,10 @@ const scannedBannerText = document.getElementById("scannedBannerText");
 const protectedBanner = document.getElementById("protectedBanner");
 const imageInput = document.getElementById("imageInput");
 const toolHint = document.getElementById("toolHint");
+const saveFixedBtn = document.getElementById("saveFixedBtn");
+const rightPanel = document.getElementById("rightPanel");
+const rightPanelEmpty = document.getElementById("rightPanelEmpty");
+const rightPanelFields = document.getElementById("rightPanelFields");
 
 function getPageEdits(pageIndex) {
   if (!pageEditsMap.has(pageIndex)) pageEditsMap.set(pageIndex, { textEdits: [], blockEdits: [], decorations: [], annotations: [], images: [] });
@@ -178,6 +182,8 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
 
   editorSection.style.display = "block";
   saveBtn.disabled = false;
+  saveFixedBtn.disabled = false;
+  saveFixedBtn.style.display = "block";
   await buildThumbnails();
   await renderCurrentPage();
 });
@@ -250,6 +256,7 @@ async function renderCurrentPage() {
   rebuildTextHitAreas();
   rebuildBlockOverlays();
   renderOverlay();
+  updatePageNavLabel();
 
   // Détection paresseuse : uniquement page courante + voisines immédiates,
   // jamais tout le document (important pour les gros documents, ex. 100 pages).
@@ -614,6 +621,7 @@ function selectBlockVisual(block) {
   selection = { kind: "block", pageIndex: currentPageIndex, id: block.id };
   document.querySelectorAll(".block-hit").forEach((el) => el.classList.toggle("active", el.dataset.blockId === block.id));
   renderFloatingActions();
+  showRightPanelForBlock(block);
 }
 function rebuildBlockOverlays() {
   previewWrap.querySelectorAll(".block-hit, .img-hit").forEach((el) => el.remove());
@@ -857,6 +865,7 @@ function rebuildImageAnnotations() {
 function selectImage(img) {
   selection = { kind: "image", pageIndex: currentPageIndex, id: img.id, isDetected: !!img.isDetected };
   document.querySelectorAll(".block-hit.active").forEach((el) => el.classList.remove("active"));
+  clearRightPanel();
   renderOverlay();
 }
 
@@ -1216,7 +1225,23 @@ function drawBlockEditOnCanvas(ctx, block, rec) {
   const lineHeight = rec.fontSize * 1.2;
   const offsetFromTop = (block.y + block.height) - block.lines[0].baseline;
   const baseline0 = (rec.y + rec.height) - offsetFromTop;
-  (rec.wrappedLines || []).forEach((txt, i) => drawTextRunOnCanvas(ctx, txt, rec.x, baseline0 - i * lineHeight, rec));
+  const measure = canvasMeasureFor(rec.fontFamily, rec.bold, rec.italic, rec.fontSize);
+  (rec.wrappedLines || []).forEach((txt, i) => {
+    if (!txt) return;
+    const w = measure(txt);
+    let drawX = rec.x;
+    if (rec.align === "center") drawX = rec.x + Math.max(0, rec.width - w) / 2;
+    else if (rec.align === "right") drawX = rec.x + Math.max(0, rec.width - w);
+    const baseline = baseline0 - i * lineHeight;
+    drawTextRunOnCanvas(ctx, txt, drawX, baseline, rec);
+    if (rec.underline) {
+      const p1 = pdfToCanvasPx(drawX, baseline - rec.fontSize * 0.08);
+      const p2 = pdfToCanvasPx(drawX + w, baseline - rec.fontSize * 0.08);
+      ctx.strokeStyle = rgbCss(rec.color || INK, 1);
+      ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+    }
+  });
 }
 
 /** Géométrie effective d'un bloc (position/taille courantes, après édition éventuelle). */
@@ -1552,6 +1577,9 @@ function deselect() {
   closeDateMenu();
   closeDatePopup();
   document.querySelectorAll(".block-hit.active").forEach((el) => el.classList.remove("active"));
+  clearRightPanel();
+  const bar = document.getElementById("floatingActionsBar");
+  if (bar) bar.remove();
 }
 
 function deleteSelectedBlock() {
@@ -1574,10 +1602,11 @@ function setTool(tool) {
   if (tool === "image") { imageInput.click(); return; }
   currentTool = tool;
   document.querySelectorAll("#sideTools button[data-tool], #mobileToolbar button[data-tool]").forEach((b) => b.classList.toggle("active", b.dataset.tool === tool));
+  document.querySelectorAll("#editSubbar button[data-subtool]").forEach((b) => b.classList.toggle("active", b.dataset.subtool === tool));
   overlayCanvas.className = tool === "select" ? "tool-select" : tool === "text" ? "tool-text" : "";
   deselect();
   const hints = {
-    select: "Cliquez sur un mot pour le sélectionner, cliquez-glissez pour sélectionner plusieurs mots, double-cliquez pour modifier le texte de la ligne.",
+    select: "Cliquez sur un bloc (texte ou image) pour le sélectionner, glissez-le pour le déplacer. Double-cliquez sur un bloc de texte pour le modifier : Entrée insère une nouvelle ligne, Échap annule, un clic en dehors du bloc valide.",
     text: "Cliquez sur la page pour ajouter du texte neuf.",
     whiteout: "Cliquez et glissez pour masquer une zone en blanc.",
     highlight: "Cliquez et glissez pour surligner une zone.",
@@ -1591,6 +1620,84 @@ function setTool(tool) {
   };
   toolHint.textContent = hints[tool] || "";
 }
+
+// ---------- Deux modes : Annoter / Modifier (Partie 4) ----------
+function setMode(mode) {
+  activeMode = mode;
+  document.body.classList.toggle("mode-edit", mode === "edit");
+  document.body.classList.toggle("mode-annotate", mode === "annotate");
+  document.querySelectorAll("#modeTabs button[data-mode]").forEach((b) => {
+    b.classList.toggle("active", b.dataset.mode === mode);
+    b.setAttribute("aria-selected", String(b.dataset.mode === mode));
+  });
+  setTool("select");
+}
+document.getElementById("modeTabs").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-mode]");
+  if (!btn) return;
+  setMode(btn.dataset.mode);
+});
+document.getElementById("editSubbar").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-subtool]");
+  if (!btn) return;
+  document.querySelectorAll("#editSubbar button[data-subtool]").forEach((b) => b.classList.toggle("active", b === btn));
+  const sub = btn.dataset.subtool;
+  if (sub === "forms") { window.open("formulaires-pdf.html", "_blank"); return; }
+  if (sub === "image") { imageInput.click(); return; }
+  setTool(sub);
+});
+
+// ---------- Panneau latéral droit : styles de texte du bloc sélectionné (Partie 4) ----------
+function showRightPanelForBlock(block) {
+  const data = getBlockCurrentRecordOrDefault(currentPageIndex, block);
+  rightPanelEmpty.style.display = "none";
+  rightPanelFields.style.display = "block";
+  document.getElementById("rpFontFamily").value = data.fontFamily;
+  document.getElementById("rpFontSize").value = Math.round(data.fontSize);
+  document.getElementById("rpBold").classList.toggle("active", !!data.bold);
+  document.getElementById("rpItalic").classList.toggle("active", !!data.italic);
+  document.getElementById("rpUnderline").classList.toggle("active", !!data.underline);
+  document.getElementById("rpAlignLeft").classList.toggle("active", (data.align || "left") === "left");
+  document.getElementById("rpAlignCenter").classList.toggle("active", data.align === "center");
+  document.getElementById("rpAlignRight").classList.toggle("active", data.align === "right");
+  document.getElementById("rpColor").value = rgbToHex(data.color || INK);
+}
+function clearRightPanel() {
+  rightPanelEmpty.style.display = "block";
+  rightPanelFields.style.display = "none";
+}
+function updateSelectedBlockStyle(patch) {
+  if (!selection || selection.kind !== "block" || selection.pageIndex !== currentPageIndex) return;
+  const blocks = pageBlocksCache.get(currentPageIndex) || [];
+  const block = blocks.find((b) => b.id === selection.id);
+  if (!block) return;
+  const currentText = getBlockCurrentText(currentPageIndex, block);
+  commitBlockEdit(currentPageIndex, block, currentText, patch);
+  showRightPanelForBlock(block);
+}
+document.getElementById("rpFontFamily").addEventListener("change", (e) => updateSelectedBlockStyle({ fontFamily: e.target.value }));
+document.getElementById("rpFontSize").addEventListener("change", (e) => updateSelectedBlockStyle({ fontSize: parseFloat(e.target.value) || 11 }));
+document.getElementById("rpBold").addEventListener("click", () => updateSelectedBlockStyle({ bold: !document.getElementById("rpBold").classList.contains("active") }));
+document.getElementById("rpItalic").addEventListener("click", () => updateSelectedBlockStyle({ italic: !document.getElementById("rpItalic").classList.contains("active") }));
+document.getElementById("rpUnderline").addEventListener("click", () => updateSelectedBlockStyle({ underline: !document.getElementById("rpUnderline").classList.contains("active") }));
+document.getElementById("rpAlignLeft").addEventListener("click", () => updateSelectedBlockStyle({ align: "left" }));
+document.getElementById("rpAlignCenter").addEventListener("click", () => updateSelectedBlockStyle({ align: "center" }));
+document.getElementById("rpAlignRight").addEventListener("click", () => updateSelectedBlockStyle({ align: "right" }));
+document.getElementById("rpColor").addEventListener("input", (e) => updateSelectedBlockStyle({ color: hexToRgb(e.target.value) }));
+
+// ---------- Navigation de page (barre basse) et ajustement à la largeur (Partie 4) ----------
+function updatePageNavLabel() {
+  const el = document.getElementById("pageNavLabel");
+  if (el) el.textContent = "Page " + (currentPageIndex + 1) + " / " + numPages;
+}
+document.getElementById("prevPageBtn").addEventListener("click", () => goToPage(currentPageIndex - 1));
+document.getElementById("nextPageBtn").addEventListener("click", () => goToPage(currentPageIndex + 1));
+document.getElementById("fitWidthBtn").addEventListener("click", () => {
+  if (!currentPageObj) return;
+  const containerWidth = previewWrap.parentElement.clientWidth || previewWrap.clientWidth;
+  const baseWidthAt1 = currentPageObj.getViewport({ scale: 1.3 }).width;
+  setZoom(Math.max(0.5, Math.min(2.5, (containerWidth - 4) / baseWidthAt1)));
+});
 
 (function buildMobileToolbar() {
   const mobile = document.getElementById("mobileToolbar");
@@ -1994,7 +2101,7 @@ document.getElementById("fullscreenBtn").addEventListener("click", () => {
   document.getElementById("editorLayout").classList.toggle("fullscreen");
 });
 document.getElementById("helpBtn").addEventListener("click", () => document.getElementById("helpModal").classList.add("visible"));
-document.getElementById("reflowToggle").addEventListener("change", (e) => { reflowEnabled = e.target.checked; });
+document.getElementById("reflowTogglePanel").addEventListener("change", (e) => { reflowEnabled = e.target.checked; });
 document.getElementById("closeHelpBtn").addEventListener("click", () => document.getElementById("helpModal").classList.remove("visible"));
 document.getElementById("undoBtn").addEventListener("click", undo);
 document.getElementById("redoBtn").addEventListener("click", redo);
@@ -2046,10 +2153,11 @@ function loadFontkit() {
 }
 
 // ---------- Enregistrement final ----------
-saveBtn.addEventListener("click", async () => {
+async function performSave() {
   hideMsg();
   document.getElementById("result").classList.remove("visible");
   saveBtn.disabled = true;
+  saveFixedBtn.disabled = true;
   try {
     setProgress(5, "Chargement du document…");
     const { PDFDocument, rgb } = PDFLib;
@@ -2125,7 +2233,14 @@ saveBtn.addEventListener("click", async () => {
         const baseline0 = (rec.y + rec.height) - offsetFromTop;
         (rec.wrappedLines || []).forEach((txt, i) => {
           if (!txt) return;
-          try { page.drawText(txt, { x: rec.x, y: baseline0 - i * lineHeight, size: rec.fontSize, font, color: rgb(color.r, color.g, color.b) }); } catch (e) { /* caractère non supporté par la police de substitution, ignore ce fragment */ }
+          let w = 0;
+          try { w = font.widthOfTextAtSize(txt, rec.fontSize); } catch (e) { w = 0; }
+          let drawX = rec.x;
+          if (rec.align === "center") drawX = rec.x + Math.max(0, rec.width - w) / 2;
+          else if (rec.align === "right") drawX = rec.x + Math.max(0, rec.width - w);
+          const baseline = baseline0 - i * lineHeight;
+          try { page.drawText(txt, { x: drawX, y: baseline, size: rec.fontSize, font, color: rgb(color.r, color.g, color.b) }); } catch (e) { /* caractère non supporté par la police de substitution, ignore ce fragment */ }
+          if (rec.underline) page.drawLine({ start: { x: drawX, y: baseline - rec.fontSize * 0.08 }, end: { x: drawX + w, y: baseline - rec.fontSize * 0.08 }, thickness: 1, color: rgb(color.r, color.g, color.b) });
         });
       }
 
@@ -2166,8 +2281,11 @@ saveBtn.addEventListener("click", async () => {
     showMsg(err.message || "L'enregistrement a échoué. Réessayez avec un autre fichier.");
   } finally {
     saveBtn.disabled = false;
+    saveFixedBtn.disabled = false;
   }
-});
+}
+saveBtn.addEventListener("click", performSave);
+saveFixedBtn.addEventListener("click", performSave);
 
 function dataUrlToBytes(dataUrl) {
   const base64 = dataUrl.split(",")[1];
@@ -2225,4 +2343,4 @@ function drawAnnotationOnPdfPage(page, ann, rgb) {
   }
 }
 
-setTool("select");
+setMode("edit");
