@@ -53,6 +53,7 @@ let currentPageIndex = 0;
 let zoomFactor = 1;
 let currentTool = "select";
 let hasUnsavedChanges = false;
+let reflowEnabled = false;
 
 const pageTextCache = new Map(); // pageIndex -> { lines: [...], isOcr: bool }
 const pageBlocksCache = new Map(); // pageIndex -> blocs [...] (regroupement de lignes, paresseux)
@@ -80,7 +81,7 @@ const imageInput = document.getElementById("imageInput");
 const toolHint = document.getElementById("toolHint");
 
 function getPageEdits(pageIndex) {
-  if (!pageEditsMap.has(pageIndex)) pageEditsMap.set(pageIndex, { textEdits: [], decorations: [], annotations: [], images: [] });
+  if (!pageEditsMap.has(pageIndex)) pageEditsMap.set(pageIndex, { textEdits: [], blockEdits: [], decorations: [], annotations: [], images: [] });
   return pageEditsMap.get(pageIndex);
 }
 function snapshotPage(pageIndex) {
@@ -631,8 +632,7 @@ function rebuildBlockOverlays() {
       e.preventDefault();
       const c = eventToCanvasPx(e);
       const p = canvasPxToPdf(c.x, c.y);
-      const line = findNearestLineInBlock(block, p[1]);
-      openLineEditor(line, charIndexAtX(line, p[0]));
+      openBlockEditor(block, p);
     });
     if (block.dateMatches.length) hit.addEventListener("contextmenu", (e) => onBlockContextMenu(e, block));
     previewWrap.appendChild(hit);
@@ -848,10 +848,18 @@ function redrawOverlayCanvas() {
   const edits = getPageEdits(currentPageIndex);
   const textData = pageTextCache.get(currentPageIndex);
 
+  const claimedLineIds = linesClaimedByBlockEdits(currentPageIndex);
+
   if (textData) {
     for (const line of textData.lines) {
+      if (claimedLineIds.has(line.id)) continue;
       const edit = edits.textEdits.find((t) => t.lineId === line.id);
       if (edit) drawLineEditOnCanvas(ctx, line, edit);
+    }
+    const blocks = pageBlocksCache.get(currentPageIndex) || [];
+    for (const block of blocks) {
+      const rec = edits.blockEdits.find((b) => b.blockId === block.id);
+      if (rec) drawBlockEditOnCanvas(ctx, block, rec);
     }
     if (wordSelection) {
       const line = textData.lines.find((l) => l.id === wordSelection.lineId);
@@ -878,6 +886,22 @@ function renderOverlay() {
   redrawOverlayCanvas();
   rebuildImageAnnotations();
   updateContextBarVisibility();
+  updateBlockHitGeometry();
+}
+
+/** Repositionne (sans les recréer) les cadres de blocs déjà affichés selon leur géométrie effective, et signale visuellement un bloc qui a dû s'étendre (Partie 2). Ne recrée JAMAIS les éléments .block-hit ici (casserait la détection du double-clic natif). */
+function updateBlockHitGeometry() {
+  const blocks = pageBlocksCache.get(currentPageIndex) || [];
+  const edits = getPageEdits(currentPageIndex);
+  document.querySelectorAll(".block-hit").forEach((el) => {
+    const block = blocks.find((b) => b.id === el.dataset.blockId);
+    if (!block) return;
+    const geom = getEffectiveBlockGeom(currentPageIndex, block);
+    positionOverlayEl(el, geom.x, geom.y, geom.width, geom.height);
+    const rec = edits.blockEdits.find((b) => b.blockId === block.id);
+    el.classList.toggle("overflow-warning", !!(rec && rec.overflow));
+    if (rec && rec.overflow) el.title = blockTypeLabel(block.type) + " (ce bloc s'est etendu : verifiez qu'il ne chevauche pas le bloc suivant)";
+  });
 }
 
 function positionOverlayEl(el, pdfX, pdfY, pdfW, pdfH) {
@@ -926,6 +950,240 @@ function drawLineEditOnCanvas(ctx, line, editRecord) {
   ctx.font = fontStr;
   ctx.textBaseline = "alphabetic";
   ctx.fillText(region.drawText, baseline[0], baseline[1]);
+}
+
+// ---------- Édition multi-lignes d'un BLOC (Partie 2) ----------
+/** Renvoie l'ensemble des identifiants de ligne "pris en charge" par une édition de bloc, pour ne pas les redessiner en double via le chemin ligne-à-ligne historique (recherche/remplacement, date). */
+function linesClaimedByBlockEdits(pageIndex) {
+  const claimed = new Set();
+  const edits = getPageEdits(pageIndex);
+  if (!edits.blockEdits.length) return claimed;
+  const blocks = pageBlocksCache.get(pageIndex) || [];
+  for (const rec of edits.blockEdits) {
+    const block = blocks.find((b) => b.id === rec.blockId);
+    if (block) block.lines.forEach((l) => claimed.add(l.id));
+  }
+  return claimed;
+}
+
+function wrapParagraph(measureWidth, text, maxWidth) {
+  const words = text.split(/\s+/).filter((w) => w.length);
+  if (!words.length) return [""];
+  const out = [];
+  let cur = "";
+  for (const w of words) {
+    const cand = cur ? cur + " " + w : w;
+    if (cur && measureWidth(cand) > maxWidth) { out.push(cur); cur = w; }
+    else cur = cand;
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+function wrapBlockText(measureWidth, fullText, maxWidth) {
+  const paragraphs = fullText.split("\n");
+  let out = [];
+  for (const p of paragraphs) {
+    if (p.trim() === "") { out.push(""); continue; }
+    out = out.concat(wrapParagraph(measureWidth, p, maxWidth));
+  }
+  return out;
+}
+function canvasMeasureFor(fontFamily, bold, italic, fontSize) {
+  const ctx = getMeasureCtx();
+  let f = "";
+  if (italic) f += "italic ";
+  if (bold) f += "bold ";
+  f += "100px " + fontCssFamily(fontFamily);
+  ctx.font = f;
+  const scale = fontSize / 100;
+  return (s) => ctx.measureText(s).width * scale;
+}
+
+function defaultBlockRecord(block) {
+  return {
+    blockId: block.id,
+    fontSize: block.fontSize, fontFamily: block.fontFamily, bold: block.bold, italic: block.italic,
+    underline: false, align: "left", color: INK,
+    x: block.x, y: block.y, width: block.width, height: block.height,
+    origX: block.x, origY: block.y, origWidth: block.width, origHeight: block.height,
+    bgColor: sampleBackgroundColorAt(block.x, block.y, block.x + block.width, block.y + block.height),
+  };
+}
+function getBlockCurrentText(pageIndex, block) {
+  const rec = getPageEdits(pageIndex).blockEdits.find((b) => b.blockId === block.id);
+  return rec ? rec.text : block.lines.map((l) => l.text).join("\n");
+}
+function getBlockCurrentRecordOrDefault(pageIndex, block) {
+  const rec = getPageEdits(pageIndex).blockEdits.find((b) => b.blockId === block.id);
+  return rec || defaultBlockRecord(block);
+}
+
+/** Enregistre une édition de bloc (texte et/ou style et/ou géométrie). Choisit automatiquement le chemin minimal (un seul mot changé, aucune ligne en plus/moins) quand c'est possible, sinon masque et redessine tout le bloc. */
+function commitBlockEdit(pageIndex, block, newText, styleOrGeomOverride) {
+  withHistory(pageIndex, (pe) => {
+    let rec = pe.blockEdits.find((b) => b.blockId === block.id);
+    const base = rec || defaultBlockRecord(block);
+    const merged = Object.assign({}, base, styleOrGeomOverride || {});
+    merged.text = newText;
+    const measure = canvasMeasureFor(merged.fontFamily, merged.bold, merged.italic, merged.fontSize);
+    const wrapped = wrapBlockText(measure, newText, merged.width);
+    const lineHeight = merged.fontSize * 1.2;
+    const neededHeight = Math.max(wrapped.length * lineHeight, merged.origHeight);
+    const moved = Math.abs(merged.x - merged.origX) > 0.5;
+    const resized = Math.abs(merged.width - base.width) > 0.5 && !!styleOrGeomOverride && "width" in styleOrGeomOverride;
+    merged.overflow = neededHeight > merged.origHeight + 0.5;
+    merged.height = neededHeight;
+    merged.y = merged.origY + merged.origHeight - neededHeight;
+    const styleUnchanged = !styleOrGeomOverride || Object.keys(styleOrGeomOverride).every((k) => ["text"].indexOf(k) >= 0);
+    merged.perLineMinimal = styleUnchanged && !merged.overflow && wrapped.length === block.lines.length && !moved && !resized;
+    merged.wrappedLines = wrapped;
+    if (rec) Object.assign(rec, merged); else pe.blockEdits.push(merged);
+    if (reflowEnabled && merged.overflow) {
+      const delta = neededHeight - merged.origHeight;
+      if (delta > 0.5) applyReflowShift(pe, block, delta);
+    }
+  });
+}
+
+/** Décale vers le bas (option "reflow") tous les blocs de la même page situés sous le bloc édité, pour absorber son extension. Translation simple : ne recalcule pas leur propre habillage (texte et largeur inchangés). */
+function applyReflowShift(pe, editedBlock, delta) {
+  const blocks = pageBlocksCache.get(currentPageIndex) || [];
+  const editedBottom = editedBlock.y, editedTop = editedBlock.y + editedBlock.height;
+  for (const b of blocks) {
+    if (b.id === editedBlock.id) continue;
+    const isBelow = (b.y + b.height) <= editedBottom + 1;
+    const overlapsX = !(b.x + b.width < editedBlock.x || b.x > editedBlock.x + editedBlock.width);
+    if (!isBelow || !overlapsX) continue;
+    let rec = pe.blockEdits.find((r) => r.blockId === b.id);
+    if (!rec) {
+      rec = defaultBlockRecord(b);
+      rec.text = b.text;
+      rec.wrappedLines = b.lines.map((l) => l.text);
+      rec.perLineMinimal = false;
+      rec.overflow = false;
+      pe.blockEdits.push(rec);
+    }
+    rec.y -= delta;
+  }
+}
+
+function commitBlockDelete(pageIndex, block) {
+  withHistory(pageIndex, (pe) => {
+    const idx = pe.blockEdits.findIndex((b) => b.blockId === block.id);
+    const bgColor = sampleBackgroundColorAt(block.x, block.y, block.x + block.width, block.y + block.height);
+    const rec = Object.assign(defaultBlockRecord(block), { deleted: true, text: "", bgColor });
+    if (idx >= 0) pe.blockEdits[idx] = rec; else pe.blockEdits.push(rec);
+  });
+}
+
+function drawTextRunOnCanvas(ctx, text, pdfX, pdfBaseline, rec) {
+  if (!text) return;
+  const baseline = pdfToCanvasPx(pdfX, pdfBaseline);
+  const scalePx = Math.abs(pdfToCanvasPx(0, 0)[1] - pdfToCanvasPx(0, 1)[1]);
+  ctx.fillStyle = rgbCss(rec.color || INK, 1);
+  let fontStr = "";
+  if (rec.italic) fontStr += "italic ";
+  if (rec.bold) fontStr += "bold ";
+  fontStr += Math.round(rec.fontSize * scalePx) + "px " + fontCssFamily(rec.fontFamily);
+  ctx.font = fontStr;
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(text, baseline[0], baseline[1]);
+}
+
+function fillPdfRectOnCanvas(ctx, x0, y0, x1, y1, color) {
+  const tl = pdfToCanvasPx(x0, y0);
+  const br = pdfToCanvasPx(x1, y1);
+  ctx.fillStyle = rgbCss(color, 1);
+  ctx.fillRect(Math.min(tl[0], br[0]), Math.min(tl[1], br[1]), Math.abs(br[0] - tl[0]), Math.abs(br[1] - tl[1]));
+}
+
+function drawBlockEditOnCanvas(ctx, block, rec) {
+  const bg = rec.bgColor || { r: 1, g: 1, b: 1 };
+  if (rec.deleted) {
+    fillPdfRectOnCanvas(ctx, block.x - 1, block.y - 1, block.x + block.width + 1, block.y + block.height + 1, bg);
+    return;
+  }
+  if (rec.perLineMinimal) {
+    for (let i = 0; i < block.lines.length; i++) {
+      const line = block.lines[i];
+      const region = computeLineEditRegion(line, { text: rec.wrappedLines[i] || "" });
+      if (region.maskWidth > 0) fillPdfRectOnCanvas(ctx, region.maskX - 1, line.y - 1, region.maskX + region.maskWidth + 1, line.y + line.height + 1, bg);
+      if (region.drawText) drawTextRunOnCanvas(ctx, region.drawText, region.drawX, line.baseline, rec);
+    }
+    return;
+  }
+  const top = Math.max(block.y + block.height, rec.y + rec.height) + 1;
+  const bottom = Math.min(block.y, rec.y) - 1;
+  const left = Math.min(rec.x, block.x) - 1;
+  const right = Math.max(rec.x + rec.width, block.x + block.width) + 1;
+  fillPdfRectOnCanvas(ctx, left, bottom, right, top, bg);
+  const lineHeight = rec.fontSize * 1.2;
+  const offsetFromTop = (block.y + block.height) - block.lines[0].baseline;
+  const baseline0 = (rec.y + rec.height) - offsetFromTop;
+  (rec.wrappedLines || []).forEach((txt, i) => drawTextRunOnCanvas(ctx, txt, rec.x, baseline0 - i * lineHeight, rec));
+}
+
+/** Géométrie effective d'un bloc (position/taille courantes, après édition éventuelle). */
+function getEffectiveBlockGeom(pageIndex, block) {
+  const rec = getPageEdits(pageIndex).blockEdits.find((b) => b.blockId === block.id);
+  if (!rec) return { x: block.x, y: block.y, width: block.width, height: block.height };
+  return { x: rec.x, y: rec.y, width: rec.width, height: rec.height };
+}
+
+let activeBlockEditArea = null;
+function openBlockEditor(block, initialPdfPoint) {
+  closeTextEditor();
+  closeBlockEditor();
+  const data = getBlockCurrentRecordOrDefault(currentPageIndex, block);
+  const geom = getEffectiveBlockGeom(currentPageIndex, block);
+  const area = document.createElement("textarea");
+  area.className = "block-edit-area";
+  area.value = data.text !== undefined ? data.text : block.text;
+  area.spellcheck = false;
+  positionOverlayEl(area, geom.x, geom.y, geom.width, geom.height);
+  const scalePx = Math.abs(pdfToCanvasPx(0, 0)[1] - pdfToCanvasPx(0, 1)[1]);
+  const rect = pageCanvas.getBoundingClientRect();
+  const cssScale = rect.width / pageCanvas.width;
+  area.style.fontSize = data.fontSize * scalePx * cssScale + "px";
+  area.style.lineHeight = "1.2";
+  area.style.fontStyle = data.italic ? "italic" : "normal";
+  area.style.fontWeight = data.bold ? "700" : "400";
+  area.style.fontFamily = fontCssFamily(data.fontFamily);
+  area.style.color = rgbCss(data.color || INK, 1);
+  previewWrap.appendChild(area);
+  area.focus();
+
+  if (initialPdfPoint) {
+    const li = findNearestLineInBlock(block, initialPdfPoint[1]);
+    const liIdx = block.lines.indexOf(li);
+    const charIdx = charIndexAtX(li, initialPdfPoint[0]);
+    const textLines = area.value.split("\n");
+    let abs = 0;
+    for (let i = 0; i < liIdx && i < textLines.length; i++) abs += textLines[i].length + 1;
+    abs += Math.min(charIdx, (textLines[liIdx] || "").length);
+    area.setSelectionRange(Math.min(abs, area.value.length), Math.min(abs, area.value.length));
+  }
+
+  const originalText = area.value;
+  let cancelled = false;
+  const commit = () => {
+    if (cancelled) return;
+    if (area.value !== originalText) commitBlockEdit(currentPageIndex, block, area.value);
+  };
+  area.addEventListener("blur", () => { commit(); closeBlockEditor(); });
+  area.addEventListener("keydown", (e) => {
+    e.stopPropagation();
+    if (e.key === "Escape") { e.preventDefault(); cancelled = true; closeBlockEditor(); }
+    // Entrée : insère un saut de ligne dans le bloc (comportement natif du textarea, pas de preventDefault).
+  });
+  activeBlockEditArea = { area, block };
+  selectBlockVisual(block);
+}
+function closeBlockEditor() {
+  if (!activeBlockEditArea) return;
+  const a = activeBlockEditArea.area;
+  activeBlockEditArea = null;
+  if (a && a.parentNode) a.parentNode.removeChild(a);
 }
 
 function drawDecoration(ctx, line, type) {
@@ -1194,6 +1452,20 @@ function deselect() {
   wordSelection = null;
   contextBar.classList.remove("visible");
   closeTextEditor();
+  closeBlockEditor();
+  closeDateMenu();
+  closeDatePopup();
+  document.querySelectorAll(".block-hit.active").forEach((el) => el.classList.remove("active"));
+}
+
+function deleteSelectedBlock() {
+  if (!selection || selection.kind !== "block" || selection.pageIndex !== currentPageIndex) return;
+  const blocks = pageBlocksCache.get(currentPageIndex) || [];
+  const block = blocks.find((b) => b.id === selection.id);
+  if (!block) return;
+  closeBlockEditor();
+  commitBlockDelete(currentPageIndex, block);
+  deselect();
 }
 
 // ---------- Outils de dessin (formes, surlignage, masquage, souligné, barré) ----------
@@ -1525,9 +1797,12 @@ document.getElementById("ocrBannerBtn").addEventListener("click", async () => {
 
     const lines = buildLinesFromOcrWords(data.words || [], ocrScale);
     pageTextCache.set(currentPageIndex, { lines, isOcr: true });
+    pageBlocksCache.delete(currentPageIndex);
+    await ensureBlocksForPage(currentPageIndex);
     hideProgress();
     scannedBanner.classList.remove("visible");
     rebuildTextHitAreas();
+    rebuildBlockOverlays();
     renderOverlay();
     const wordCount = lines.reduce((n, l) => n + l.words.length, 0);
     showMsg(wordCount > 0
@@ -1600,6 +1875,7 @@ document.getElementById("fullscreenBtn").addEventListener("click", () => {
   document.getElementById("editorLayout").classList.toggle("fullscreen");
 });
 document.getElementById("helpBtn").addEventListener("click", () => document.getElementById("helpModal").classList.add("visible"));
+document.getElementById("reflowToggle").addEventListener("change", (e) => { reflowEnabled = e.target.checked; });
 document.getElementById("closeHelpBtn").addEventListener("click", () => document.getElementById("helpModal").classList.remove("visible"));
 document.getElementById("undoBtn").addEventListener("click", undo);
 document.getElementById("redoBtn").addEventListener("click", redo);
@@ -1615,6 +1891,7 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "t") setTool("text");
   else if (e.key === "i") imageInput.click();
   else if (e.key === "?") document.getElementById("helpModal").classList.add("visible");
+  else if (e.key === "Delete") { e.preventDefault(); deleteSelectedBlock(); }
   else if (e.key === "Escape") {
     document.getElementById("helpModal").classList.remove("visible");
     document.getElementById("editorLayout").classList.remove("fullscreen");
@@ -1673,7 +1950,7 @@ saveBtn.addEventListener("click", async () => {
     const pages = doc.getPages();
     const pageIndices = Array.from(pageEditsMap.keys()).filter((i) => {
       const e = pageEditsMap.get(i);
-      return e.textEdits.length || e.decorations.length || e.annotations.length || e.images.length;
+      return e.textEdits.length || e.blockEdits.length || e.decorations.length || e.annotations.length || e.images.length;
     });
 
     for (let n = 0; n < pageIndices.length; n++) {
@@ -1682,8 +1959,11 @@ saveBtn.addEventListener("click", async () => {
       const page = pages[pageIndex];
       const edits = getPageEdits(pageIndex);
       const textData = pageTextCache.get(pageIndex);
+      const blocksForPage = pageBlocksCache.get(pageIndex) || [];
+      const claimedLineIds = linesClaimedByBlockEdits(pageIndex);
 
       for (const t of edits.textEdits) {
+        if (claimedLineIds.has(t.lineId)) continue;
         const line = textData ? textData.lines.find((l) => l.id === t.lineId) : null;
         if (!line) continue;
         const region = computeLineEditRegion(line, t);
@@ -1695,6 +1975,39 @@ saveBtn.addEventListener("click", async () => {
         const font = await getEmbeddedFont(t.fontFamily || "sans", !!t.bold, !!t.italic);
         const color = t.color || INK;
         wrapAndDrawText(page, font, region.drawText, region.drawX, line.baseline, Math.max(line.width - (region.drawX - line.x), 40), t.fontSize, rgb(color.r, color.g, color.b));
+      }
+
+      for (const rec of edits.blockEdits) {
+        const block = blocksForPage.find((b) => b.id === rec.blockId);
+        if (!block) continue;
+        const bg = rec.bgColor || { r: 1, g: 1, b: 1 };
+        if (rec.deleted) {
+          page.drawRectangle({ x: block.x - 1, y: block.y - 1, width: block.width + 2, height: block.height + 2, color: rgb(bg.r, bg.g, bg.b) });
+          continue;
+        }
+        const font = await getEmbeddedFont(rec.fontFamily || "sans", !!rec.bold, !!rec.italic);
+        const color = rec.color || INK;
+        if (rec.perLineMinimal) {
+          for (let li = 0; li < block.lines.length; li++) {
+            const line = block.lines[li];
+            const region = computeLineEditRegion(line, { text: rec.wrappedLines[li] || "" });
+            if (region.maskWidth > 0) page.drawRectangle({ x: region.maskX - 1, y: line.y - 1, width: region.maskWidth + 2, height: line.height + 2, color: rgb(bg.r, bg.g, bg.b) });
+            if (region.drawText) page.drawText(region.drawText, { x: region.drawX, y: line.baseline, size: rec.fontSize, font, color: rgb(color.r, color.g, color.b) });
+          }
+          continue;
+        }
+        const top = Math.max(block.y + block.height, rec.y + rec.height) + 1;
+        const bottom = Math.min(block.y, rec.y) - 1;
+        const left = Math.min(rec.x, block.x) - 1;
+        const right = Math.max(rec.x + rec.width, block.x + block.width) + 1;
+        page.drawRectangle({ x: left, y: bottom, width: right - left, height: top - bottom, color: rgb(bg.r, bg.g, bg.b) });
+        const lineHeight = rec.fontSize * 1.2;
+        const offsetFromTop = (block.y + block.height) - block.lines[0].baseline;
+        const baseline0 = (rec.y + rec.height) - offsetFromTop;
+        (rec.wrappedLines || []).forEach((txt, i) => {
+          if (!txt) return;
+          try { page.drawText(txt, { x: rec.x, y: baseline0 - i * lineHeight, size: rec.fontSize, font, color: rgb(color.r, color.g, color.b) }); } catch (e) { /* caractère non supporté par la police de substitution, ignore ce fragment */ }
+        });
       }
 
       for (const deco of edits.decorations) {
