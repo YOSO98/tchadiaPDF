@@ -26,3 +26,36 @@ Convention : une ligne par étape, la plus récente en bas. `OK` = testé et fon
 - 2026-07-07 : Refonte éditeur pro (sous-agent) terminée avec succès après 2 coupures gérées sans perte : 5 parties committées séparément et testées (détection/affichage permanent des zones en pointillés, édition multi-lignes avec reflow, remplacement/suppression d'image, deux modes Annoter/Modifier avec panneau de styles, robustesse/tests). Suite finale : 17/17. Un vrai bug trouvé et corrigé en cours de route (barre d'actions flottante mal positionnée à cause d'une inversion d'axe Y, cassait le double-clic mobile). Limites honnêtes documentées dans BENCHMARK.md par l'agent lui-même (déplacer une image sans la remplacer n'affecte pas le PDF final, reflow simple pas un ré-habillage complet, style appliqué à tout le bloc, classification parfois limitée par l'absence d'info gras/italique de pdf.js).
 - 2026-07-07 : Corrigé les 9 violations de style détectées par le script CI (`check-style-rules.js`) : 2 mentions auto-référentielles de la règle typographique elle-même (CONTRIBUTING.md, TODO.md, reformulées sans le caractère litigieux), 2 couleurs hors palette (`#94A3B8` dans excel-en-pdf.html et word-en-pdf.html, remplacées par `var(--border)`), 1 couleur rouge hors palette dans modifier-pdf.html (bouton danger, remplacée par `var(--blue-dark)`), et la table de neutralisation de caractères de texte-en-pdf.js (cas légitime, ajout d'un mécanisme `style-check-ignore-line` au lint plutôt que de la modifier). `node scripts/check-style-rules.js` : 0 violation. OK.
 - 2026-07-07 : Finalisé modifier-pdf.html (OG/JSON-LD/SRI, dernier fichier manquant après la refonte). **Bug SRI réel trouvé par le test de fumée complet** : le hash de `docx@8.5.0` (pdf-en-word.html) ne correspondait pas systématiquement à ce que le navigateur recevait. Investigation approfondie (téléchargements répétés, en-têtes de nœud CDN) : jsdelivr sert deux contenus binaires différents pour cette même URL à version figée selon le nœud périphérique qui répond, un vrai problème d'incohérence CDN et non une erreur de ma part. Intégrité SRI retirée pour ce fichier précis (documenté en détail dans DEPENDENCIES.md avec la preuve), plutôt que de livrer un échec de chargement aléatoire selon le visiteur. Reverifié : 49/49 pages, 21/22 conversions (échec restant = artefact de test déjà identifié), 9/9 Playwright, 0 violation de style, 0 vulnérabilité npm. OK.
+- 2026-07-07 : **Session autonome terminée. Poussé vers origin/main (`57fea15`).** Dernière vérification avant push : 49/49 pages sans erreur console, 9/9 suite Playwright committée, 0 violation de style, 0 vulnérabilité npm. Le dépôt distant avait entre-temps reçu des branches Dependabot (nouvelles dépendances GitHub Actions détectées automatiquement) mais aucun nouveau commit sur `main` : push direct sans conflit. Voir le résumé complet en fin de fichier pour le bilan de session et ce qui reste ouvert.
+
+## Résumé de fin de session autonome (2026-07-07)
+
+**Terminé et poussé** : Phase Conversions (22 outils), Phase Sécurité complète
+(Blocs 1 à 5 : détection par octets magiques, 2 failles XSS corrigées avec
+preuve, isolation Web Worker sur 1 outil, preuve automatisée de non-fuite
+réseau, CSP durcie sans `unsafe-inline`, HSTS, Permissions-Policy, SRI sur
+41 pages, `SECURITY.md`), Phase 6 (suite de tests Playwright committée, CI,
+`_headers` Cloudflare, analytics/pub désactivés par défaut, mentions
+légales, `sitemap.xml`, Open Graph/Twitter Card/JSON-LD sur 49 pages,
+correctif de performance réel), Phase Éditeur Pro (refonte complète de
+modifier-pdf.html au niveau professionnel, 17/17 tests), Phase README
+(README.md + README.en.md avec captures réelles).
+
+**Incidents gérés sans perte de travail** : 2 coupures de l'agent éditeur
+(1 limite de session ayant laissé le fichier cassé, corrigée par un
+`git checkout` immédiat après détection par un test de sanité ; 1 coupure
+réseau transitoire sans dégât), 2 incidents mineurs de commit partagé
+(fichiers d'un autre agent embarqués par erreur dans un commit, sans
+perte de données, juste une attribution de commit imprécise), 1 bug SRI
+réel (incohérence de contenu chez jsdelivr pour `docx@8.5.0`, détecté par
+le test de fumée complet et corrigé).
+
+**Reste ouvert, documenté honnêtement, non bloquant** :
+- Fallback CDN local + minification (reste du Bloc 1 de la Phase 6).
+- Dépôt GitHub à rendre public avant un lancement Hacker News/Product Hunt.
+- Identité légale à compléter dans `mentions-legales.html` (placeholders).
+- Comptes AdSense et Plausible à créer pour activer analytics/publicité.
+- Validation par octets magiques et isolation Web Worker à étendre aux
+  ~35 outils qui ne l'ont pas encore reçue.
+- Capture d'écran de l'éditeur dans le README à régénérer (prise avant la
+  refonte Éditeur Pro).
