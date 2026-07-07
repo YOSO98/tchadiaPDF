@@ -69,6 +69,38 @@ function offerDownload(bytes, filename, mime) {
   link.download = filename;
   result.classList.add("visible");
   result.scrollIntoView({ behavior: "smooth", block: "center" });
+  showSupportLine(result);
+}
+
+const SUPPORT_CLICKED_KEY = "tchadiapdf_support_clicked";
+
+/**
+ * Ajoute, sous le bouton de telechargement, une invitation discrete a
+ * soutenir le projet (une seule ligne, jamais de popup ni de bandeau
+ * bloquant). Idempotent : ne duplique pas la ligne si offerDownload est
+ * appelee plusieurs fois (mode lot par exemple).
+ */
+function showSupportLine(result) {
+  let line = result.querySelector(".support-line");
+  if (!line) {
+    line = document.createElement("p");
+    line.className = "support-line";
+    result.appendChild(line);
+  }
+  const alreadySupported = localStorage.getItem(SUPPORT_CLICKED_KEY) === "1";
+  if (alreadySupported) {
+    line.textContent = "Merci de soutenir tchadiaPdf.";
+    return;
+  }
+  line.textContent = "tchadiaPdf est gratuit et le restera. Si cet outil vous a aidé, vous pouvez ";
+  const a = document.createElement("a");
+  a.href = "soutenir.html";
+  a.textContent = "soutenir le projet";
+  a.addEventListener("click", () => {
+    localStorage.setItem(SUPPORT_CLICKED_KEY, "1");
+  });
+  line.appendChild(a);
+  line.appendChild(document.createTextNode("."));
 }
 
 /** Taille lisible. */
