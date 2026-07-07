@@ -988,7 +988,12 @@ function renderFloatingActions() {
   } else {
     return;
   }
-  positionOverlayEl(bar, geom.x, geom.y + geom.height + 2, Math.max(geom.width, 10), 10);
+  // Ancre la barre SOUS le bloc (rappel : en coordonnées PDF, l'axe Y augmente vers le HAUT de la
+  // page, donc "sous" le bloc correspond à une ordonnée PLUS PETITE que geom.y, pas plus grande ;
+  // une barre mal placée au-dessus du bloc chevaucherait sa zone cliquable et casserait la
+  // détection du double-clic natif du navigateur, cf. l'avertissement en tête de fichier).
+  const barY = geom.y - 20 >= 0 ? geom.y - 20 : geom.y + geom.height + 4;
+  positionOverlayEl(bar, geom.x, barY, Math.max(geom.width, 10), 16);
   bar.style.width = "auto";
   bar.style.height = "auto";
   previewWrap.appendChild(bar);
