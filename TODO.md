@@ -61,6 +61,34 @@ de la Phase Conversions (Groupe 4 inclus). Ordre retenu :
 
 ---
 
+## PHASE DIFFERENCIATION : recherche, routage intelligent, hors ligne
+
+Objectif, a la demande explicite de l'utilisateur ("en tant qu'ingenieur,
+ajoute des fonctionnalites pour se demarquer") : une barre de recherche
+reelle sur l'accueil, et des fonctionnalites qui exploitent l'avantage
+structurel du site (100% local, pas de backend) que les gros acteurs
+(Smallpdf, iLovePDF, Adobe) ne peuvent pas repliquer aussi simplement.
+
+- [ ] Barre de recherche sur l'accueil : filtre les cartes d'outils en
+      temps reel (titre + description), raccourci clavier "/" pour la
+      cibler, Echap pour vider, aucun outil de recherche externe.
+- [ ] Routage intelligent : deposer un fichier n'importe ou sur l'accueil
+      detecte son vrai type (octets magiques, js/security-utils.js deja
+      existant) et redirige automatiquement vers le bon outil avec le
+      fichier deja charge (transfert via IndexedDB, generique dans
+      initDropzone pour fonctionner sur tous les outils sans les
+      modifier un par un).
+- [ ] Support hors ligne (PWA) : manifest.json + service worker mettant
+      en cache l'app shell (accueil, CSS, JS propre au site) avec une
+      strategie prudente (jamais les bibliotheques CDN externes, deja
+      gerees par le cache HTTP long de Cloudflare), page de repli hors
+      ligne honnete pour les pages jamais visitees. Installable sur
+      mobile et desktop.
+- [ ] Tests Playwright sur chaque fonctionnalite, BENCHMARK.md mis a
+      jour avec les limites reelles.
+
+---
+
 ## PHASE EDITEUR PRO : refonte majeure de modifier-pdf.html
 
 Objectif : amener l'éditeur au niveau des éditeurs PDF professionnels :
