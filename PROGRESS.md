@@ -45,7 +45,7 @@ réels trouvés. Détail ci-dessous.
 1. [x] Organiser PDF : ajouter la rotation par page
 2. [x] Filigrane : couleur réglable + orientation diagonale/horizontale + aperçu en direct
 3. [x] Formulaires PDF : option d'aplatissement après remplissage
-4. [ ] Métadonnées : bouton "Tout supprimer" + message de confidentialité inline
+4. [x] Métadonnées : bouton "Tout supprimer" + message de confidentialité inline
 5. [ ] Bonus scanner : vérifié déjà complet, aucun développement nécessaire
 
 ## Journal
@@ -92,3 +92,33 @@ volée (champ texte AcroForm) : sans la case cochée, le champ reste
 présent et modifiable avec la valeur saisie ; avec la case cochée, le
 formulaire de sortie ne contient plus aucun champ (aplati). `npm run
 check-style` et `npm test` (9/9) toujours au vert.
+
+**Métadonnées, "Tout supprimer" + confidentialité + bug pré-existant
+corrigé** : ajout d'un bouton "Tout supprimer" qui vide les 6 champs
+éditables du formulaire (sans encore rien enregistrer, l'utilisateur
+valide ensuite avec "Enregistrer les métadonnées"), et d'un message de
+confidentialité inline réutilisant le composant `.badge-prive` déjà
+existant (utilisé sur la page d'accueil) pour rester cohérent avec le
+design system plutôt que d'inventer un nouveau style.
+
+En testant ce nouveau bouton de bout en bout, un bug pré-existant, sans
+rapport avec le développement en cours mais bloquant pour la promesse
+même de cet outil, a été découvert puis corrigé : `PDFDocument.load(bytes)`
+était appelé sans option, alors que pdf-lib réécrit silencieusement
+Producer (et ModDate) dès le chargement quand `updateMetadata` n'est pas
+mis à `false` explicitement. Conséquence vérifiée : le formulaire
+affichait "pdf-lib (https://github.com/Hopding/pdf-lib)" comme
+Producteur au lieu de la vraie valeur d'origine du fichier, sur
+n'importe quel PDF. Le correctif existant (`doc.save({ updateMetadata:
+false })`) ne servait à rien : cette option n'existe pas côté `save()`
+dans cette version de pdf-lib (vérifié dans le code source de la
+librairie), seulement côté `load()`. Corrigé en déplaçant l'option au
+bon endroit (`PDFDocument.load(bytes, { updateMetadata: false })`) et en
+retirant l'option inutile de `save()`. Testé de bout en bout (Playwright,
+hors suite committee) avec un PDF de test à producteur/créateur
+distinctifs : le formulaire affiche désormais la vraie valeur d'origine,
+un enregistrement sans modification la préserve, et "Tout supprimer" +
+enregistrer produit bien un fichier sans aucune métadonnée (vérifié par
+relecture pdf-lib du fichier téléchargé, avec `updateMetadata: false`
+pour ne pas fausser la vérification elle-même). `npm run check-style` et
+`npm test` (9/9) toujours au vert.

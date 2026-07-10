@@ -73,6 +73,14 @@
     @media (max-width: 560px) {
       .meta-grid { grid-template-columns: 1fr; }
     }
+
+    .meta-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .meta-actions .btn-secondary {
+      width: auto;
+    }
   </style>
   <script type="application/ld+json">
 {
@@ -114,6 +122,15 @@
   <div class="file-list" id="fileList"></div>
 
   <div class="meta-form" id="metaForm">
+    <div class="badge-prive">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Ces métadonnées ne quittent jamais votre appareil : lecture et modification ont lieu entièrement dans votre navigateur.
+    </div>
+
+    <div class="meta-actions">
+      <button type="button" class="btn-secondary" id="clearAllBtn">Tout supprimer</button>
+    </div>
+
     <div class="meta-grid">
       <div class="meta-field">
         <label for="metaTitle">Titre</label>

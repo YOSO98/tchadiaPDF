@@ -3,12 +3,16 @@
  * Affiche et modifie les métadonnées standard d'un PDF (titre, auteur,
  * sujet, mots-clés, créateur, producteur) via pdf-lib.
  *
- * Point d'attention important : par défaut, PDFDocument.save() de pdf-lib
- * met à jour lui-même les champs Producer et ModDate au moment de
- * l'enregistrement, ce qui écraserait silencieusement les valeurs saisies
- * par l'utilisateur. On appelle donc doc.save({ updateMetadata: false })
- * pour que seules les valeurs choisies ici soient écrites, et on gère la
- * date de modification nous-mêmes.
+ * Point d'attention important : par défaut, PDFDocument.load() de pdf-lib
+ * réécrit lui-même Producer (et ModDate) dès le chargement, avant même
+ * qu'on affiche le formulaire, ce qui masquerait les vraies valeurs
+ * d'origine du fichier. On charge donc avec
+ * PDFDocument.load(bytes, { updateMetadata: false }) pour lire les
+ * valeurs réellement présentes dans le fichier. Ce même réglage n'existe
+ * pas côté save() (pdf-lib n'y écrase rien d'autre que ce qu'on lui
+ * demande explicitement via setTitle/setAuthor/etc.), donc setProducer,
+ * setKeywords, etc. juste avant save() suffisent à écrire exactement les
+ * valeurs choisies ici, y compris vides après "Tout supprimer".
  */
 
 const MAX_SIZE = 100 * 1024 * 1024; // 100 Mo
@@ -19,6 +23,7 @@ let currentDoc = null;
 const fileListEl = document.getElementById("fileList");
 const metaForm = document.getElementById("metaForm");
 const saveBtn = document.getElementById("saveBtn");
+const clearAllBtn = document.getElementById("clearAllBtn");
 
 const titleInput = document.getElementById("metaTitle");
 const authorInput = document.getElementById("metaAuthor");
@@ -106,7 +111,7 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
 
     let doc;
     try {
-      doc = await PDFDocument.load(bytes);
+      doc = await PDFDocument.load(bytes, { updateMetadata: false });
     } catch (e) {
       const detail = (e && e.message) ? e.message.toLowerCase() : "";
       if (detail.indexOf("encrypt") !== -1) {
@@ -134,6 +139,19 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
   }
 
   updateState();
+});
+
+/** Vide les champs de métadonnées éditables (titre, auteur, sujet, mots-clés,
+ * créateur, producteur), sans rien enregistrer : il faut ensuite cliquer sur
+ * "Enregistrer les métadonnées" pour appliquer ce nettoyage au fichier. */
+clearAllBtn.addEventListener("click", () => {
+  titleInput.value = "";
+  authorInput.value = "";
+  subjectInput.value = "";
+  keywordsInput.value = "";
+  creatorInput.value = "";
+  producerInput.value = "";
+  titleInput.focus();
 });
 
 saveBtn.addEventListener("click", async () => {
@@ -164,7 +182,7 @@ saveBtn.addEventListener("click", async () => {
     currentDoc.setModificationDate(new Date());
 
     setProgress(60, "Enregistrement du PDF…");
-    const outBytes = await currentDoc.save({ updateMetadata: false });
+    const outBytes = await currentDoc.save();
 
     setProgress(100, "Terminé");
     hideProgress();
