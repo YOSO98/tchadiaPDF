@@ -38,7 +38,7 @@ réels trouvés. Détail ci-dessous.
 | Numérotation | position, format | position (grille 6 zones), format (1 / 1 sur n / Page 1) | Aucun, déjà complet |
 | Formulaires PDF | détection AcroForm, formulaire web, génération + option aplatir | détection de champs (texte/case/radio/liste), formulaire web, génération | **Option "aplatir" après remplissage : absente** (l'outil `aplatir-pdf.html` existe séparément mais rien ne relie les deux) |
 | Métadonnées | affichage complet, tout supprimer, suppression sélective, message confidentialité | Titre/Auteur/Sujet/Mots-clés/Créateur/Producteur/Date, champs éditables un par un | **Bouton "Tout supprimer" : absent. Message de réassurance confidentialité inline : absent** (seul un lien de pied de page générique existe) |
-| Bonus scanner | perspective, contraste, N&B | redressement 4 coins (homographie), filtre contraste, filtre N&B | Aucun, déjà complet (seule l'auto-détection des bords, hors périmètre demandé, reste manuelle — déjà documenté comme limite connue dans BENCHMARK.md) |
+| Bonus scanner | perspective, contraste, N&B | redressement 4 coins (homographie), filtre contraste, filtre N&B | Aucun, déjà complet (seule l'auto-détection des bords, hors périmètre demandé, reste manuelle, déjà documenté comme limite connue dans BENCHMARK.md) |
 
 ## Ordre de traitement retenu
 
