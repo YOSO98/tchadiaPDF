@@ -92,6 +92,24 @@
       .pos-grid { grid-template-columns: repeat(3, 1fr); }
     }
 
+    /* Couleur du texte */
+    #wmColor {
+      width: 56px;
+      height: 36px;
+      padding: 2px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: var(--white);
+      cursor: pointer;
+    }
+
+    /* Aperçu en direct */
+    #wmPreview {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: var(--white);
+    }
+
     /* Mode lot (traitement de plusieurs fichiers) */
     #pdfFileList { max-height: 320px; overflow-y: auto; padding-right: 2px; }
     .file-list .file-item .f-status {
@@ -170,6 +188,19 @@
       </div>
     </div>
 
+    <div class="opt-group" id="orientFields">
+      <label>Orientation :</label>
+      <div class="seg" id="orientSeg">
+        <button type="button" data-orient="diagonale" class="active">Diagonale</button>
+        <button type="button" data-orient="horizontale">Horizontale</button>
+      </div>
+    </div>
+
+    <div class="opt-group" id="colorFields">
+      <label for="wmColor">Couleur :</label>
+      <input type="color" id="wmColor" value="#1e293b">
+    </div>
+
     <div class="opt-group" id="imageFields" style="display:none">
       <label>Image du filigrane :</label>
       <div class="dropzone dropzone-small" id="dzImage" role="button" tabindex="0" aria-label="Choisir une image de filigrane, JPG ou PNG">
@@ -198,6 +229,11 @@
         <button type="button" data-pos="bg" aria-label="Bas gauche" title="Bas gauche">↙</button>
         <button type="button" data-pos="bd" aria-label="Bas droite" title="Bas droite">↘</button>
       </div>
+    </div>
+
+    <div class="opt-group">
+      <label>Aperçu :</label>
+      <canvas id="wmPreview" width="240" height="339" aria-label="Aperçu du filigrane sur une page"></canvas>
     </div>
 
   </div>

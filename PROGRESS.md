@@ -43,7 +43,7 @@ réels trouvés. Détail ci-dessous.
 ## Ordre de traitement retenu
 
 1. [x] Organiser PDF : ajouter la rotation par page
-2. [ ] Filigrane : couleur réglable + orientation diagonale/horizontale + aperçu en direct
+2. [x] Filigrane : couleur réglable + orientation diagonale/horizontale + aperçu en direct
 3. [ ] Formulaires PDF : option d'aplatissement après remplissage
 4. [ ] Métadonnées : bouton "Tout supprimer" + message de confidentialité inline
 5. [ ] Bonus scanner : vérifié déjà complet, aucun développement nécessaire
@@ -63,3 +63,20 @@ rotation. Testé de bout en bout (Playwright, hors suite committee) :
 3 clics = 270°, confirmé dans le PDF de sortie via une relecture
 pdf-lib du fichier téléchargé. `npm run check-style` et `npm test`
 (9/9) toujours au vert.
+
+**Filigrane, couleur + orientation + aperçu en direct** : ajout d'un
+sélecteur de couleur (`<input type="color">`, converti en RGB normalisé
+pour pdf-lib) et d'un choix d'orientation diagonale/horizontale
+(auparavant imposée : diagonale seulement en position centre, horizontale
+seulement dans les coins). Les deux réglages sont désormais indépendants
+de la position choisie. Ajout d'un aperçu en direct sous forme de canvas
+(page fictive à l'échelle réelle du PDF chargé une fois connu, sinon
+ratio A4 par défaut), mis à jour à chaque changement de texte, taille,
+couleur, opacité, position, orientation ou image de filigrane ; pour le
+filigrane image, l'aperçu charge l'image réelle dans un `<img>` en
+mémoire (blob URL) plutôt qu'un placeholder générique. Mode lot et mode
+fichier unique appliquent la même couleur/orientation choisie. Testé de
+bout en bout (Playwright, hors suite committee) : changement de couleur/
+orientation/position, aperçu non vide confirmé par lecture des pixels du
+canvas, génération réussie sans erreur console. `npm run check-style` et
+`npm test` (9/9) toujours au vert.
