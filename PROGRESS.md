@@ -46,7 +46,7 @@ réels trouvés. Détail ci-dessous.
 2. [x] Filigrane : couleur réglable + orientation diagonale/horizontale + aperçu en direct
 3. [x] Formulaires PDF : option d'aplatissement après remplissage
 4. [x] Métadonnées : bouton "Tout supprimer" + message de confidentialité inline
-5. [ ] Bonus scanner : vérifié déjà complet, aucun développement nécessaire
+5. [x] Bonus scanner : vérifié déjà complet, aucun développement nécessaire
 
 ## Journal
 
@@ -122,3 +122,58 @@ enregistrer produit bien un fichier sans aucune métadonnée (vérifié par
 relecture pdf-lib du fichier téléchargé, avec `updateMetadata: false`
 pour ne pas fausser la vérification elle-même). `npm run check-style` et
 `npm test` (9/9) toujours au vert.
+
+## Rapport final
+
+Les 5 fonctionnalités demandées dans la mission existaient déjà dans le
+dépôt. Conformément à la règle "choisis la plus simple et la plus
+cohérente", aucune n'a été reconstruite : chacune a été comparée point
+par point au cahier des charges, et seuls les écarts réels ont été
+comblés, en réutilisant systématiquement les motifs déjà en place
+ailleurs dans le code (aperçu CSS en direct comme dans `js/pivoter.js`,
+gestion d'avertissement d'aplatissement comme dans `js/aplatir-pdf.js`,
+composant visuel `.badge-prive` déjà existant) plutôt que d'inventer de
+nouveaux styles ou de nouvelles conventions.
+
+Réalisé, dans l'ordre :
+1. Organiser PDF : rotation par page (bouton Pivoter par miniature,
+   aperçu CSS en direct, appliquée via pdf-lib à la génération).
+2. Filigrane : couleur réglable, orientation diagonale/horizontale
+   désormais indépendante de la position, aperçu en direct (canvas).
+3. Formulaires PDF : case à cocher "Aplatir le formulaire après
+   remplissage".
+4. Métadonnées : bouton "Tout supprimer", message de confidentialité
+   inline, et correction au passage d'un bug pré-existant (Producer
+   toujours écrasé par la valeur par défaut de pdf-lib dès le
+   chargement, jamais la vraie valeur d'origine du fichier).
+5. Bonus scanner : vérifié déjà complet, aucun développement nécessaire.
+
+Un correctif supplémentaire, hors périmètre initial de la mission mais
+traité en premier car signalé en urgence en cours de session : icônes
+SVG affichées en taille excessive et barre de recherche sans style pour
+certains visiteurs. Diagnostic : le code sur disque était déjà correct
+(vérifié par un rendu Playwright frais, zéro erreur), la cause probable
+étant le cache navigateur `Cache-Control: immutable, max-age=1 an` sur
+`/css/*` combiné à un ajout récent de classes CSS (barre de recherche).
+Corrigé en ajoutant des attributs `width`/`height` explicites sur les
+272 balises `<svg>` du site qui n'en avaient pas, comme filet de
+sécurité (repli sur 24×24 au lieu de la taille par défaut du navigateur
+si le CSS ne charge pas). Le fichier de déploiement `_headers`
+(politique de cache) n'a volontairement pas été modifié, conformément
+à la consigne de ne pas toucher aux fichiers de déploiement.
+
+Vérifications effectuées après chaque fonctionnalité : `npm run
+check-style` (0 violation) et `npm test` (suite Playwright committee,
+9/9) systématiquement au vert, plus des tests de bout en bout ad hoc
+(Playwright, hors suite committee) pour chaque nouveau comportement :
+rotation confirmée dans le PDF de sortie, filigrane avec couleur/
+orientation choisies confirmé sans erreur, formulaire aplati confirmé
+(0 champ restant) contre non aplati (valeur préservée), métadonnées
+vidées confirmées vides à la relecture pdf-lib du fichier téléchargé.
+
+Règles de la mission respectées : aucune fonctionnalité existante
+supprimée, aucun fichier de déploiement ni `.env` modifié (hormis leur
+lecture pour diagnostic), aucune dépendance ajoutée (uniquement du code
+réutilisant pdf-lib déjà en place), aucun push effectué. 7 commits
+locaux, tous avec message explicite en français, tous vérifiés par lint
+et suite de tests avant d'être créés.
