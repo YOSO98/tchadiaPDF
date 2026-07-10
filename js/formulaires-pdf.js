@@ -10,6 +10,8 @@ const fillBtn = document.getElementById("fillBtn");
 const fileInfo = document.getElementById("fileInfo");
 const fileName = document.getElementById("fileName");
 const fileMeta = document.getElementById("fileMeta");
+const flattenOption = document.getElementById("flattenOption");
+const flattenAfterFill = document.getElementById("flattenAfterFill");
 
 initDropzone("dropzone", "fileInput", async (newFiles) => {
   hideMsg();
@@ -20,6 +22,8 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
   fieldsMap = null;
   pdfDoc = null;
   fileInfo.style.display = "none";
+  flattenOption.style.display = "none";
+  flattenAfterFill.checked = false;
 
   const file = newFiles[0];
   if (!(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"))) {
@@ -201,9 +205,11 @@ function genererChamps(fields) {
   if (map.size > 0) {
     fieldsEl.style.display = "flex";
     fillBtn.disabled = false;
+    flattenOption.style.display = "flex";
   } else {
     fieldsEl.style.display = "none";
     fillBtn.disabled = true;
+    flattenOption.style.display = "none";
     showMsg("Ce PDF ne contient aucun champ de formulaire à remplir.");
   }
 }
@@ -235,11 +241,25 @@ fillBtn.addEventListener("click", async () => {
       }
     });
 
+    let avertissement = null;
+    if (flattenAfterFill.checked) {
+      setProgress(60, "Aplatissement du formulaire…");
+      try {
+        pdfDoc.getForm().flatten();
+      } catch (e) {
+        avertissement =
+          "L'aplatissement automatique de certains champs a échoué. Le fichier téléchargé contient " +
+          "l'aplatissement partiel qui a pu être réalisé.";
+      }
+    }
+
     setProgress(75, "Génération du fichier…");
     const bytes = await pdfDoc.save();
     setProgress(100, "Terminé");
     hideProgress();
     offerDownload(bytes, "tchadiapdf-formulaire-rempli.pdf");
+
+    if (avertissement) showMsg(avertissement);
   } catch (e) {
     hideProgress();
     showMsg("L'enregistrement du PDF rempli a échoué. Réessayez avec un autre fichier.");

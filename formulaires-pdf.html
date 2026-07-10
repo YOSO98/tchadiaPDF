@@ -93,6 +93,28 @@
         align-items: flex-start;
       }
     }
+    .flatten-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .flatten-option input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--blue);
+      flex-shrink: 0;
+    }
+    .flatten-option label {
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+    .flatten-option .field-type {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--slate);
+      font-weight: 400;
+    }
   </style>
   <script type="application/ld+json">
 {
@@ -137,6 +159,13 @@
   </div>
 
   <div class="form-fields" id="formFields" style="display:none"></div>
+
+  <div class="flatten-option" id="flattenOption" style="display:none">
+    <input type="checkbox" id="flattenAfterFill">
+    <label for="flattenAfterFill">Aplatir le formulaire après remplissage
+      <span class="field-type">Les champs deviennent du texte figé, non modifiable ensuite. Recommandé avant de partager le document.</span>
+    </label>
+  </div>
 
   <div class="msg" id="msg"></div>
 

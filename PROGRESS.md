@@ -44,7 +44,7 @@ réels trouvés. Détail ci-dessous.
 
 1. [x] Organiser PDF : ajouter la rotation par page
 2. [x] Filigrane : couleur réglable + orientation diagonale/horizontale + aperçu en direct
-3. [ ] Formulaires PDF : option d'aplatissement après remplissage
+3. [x] Formulaires PDF : option d'aplatissement après remplissage
 4. [ ] Métadonnées : bouton "Tout supprimer" + message de confidentialité inline
 5. [ ] Bonus scanner : vérifié déjà complet, aucun développement nécessaire
 
@@ -80,3 +80,15 @@ bout en bout (Playwright, hors suite committee) : changement de couleur/
 orientation/position, aperçu non vide confirmé par lecture des pixels du
 canvas, génération réussie sans erreur console. `npm run check-style` et
 `npm test` (9/9) toujours au vert.
+
+**Formulaires PDF, option d'aplatissement** : ajout d'une case à cocher
+"Aplatir le formulaire après remplissage" (repliée tant qu'aucun champ
+n'est détecté), qui appelle `form.flatten()` juste avant `pdfDoc.save()`
+si cochée, avec la même gestion d'avertissement (aplatissement partiel
+non bloquant) déjà utilisée dans `js/aplatir-pdf.js`, pour rester cohérent
+avec l'existant plutôt que d'inventer un nouveau comportement. Testé de
+bout en bout (Playwright, hors suite committee) avec un PDF généré à la
+volée (champ texte AcroForm) : sans la case cochée, le champ reste
+présent et modifiable avec la valeur saisie ; avec la case cochée, le
+formulaire de sortie ne contient plus aucun champ (aplati). `npm run
+check-style` et `npm test` (9/9) toujours au vert.
