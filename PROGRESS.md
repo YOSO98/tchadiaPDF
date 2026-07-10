@@ -42,10 +42,24 @@ réels trouvés. Détail ci-dessous.
 
 ## Ordre de traitement retenu
 
-1. [ ] Organiser PDF : ajouter la rotation par page
+1. [x] Organiser PDF : ajouter la rotation par page
 2. [ ] Filigrane : couleur réglable + orientation diagonale/horizontale + aperçu en direct
 3. [ ] Formulaires PDF : option d'aplatissement après remplissage
 4. [ ] Métadonnées : bouton "Tout supprimer" + message de confidentialité inline
 5. [ ] Bonus scanner : vérifié déjà complet, aucun développement nécessaire
 
 ## Journal
+
+**Organiser PDF, rotation par page** : ajout d'un champ `rotation` (0/90/
+180/270) par entrée de `order`, d'un bouton "Pivoter" (⟳) dans les
+actions de chaque miniature, d'un aperçu CSS en direct (`transform:
+rotate(...) scale(0.75)` pour 90/270, repris du même motif déjà utilisé
+dans `js/pivoter.js` pour rester cohérent avec l'existant), et de
+l'application réelle au moment de la génération via
+`page.setRotation(degrees((rotationExistante + rotationChoisie) % 360))`
+dans pdf-lib (la rotation existante de la page source est préservée,
+la nouvelle s'ajoute par-dessus). La duplication d'une page copie sa
+rotation. Testé de bout en bout (Playwright, hors suite committee) :
+3 clics = 270°, confirmé dans le PDF de sortie via une relecture
+pdf-lib du fichier téléchargé. `npm run check-style` et `npm test`
+(9/9) toujours au vert.

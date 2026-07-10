@@ -58,7 +58,7 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
       const canvas = document.createElement("canvas");
       await renderPdfPage(pdf, i, canvas, 150);
       thumbCache[i - 1] = canvas;
-      order.push({ id: nextId++, srcIndex: i - 1 });
+      order.push({ id: nextId++, srcIndex: i - 1, rotation: 0 });
     }
 
     hideProgress();
@@ -82,6 +82,13 @@ function cloneCachedCanvas(cached) {
   canvas.height = cached.height;
   canvas.getContext("2d").drawImage(cached, 0, 0);
   return canvas;
+}
+
+/** Applique un aperçu visuel (CSS) de la rotation choisie pour une miniature. */
+function applyThumbRotation(canvas, rotation) {
+  if (!rotation) return;
+  canvas.style.transition = "transform 150ms ease";
+  canvas.style.transform = "rotate(" + rotation + "deg)" + (rotation % 180 !== 0 ? " scale(0.75)" : "");
 }
 
 /** Reconstruit entièrement la grille de miniatures à partir du tableau "order". */
@@ -109,7 +116,11 @@ function renderGrid() {
     div.setAttribute("aria-label", "Page en position " + position);
 
     const cached = thumbCache[entry.srcIndex];
-    if (cached) div.appendChild(cloneCachedCanvas(cached));
+    if (cached) {
+      const canvas = cloneCachedCanvas(cached);
+      applyThumbRotation(canvas, entry.rotation);
+      div.appendChild(canvas);
+    }
 
     const num = document.createElement("div");
     num.className = "t-num";
@@ -121,12 +132,14 @@ function renderGrid() {
     actions.innerHTML =
       '<button type="button" class="icon-btn" data-action="up" title="Monter" aria-label="Monter la page ' + position + '">↑</button>' +
       '<button type="button" class="icon-btn" data-action="down" title="Descendre" aria-label="Descendre la page ' + position + '">↓</button>' +
+      '<button type="button" class="icon-btn" data-action="rotate" title="Pivoter" aria-label="Pivoter la page ' + position + ' de 90 degres">⟳</button>' +
       '<button type="button" class="icon-btn" data-action="dup" title="Dupliquer" aria-label="Dupliquer la page ' + position + '">⧉</button>' +
       '<button type="button" class="icon-btn" data-action="del" title="Supprimer" aria-label="Supprimer la page ' + position + '">✕</button>';
     div.appendChild(actions);
 
     const upBtn = actions.querySelector('[data-action="up"]');
     const downBtn = actions.querySelector('[data-action="down"]');
+    const rotateBtn = actions.querySelector('[data-action="rotate"]');
     const dupBtn = actions.querySelector('[data-action="dup"]');
     const delBtn = actions.querySelector('[data-action="del"]');
 
@@ -145,8 +158,13 @@ function renderGrid() {
       pendingFocus = { id: entry.id, action: "down" };
       renderGrid();
     });
+    rotateBtn.addEventListener("click", () => {
+      entry.rotation = (entry.rotation + 90) % 360;
+      pendingFocus = { id: entry.id, action: "rotate" };
+      renderGrid();
+    });
     dupBtn.addEventListener("click", () => {
-      const copy = { id: nextId++, srcIndex: entry.srcIndex };
+      const copy = { id: nextId++, srcIndex: entry.srcIndex, rotation: entry.rotation };
       order.splice(idx + 1, 0, copy);
       pendingFocus = { id: copy.id, action: "dup" };
       renderGrid();
@@ -196,7 +214,7 @@ function renderGrid() {
   if (pendingFocus) {
     const target = thumbsEl.querySelector('[data-id="' + pendingFocus.id + '"]');
     if (target) {
-      const actionToButton = { up: "up", down: "down", dup: "dup" };
+      const actionToButton = { up: "up", down: "down", rotate: "rotate", dup: "dup" };
       const btnAction = actionToButton[pendingFocus.action];
       const toFocus = btnAction ? target.querySelector('[data-action="' + btnAction + '"]') : target;
       if (toFocus) toFocus.focus();
@@ -217,7 +235,7 @@ applyBtn.addEventListener("click", async () => {
   applyBtn.disabled = true;
   try {
     setProgress(10, "Préparation du document…");
-    const { PDFDocument } = PDFLib;
+    const { PDFDocument, degrees } = PDFLib;
     let src;
     try {
       src = await PDFDocument.load(srcBytes);
@@ -228,7 +246,14 @@ applyBtn.addEventListener("click", async () => {
     const out = await PDFDocument.create();
     setProgress(35, "Copie des pages…");
     const pages = await out.copyPages(src, order.map((o) => o.srcIndex));
-    pages.forEach((p) => out.addPage(p));
+    pages.forEach((p, i) => {
+      const rotation = order[i].rotation || 0;
+      if (rotation) {
+        const current = p.getRotation().angle || 0;
+        p.setRotation(degrees((current + rotation) % 360));
+      }
+      out.addPage(p);
+    });
 
     setProgress(85, "Génération du fichier final…");
     const bytes = await out.save();
