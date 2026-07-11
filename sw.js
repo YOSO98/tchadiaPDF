@@ -16,33 +16,39 @@
  *   plutot que l'erreur de navigateur par defaut.
  */
 
-const CACHE_NAME = "tchadiapdf-shell-v1";
+// Le suffixe ?v=2 sur les ressources css/js locales suit celui utilise dans
+// le HTML (voir les balises <link>/<script> des pages) : un simple
+// changement de nom de fichier (via la chaine de requete) force chaque
+// visiteur a retelecharger la derniere version, meme si son navigateur
+// avait deja mis en cache pour un an l'ancienne URL sans suffixe
+// (Cache-Control: immutable sur /css/* et /js/*, voir _headers).
+const CACHE_NAME = "tchadiapdf-shell-v2";
 
 const APP_SHELL = [
   "/",
   "/index.html",
   "/offline.html",
   "/manifest.json",
-  "/css/style.css",
-  "/js/common.js",
-  "/js/security-utils.js",
-  "/js/index-page.js",
-  "/js/analytics.js",
-  "/js/ads.js",
-  "/js/consent-banner.js",
-  "/js/support-fab.js",
+  "/css/style.css?v=2",
+  "/js/common.js?v=2",
+  "/js/security-utils.js?v=2",
+  "/js/index-page.js?v=2",
+  "/js/analytics.js?v=2",
+  "/js/ads.js?v=2",
+  "/js/consent-banner.js?v=2",
+  "/js/support-fab.js?v=2",
   "/docs/icons/icon-192.png",
   "/docs/icons/icon-512.png",
   // Quelques outils vedettes pre-mis en cache pour un premier usage hors
   // ligne immediat ; les autres outils sont mis en cache automatiquement
   // des la premiere visite reussie (voir le gestionnaire "fetch" ci-dessous).
   "/fusionner.html",
-  "/js/fusionner.js",
+  "/js/fusionner.js?v=2",
   "/compresser-pdf.html",
-  "/js/compresser-pdf.js",
-  "/js/compresser-pdf.worker.js",
+  "/js/compresser-pdf.js?v=2",
+  "/js/compresser-pdf.worker.js", // instancie via new Worker(...) dans js/compresser-pdf.js, jamais via une balise <script> : pas de suffixe ?v= a faire correspondre
   "/modifier-pdf.html",
-  "/js/modifier-pdf.js",
+  "/js/modifier-pdf.js?v=2",
 ];
 
 self.addEventListener("install", (event) => {
