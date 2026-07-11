@@ -22,14 +22,12 @@ initDropzone("dropzone", "fileInput", (newFiles) => {
   hideMsg();
   document.getElementById("result").classList.remove("visible");
   const file = newFiles[0];
-  if (!(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"))) {
-    showMsg("Veuillez choisir un fichier PDF.");
+  const validation = validateFile(file, { accept: ["pdf", "application/pdf"], acceptLabel: "un fichier PDF", maxWarnBytes: MAX_SIZE });
+  if (!validation.ok) {
+    showMsg(validation.message);
     return;
   }
-  if (file.size > MAX_SIZE) {
-    showMsg("Ce fichier est trop volumineux (limite : 100 Mo).");
-    return;
-  }
+  if (validation.warning) showMsg(validation.warning);
   currentFile = file;
   renderFile();
   pwOptions.style.display = "flex";
@@ -61,7 +59,7 @@ function updateState() {
 pw1.addEventListener("input", updateState);
 pw2.addEventListener("input", updateState);
 
-protectBtn.addEventListener("click", async () => {
+async function runProtect() {
   hideMsg();
   document.getElementById("result").classList.remove("visible");
 
@@ -117,8 +115,10 @@ protectBtn.addEventListener("click", async () => {
     offerDownload(outBytes, "tchadiapdf-protege.pdf");
   } catch (err) {
     hideProgress();
-    showMsg(err.message || "La protection du PDF a échoué. Vérifiez votre fichier et réessayez.");
+    showError(err.message || "La protection du PDF a échoué. Vérifiez votre fichier et réessayez.", { retry: runProtect });
   } finally {
     updateState();
   }
-});
+}
+
+protectBtn.addEventListener("click", runProtect);

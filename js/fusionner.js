@@ -7,9 +7,26 @@ const mergeBtn = document.getElementById("mergeBtn");
 
 initDropzone("dropzone", "fileInput", (newFiles) => {
   hideMsg();
-  const pdfs = newFiles.filter((f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
-  if (pdfs.length < newFiles.length) showMsg("Seuls les fichiers PDF sont acceptés, les autres ont été ignorés.");
-  files.push(...pdfs.map((f) => ({ file: f })));
+  const accepted = [];
+  const messages = [];
+  let rejectedCount = 0;
+
+  newFiles.forEach((f) => {
+    const result = validateFile(f, { accept: ["pdf", "application/pdf"], acceptLabel: "un fichier PDF" });
+    if (!result.ok) {
+      rejectedCount++;
+      return;
+    }
+    accepted.push(f);
+    if (result.warning) messages.push(f.name + " : " + result.warning);
+  });
+
+  if (rejectedCount > 0) {
+    messages.unshift(rejectedCount + " fichier(s) ignoré(s) : seuls les PDF sont acceptés.");
+  }
+  if (messages.length) showMsg(messages.join(" "));
+
+  files.push(...accepted.map((f) => ({ file: f })));
   renderList();
 });
 
@@ -37,7 +54,7 @@ function renderList() {
   mergeBtn.disabled = files.length < 2;
 }
 
-mergeBtn.addEventListener("click", async () => {
+async function runMerge() {
   hideMsg();
   document.getElementById("result").classList.remove("visible");
   mergeBtn.disabled = true;
@@ -65,8 +82,10 @@ mergeBtn.addEventListener("click", async () => {
     offerDownload(out, "tchadiapdf-fusionne.pdf");
   } catch (err) {
     hideProgress();
-    showMsg(err.message || "La fusion a échoué. Vérifiez vos fichiers et réessayez.");
+    showError(err.message || "La fusion a échoué. Vérifiez vos fichiers et réessayez.", { retry: runMerge });
   } finally {
     mergeBtn.disabled = files.length < 2;
   }
-});
+}
+
+mergeBtn.addEventListener("click", runMerge);

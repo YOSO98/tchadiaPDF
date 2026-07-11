@@ -13,10 +13,12 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
   hideMsg();
   document.getElementById("result").classList.remove("visible");
   const file = newFiles[0];
-  if (!(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"))) {
-    showMsg("Veuillez choisir un fichier PDF.");
+  const validation = validateFile(file, { accept: ["pdf", "application/pdf"], acceptLabel: "un fichier PDF" });
+  if (!validation.ok) {
+    showMsg(validation.message);
     return;
   }
+  if (validation.warning) showMsg(validation.warning);
   try {
     setProgress(5, "Lecture du fichier…");
     srcBytes = await readAsArrayBuffer(file);
@@ -73,7 +75,7 @@ document.getElementById("selectNone").addEventListener("click", () => {
   updateState();
 });
 
-splitBtn.addEventListener("click", async () => {
+async function runSplit() {
   hideMsg();
   splitBtn.disabled = true;
   try {
@@ -90,8 +92,10 @@ splitBtn.addEventListener("click", async () => {
     offerDownload(bytes, "tchadiapdf-extrait.pdf");
   } catch (e) {
     hideProgress();
-    showMsg("L'extraction a échoué. Réessayez avec un autre fichier.");
+    showError("L'extraction a échoué. Réessayez avec un autre fichier.", { retry: runSplit });
   } finally {
     splitBtn.disabled = selected.size === 0;
   }
-});
+}
+
+splitBtn.addEventListener("click", runSplit);

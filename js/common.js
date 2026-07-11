@@ -113,15 +113,58 @@ function hideProgress() {
   document.getElementById("progress").classList.remove("visible");
 }
 
-/** Affiche un message d'erreur ou d'information. */
+/** Affiche un message d'erreur ou d'information (texte simple). */
 function showMsg(text) {
   const el = document.getElementById("msg");
+  el.innerHTML = "";
   el.textContent = "ⓘ " + text;
   el.classList.add("visible");
 }
 function hideMsg() {
   const el = document.getElementById("msg");
   if (el) el.classList.remove("visible");
+}
+
+/**
+ * Composant d'erreur uniforme : message clair, bouton "Réessayer" optionnel
+ * (relance l'action fournie) et suggestion d'outil alternatif optionnelle.
+ * Réutilise la même zone que showMsg (id "msg"), pour rester cohérent avec
+ * le reste du site plutôt que d'ajouter un second emplacement à l'écran.
+ *
+ * @param {string} text Message d'erreur, clair et en français.
+ * @param {{retry?: () => void, suggestionHref?: string, suggestionText?: string}} [options]
+ */
+function showError(text, options) {
+  options = options || {};
+  const el = document.getElementById("msg");
+  el.innerHTML = "";
+
+  const p = document.createElement("p");
+  p.textContent = "⚠ " + text;
+  el.appendChild(p);
+
+  if (options.retry || options.suggestionHref) {
+    const actions = document.createElement("div");
+    actions.className = "msg-actions";
+
+    if (options.retry) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn-secondary";
+      btn.textContent = "Réessayer";
+      btn.addEventListener("click", options.retry);
+      actions.appendChild(btn);
+    }
+    if (options.suggestionHref) {
+      const a = document.createElement("a");
+      a.href = options.suggestionHref;
+      a.textContent = options.suggestionText || "Essayer un autre outil";
+      actions.appendChild(a);
+    }
+    el.appendChild(actions);
+  }
+
+  el.classList.add("visible");
 }
 
 /** Propose le téléchargement d'un fichier généré. */
@@ -190,6 +233,44 @@ function showSupportLine(result) {
   });
   line.appendChild(a);
   line.appendChild(document.createTextNode("."));
+}
+
+/**
+ * Validation uniforme d'un fichier a l'entree d'un outil : type accepte et
+ * avertissement (pas de refus) au-dela d'une taille consideree comme lente.
+ * Ne remplace pas les verifications specifiques a chaque outil (ex. lecture
+ * reelle du PDF pour detecter un mot de passe), seulement le premier filtre
+ * commun : extension/MIME et taille.
+ *
+ * @param {File} file
+ * @param {{accept: string[], acceptLabel: string, maxWarnBytes?: number}} rules
+ *   accept: extensions minuscules sans le point (ex. ["pdf"]) OU types MIME
+ *   complets (ex. ["application/pdf"]) ; acceptLabel : description lisible
+ *   pour le message de refus (ex. "un fichier PDF").
+ * @returns {{ok: true, warning?: string} | {ok: false, message: string}}
+ */
+function validateFile(file, rules) {
+  const maxWarnBytes = rules.maxWarnBytes || 100 * 1024 * 1024; // 100 Mo par defaut
+  const name = (file.name || "").toLowerCase();
+  const type = (file.type || "").toLowerCase();
+
+  const matches = rules.accept.some((rule) => {
+    const r = rule.toLowerCase();
+    return r.indexOf("/") !== -1 ? type === r : name.endsWith("." + r);
+  });
+
+  if (!matches) {
+    return { ok: false, message: "Ce fichier n'est pas " + rules.acceptLabel + ". Choisissez un autre fichier." };
+  }
+
+  if (file.size > maxWarnBytes) {
+    return {
+      ok: true,
+      warning: "Ce fichier est volumineux (" + fmtSize(file.size) + ") : le traitement reste possible mais peut être lent selon votre appareil.",
+    };
+  }
+
+  return { ok: true };
 }
 
 /** Taille lisible. */

@@ -26,14 +26,12 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
   flattenAfterFill.checked = false;
 
   const file = newFiles[0];
-  if (!(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"))) {
-    showMsg("Veuillez choisir un fichier PDF.");
+  const validation = validateFile(file, { accept: ["pdf", "application/pdf"], acceptLabel: "un fichier PDF" });
+  if (!validation.ok) {
+    showMsg(validation.message);
     return;
   }
-  if (file.size > MAX_SIZE) {
-    showMsg("Ce fichier est trop volumineux (limite : 100 Mo). Choisissez un fichier plus léger.");
-    return;
-  }
+  if (validation.warning) showMsg(validation.warning);
 
   try {
     setProgress(20, "Lecture du fichier…");
@@ -214,7 +212,7 @@ function genererChamps(fields) {
   }
 }
 
-fillBtn.addEventListener("click", async () => {
+async function runFill() {
   if (!pdfDoc || !fieldsMap || fieldsMap.size === 0) return;
   hideMsg();
   fillBtn.disabled = true;
@@ -262,8 +260,10 @@ fillBtn.addEventListener("click", async () => {
     if (avertissement) showMsg(avertissement);
   } catch (e) {
     hideProgress();
-    showMsg("L'enregistrement du PDF rempli a échoué. Réessayez avec un autre fichier.");
+    showError("L'enregistrement du PDF rempli a échoué. Réessayez avec un autre fichier.", { retry: runFill });
   } finally {
     fillBtn.disabled = false;
   }
-});
+}
+
+fillBtn.addEventListener("click", runFill);

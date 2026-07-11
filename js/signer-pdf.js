@@ -42,14 +42,12 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
   resetOutil();
 
   const file = newFiles[0];
-  if (!(file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"))) {
-    showMsg("Veuillez choisir un fichier PDF.");
+  const validation = validateFile(file, { accept: ["pdf", "application/pdf"], acceptLabel: "un fichier PDF", maxWarnBytes: TAILLE_MAX_OCTETS });
+  if (!validation.ok) {
+    showMsg(validation.message);
     return;
   }
-  if (file.size > TAILLE_MAX_OCTETS) {
-    showMsg("Ce fichier est trop volumineux (limite : 100 Mo).");
-    return;
-  }
+  if (validation.warning) showMsg(validation.warning);
 
   try {
     setProgress(20, "Lecture du fichier…");
@@ -275,7 +273,7 @@ function clampOverlay() {
 
 /* ---------- Génération du PDF signé ---------- */
 
-signBtn.addEventListener("click", async () => {
+async function runSign() {
   hideMsg();
 
   if (!srcBytes || !pdfDocJs) {
@@ -348,8 +346,10 @@ signBtn.addEventListener("click", async () => {
     offerDownload(bytes, "tchadiapdf-signe.pdf");
   } catch (e) {
     hideProgress();
-    showMsg("La signature du PDF a échoué. Réessayez avec un autre fichier.");
+    showError("La signature du PDF a échoué. Réessayez avec un autre fichier.", { retry: runSign });
   } finally {
     signBtn.disabled = !hasSignature;
   }
-});
+}
+
+signBtn.addEventListener("click", runSign);

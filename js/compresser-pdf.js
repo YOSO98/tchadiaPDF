@@ -133,17 +133,19 @@ initDropzone("dropzone", "fileInput", (newFiles) => {
     toAdd = toAdd.slice(0, spaceLeft);
   }
 
+  const oversized = toAdd.filter((f) => f.size > MAX_SIZE);
   toAdd.forEach((file) => {
-    if (file.size > MAX_SIZE) {
-      queue.push({ id: nextId++, file, status: "ignore", message: "fichier trop volumineux (100 Mo maximum)" });
-    } else {
-      queue.push({ id: nextId++, file, status: "attente", message: "" });
-    }
+    queue.push({ id: nextId++, file, status: "attente", message: "" });
   });
 
+  const messages = [];
   if (overflow) {
-    showMsg("Vous avez dépassé la limite de " + MAX_FILES + " fichiers. Les " + MAX_FILES + " premiers ont été conservés, les suivants ont été ignorés.");
+    messages.push("Vous avez dépassé la limite de " + MAX_FILES + " fichiers. Les " + MAX_FILES + " premiers ont été conservés, les suivants ont été ignorés.");
   }
+  if (oversized.length) {
+    messages.push(oversized.length + " fichier(s) de plus de 100 Mo : le traitement reste possible mais peut être lent.");
+  }
+  if (messages.length) showMsg(messages.join(" "));
 
   renderQueue();
 });

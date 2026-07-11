@@ -625,6 +625,9 @@ a:hover { text-decoration: underline; }
   display: none;
 }
 .msg.visible { display: block; }
+.msg-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+.msg-actions .btn-secondary { width: auto; margin-top: 0; padding: 8px 16px; font-size: 0.85rem; }
+.msg-actions a { font-weight: 600; font-size: 0.85rem; }
 
 /* Emplacements publicitaires */
 .ad-slot {
