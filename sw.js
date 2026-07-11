@@ -22,7 +22,7 @@
 // visiteur a retelecharger la derniere version, meme si son navigateur
 // avait deja mis en cache pour un an l'ancienne URL sans suffixe
 // (Cache-Control: immutable sur /css/* et /js/*, voir _headers).
-const CACHE_NAME = "tchadiapdf-shell-v5";
+const CACHE_NAME = "tchadiapdf-shell-v6"; // v6 : chemins d'icones deplaces de /docs/icons/ vers /assets/icons/
 
 const APP_SHELL = [
   "/",
@@ -37,8 +37,9 @@ const APP_SHELL = [
   "/js/ads.js?v=5",
   "/js/consent-banner.js?v=5",
   "/js/support-fab.js?v=5",
-  "/docs/icons/icon-192.png",
-  "/docs/icons/icon-512.png",
+  "/assets/icons/icon-192.png",
+  "/assets/icons/icon-512.png",
+  "/favicon.ico",
   // Quelques outils vedettes pre-mis en cache pour un premier usage hors
   // ligne immediat ; les autres outils sont mis en cache automatiquement
   // des la premiere visite reussie (voir le gestionnaire "fetch" ci-dessous).

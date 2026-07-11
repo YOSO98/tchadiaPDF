@@ -8,11 +8,14 @@
     "test:ui": "playwright test --ui",
     "check-style": "node scripts/check-style-rules.js",
     "check-versions": "node scripts/check-asset-version-consistency.js",
-    "bump-version": "node scripts/bump-asset-version.js"
+    "bump-version": "node scripts/bump-asset-version.js",
+    "generer-icones": "node scripts/generer-icones.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
     "http-server": "^14.1.1",
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.3"
   }
 }
