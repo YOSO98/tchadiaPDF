@@ -6,7 +6,9 @@
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "check-style": "node scripts/check-style-rules.js"
+    "check-style": "node scripts/check-style-rules.js",
+    "check-versions": "node scripts/check-asset-version-consistency.js",
+    "bump-version": "node scripts/bump-asset-version.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

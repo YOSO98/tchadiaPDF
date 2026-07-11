@@ -28,6 +28,9 @@ jobs:
       - name: Verifier les regles de style (tirets, palette de couleurs)
         run: node scripts/check-style-rules.js
 
+      - name: Verifier la coherence des versions css/js (?v=)
+        run: node scripts/check-asset-version-consistency.js
+
       - name: Installer Chromium pour Playwright
         run: npx playwright install --with-deps chromium
 

@@ -109,13 +109,46 @@ npm run check-style             # verifie les regles de style (tirets, couleurs)
   sont volumineux (moteurs de conversion, éditeur PDF) et chargés sur
   presque toutes les pages : un cache long améliore nettement les temps de
   chargement pour les visiteurs récurrents.
-  **Point d'attention** : tant qu'aucune étape de hachage de nom de fichier
-  (cache busting) n'existe (voir le Bloc 1, minification via `build.js`, à
-  venir), une modification du contenu d'un fichier `.css`/`.js` existant ne
-  sera pas vue par les navigateurs qui l'ont déjà en cache avant l'expiration
-  de l'année. En pratique, cela concerne surtout les correctifs de bugs sur
-  des outils déjà en production : à surveiller, et à corriger avec des noms
-  de fichiers versionnés dès que le Bloc 1 sera fait.
+  **Point d'attention, avec solution en place** : sans étape de hachage de
+  nom de fichier (cache busting) au moment du build, une modification du
+  contenu d'un fichier `.css`/`.js` existant ne serait pas vue par les
+  navigateurs qui l'ont déjà en cache avant l'expiration de l'année. C'est
+  arrivé concrètement une fois en production (barre de recherche et zone de
+  dépôt de la page d'accueil affichées sans style pour les visiteurs ayant
+  déjà `css/style.css` en cache). Le site n'a toujours pas de build, mais un
+  cache busting manuel existe désormais via un suffixe `?v=N` sur toutes les
+  références locales à `css/style.css` et aux fichiers `js/*.js` : voir
+  "Mettre à jour `css/style.css` ou un fichier `js/*.js`" ci-dessous.
+
+### Mettre à jour `css/style.css` ou un fichier `js/*.js`
+
+À chaque fois que le contenu de `css/style.css` ou d'un fichier `js/*.js`
+change (nouveau style, correctif de bug, nouvelle fonctionnalité), le
+suffixe de version doit être incrémenté avant de committer, sans quoi les
+visiteurs ayant déjà l'ancienne version en cache (voir ci-dessus) ne
+recevront jamais la mise à jour :
+
+```
+node scripts/bump-asset-version.js   # ou : npm run bump-version
+```
+
+Ce script réécrit automatiquement toutes les références locales
+(`href="css/style.css?v=N"`, `src="js/*.js?v=N"`) dans les 59 pages HTML du
+site, avec le même nombre `N` partout, et synchronise `sw.js` (`CACHE_NAME`
+et la liste `APP_SHELL`). Il suffit ensuite de relire le diff, relancer
+`npm run check-style` et `npm test`, puis committer normalement : aucune
+étape de build n'est ajoutée, ce sont toujours des fichiers statiques
+ordinaires servis tels quels.
+
+Un garde-fou tourne automatiquement en CI (`npm run check-versions`,
+`scripts/check-asset-version-consistency.js`) : il échoue si une page a été
+oubliée lors d'un bump manuel (suffixe différent ou absent alors que
+d'autres pages en ont un), pour éviter qu'une incohérence passe inaperçue.
+
+Si `js/compresser-pdf.worker.js` (ou tout autre script instancié via
+`new Worker(...)` plutôt que par une balise `<script>`) change, il n'a pas
+besoin de suffixe : ce n'est pas concerné par la même casse de cache
+(vérifié au cas par cas, voir le commentaire dans `sw.js`).
 
 ### X-Frame-Options : DENY (plutôt que SAMEORIGIN)
 
@@ -182,8 +215,11 @@ request :
 2. Vérification bloquante des règles de style du projet
    (`scripts/check-style-rules.js`) : aucun tiret long/moyen nulle part,
    aucune couleur hexadécimale hors de la palette blanc/bleu du projet.
-3. Installation du navigateur Chromium pour Playwright.
-4. Exécution de la suite de tests Playwright (`tests/`).
+3. Vérification bloquante de la cohérence des versions css/js
+   (`scripts/check-asset-version-consistency.js`) : voir "Mettre à jour
+   `css/style.css` ou un fichier `js/*.js`" ci-dessus.
+4. Installation du navigateur Chromium pour Playwright.
+5. Exécution de la suite de tests Playwright (`tests/`).
 
 Le job échoue (code de sortie non nul) si l'une de ces étapes échoue, ce qui
 bloque naturellement la fusion d'une pull request une fois la protection de
