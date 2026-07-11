@@ -7,48 +7,227 @@
   });
 })();
 
-/* Recherche d'outils en temps reel : filtre les cartes par titre/description,
-   masque les sous-groupes et categories devenus vides. Raccourci clavier "/"
-   pour cibler le champ (sauf si l'utilisateur est deja dans un champ de
-   saisie), Echap pour vider. Aucune bibliotheque externe, aucun envoi reseau. */
+/* Recherche d'outils : menu deroulant de suggestions (comme Google/Spotlight),
+   navigable au clavier (fleches, Entree, Echap), qui ouvre directement l'outil
+   choisi. La liste des outils est construite une seule fois a partir des
+   cartes deja presentes dans la page (nom, description, icone, lien) : aucune
+   donnee dupliquee ailleurs. Raccourci clavier "/" pour cibler le champ (sauf
+   si l'utilisateur est deja dans un champ de saisie). Aucune bibliotheque
+   externe, aucun envoi reseau. */
 (function () {
   var input = document.getElementById("toolSearch");
   if (!input) return;
-  var emptyMsg = document.getElementById("toolSearchEmpty");
+  var searchWrap = document.getElementById("toolSearchWrap");
+  var resultsEl = document.getElementById("toolSearchResults");
   var cards = Array.prototype.slice.call(document.querySelectorAll(".tool-card"));
+
+  var TOOLS = cards
+    .map(function (card) {
+      var h2 = card.querySelector("h2");
+      var p = card.querySelector("p");
+      var svg = card.querySelector("svg");
+      return {
+        href: card.getAttribute("href"),
+        title: h2 ? h2.textContent.trim() : "",
+        desc: p ? p.textContent.trim() : "",
+        iconHTML: svg ? svg.outerHTML : "",
+      };
+    })
+    .filter(function (t) {
+      return t.href && t.title;
+    });
+
+  var POPULAR = ["fusionner.html", "compresser-pdf.html", "modifier-pdf.html", "word-en-pdf.html"]
+    .map(function (href) {
+      for (var i = 0; i < TOOLS.length; i++) {
+        if (TOOLS[i].href === href) return TOOLS[i];
+      }
+      return null;
+    })
+    .filter(Boolean);
 
   function normalize(s) {
     return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   }
 
-  function applyFilter() {
-    var query = normalize(input.value.trim());
-    var visibleCount = 0;
-
-    cards.forEach(function (card) {
-      var title = card.querySelector("h2");
-      var desc = card.querySelector("p");
-      var haystack = normalize((title ? title.textContent : "") + " " + (desc ? desc.textContent : ""));
-      var match = query === "" || haystack.indexOf(query) !== -1;
-      card.classList.toggle("search-hidden", !match);
-      if (match) visibleCount++;
+  /** Les titres qui commencent par la recherche remontent avant ceux qui la
+   * contiennent seulement (dans le titre, puis dans la description). */
+  function search(query) {
+    var q = normalize(query);
+    if (!q) return [];
+    var starts = [];
+    var contains = [];
+    TOOLS.forEach(function (t) {
+      var title = normalize(t.title);
+      var desc = normalize(t.desc);
+      if (title.indexOf(q) === 0) starts.push(t);
+      else if (title.indexOf(q) !== -1 || desc.indexOf(q) !== -1) contains.push(t);
     });
-
-    // Masque les sous-groupes ("Vers PDF", "Depuis PDF", "Images") et
-    // categories entierement vides une fois le filtre applique.
-    document.querySelectorAll(".tool-subgroup").forEach(function (group) {
-      var anyVisible = group.querySelectorAll(".tool-card:not(.search-hidden)").length > 0;
-      group.classList.toggle("search-hidden", query !== "" && !anyVisible);
-    });
-    document.querySelectorAll(".tool-category").forEach(function (cat) {
-      var anyVisible = cat.querySelectorAll(".tool-card:not(.search-hidden)").length > 0;
-      cat.classList.toggle("search-hidden", query !== "" && !anyVisible);
-    });
-
-    if (emptyMsg) emptyMsg.hidden = !(query !== "" && visibleCount === 0);
+    return starts.concat(contains).slice(0, 8);
   }
 
-  input.addEventListener("input", applyFilter);
+  var currentResults = [];
+  var activeIndex = -1;
+
+  function buildResultRow(tool, index) {
+    var a = document.createElement("a");
+    a.href = tool.href;
+    a.className = "tool-search-result";
+    a.setAttribute("role", "option");
+    a.id = "toolSearchResult-" + index;
+
+    var icon = document.createElement("span");
+    icon.className = "tool-search-result-icon";
+    icon.innerHTML = tool.iconHTML; // SVG statique du site lui-meme, jamais de contenu utilisateur
+
+    var text = document.createElement("span");
+    var title = document.createElement("span");
+    title.className = "tool-search-result-title";
+    title.textContent = tool.title;
+    var desc = document.createElement("span");
+    desc.className = "tool-search-result-desc";
+    desc.textContent = tool.desc;
+    text.appendChild(title);
+    text.appendChild(desc);
+
+    a.appendChild(icon);
+    a.appendChild(text);
+    a.addEventListener("mouseenter", function () {
+      setActive(index);
+    });
+    return a;
+  }
+
+  function buildEmptyState(query) {
+    var wrap = document.createElement("div");
+    wrap.className = "tool-search-empty-state";
+
+    var strong = document.createElement("strong");
+    strong.textContent = "Aucun outil ne correspond à « " + query + " ».";
+    wrap.appendChild(strong);
+
+    if (POPULAR.length) {
+      var popularLabel = document.createElement("p");
+      popularLabel.textContent = "Outils populaires :";
+      wrap.appendChild(popularLabel);
+
+      var popularWrap = document.createElement("div");
+      popularWrap.className = "tool-search-popular";
+      POPULAR.forEach(function (t) {
+        var a = document.createElement("a");
+        a.href = t.href;
+        a.textContent = t.title;
+        popularWrap.appendChild(a);
+      });
+      wrap.appendChild(popularWrap);
+    }
+
+    var seeAll = document.createElement("p");
+    var link = document.createElement("a");
+    link.href = "conversions.html";
+    link.textContent = "Voir toutes les conversions";
+    seeAll.appendChild(link);
+    wrap.appendChild(seeAll);
+
+    return wrap;
+  }
+
+  function renderResults(query) {
+    resultsEl.innerHTML = "";
+    activeIndex = -1;
+    input.removeAttribute("aria-activedescendant");
+
+    var trimmed = query.trim();
+    if (!trimmed) {
+      hideResults();
+      return;
+    }
+
+    currentResults = search(trimmed);
+
+    if (currentResults.length === 0) {
+      resultsEl.appendChild(buildEmptyState(trimmed));
+    } else {
+      currentResults.forEach(function (tool, i) {
+        resultsEl.appendChild(buildResultRow(tool, i));
+      });
+    }
+    showResults();
+  }
+
+  function showResults() {
+    resultsEl.hidden = false;
+    requestAnimationFrame(function () {
+      resultsEl.classList.add("visible");
+    });
+    input.setAttribute("aria-expanded", "true");
+  }
+
+  function hideResults() {
+    resultsEl.classList.remove("visible");
+    input.setAttribute("aria-expanded", "false");
+    activeIndex = -1;
+    input.removeAttribute("aria-activedescendant");
+    setTimeout(function () {
+      if (!resultsEl.classList.contains("visible")) resultsEl.hidden = true;
+    }, 200);
+  }
+
+  function setActive(index) {
+    var options = resultsEl.querySelectorAll(".tool-search-result");
+    options.forEach(function (el) {
+      el.classList.remove("active");
+      el.setAttribute("aria-selected", "false");
+    });
+    activeIndex = index;
+    if (index >= 0 && options[index]) {
+      options[index].classList.add("active");
+      options[index].setAttribute("aria-selected", "true");
+      options[index].scrollIntoView({ block: "nearest" });
+      input.setAttribute("aria-activedescendant", options[index].id);
+    } else {
+      input.removeAttribute("aria-activedescendant");
+    }
+  }
+
+  input.addEventListener("input", function () {
+    renderResults(input.value);
+  });
+
+  input.addEventListener("focus", function () {
+    if (input.value.trim()) renderResults(input.value);
+  });
+
+  input.addEventListener("keydown", function (e) {
+    var options = resultsEl.querySelectorAll(".tool-search-result");
+    if (e.key === "ArrowDown") {
+      if (!options.length) return;
+      e.preventDefault();
+      setActive(activeIndex < options.length - 1 ? activeIndex + 1 : 0);
+    } else if (e.key === "ArrowUp") {
+      if (!options.length) return;
+      e.preventDefault();
+      setActive(activeIndex > 0 ? activeIndex - 1 : options.length - 1);
+    } else if (e.key === "Enter") {
+      if (activeIndex >= 0 && options[activeIndex]) {
+        e.preventDefault();
+        window.location.href = options[activeIndex].getAttribute("href");
+      } else if (currentResults.length === 1) {
+        window.location.href = currentResults[0].href;
+      }
+    } else if (e.key === "Escape") {
+      if (resultsEl.classList.contains("visible")) {
+        hideResults();
+      } else {
+        input.value = "";
+        input.blur();
+      }
+    }
+  });
+
+  document.addEventListener("click", function (e) {
+    if (searchWrap && !searchWrap.contains(e.target)) hideResults();
+  });
 
   document.addEventListener("keydown", function (e) {
     var tag = (document.activeElement && document.activeElement.tagName) || "";
@@ -56,12 +235,27 @@
     if (e.key === "/" && !typing) {
       e.preventDefault();
       input.focus();
-    } else if (e.key === "Escape" && document.activeElement === input) {
-      input.value = "";
-      applyFilter();
-      input.blur();
     }
   });
+
+  // Placeholder rotatif : uniquement au repos (champ vide, non focalise), ne
+  // vole jamais le focus, s'arrete des que l'utilisateur interagit.
+  var PLACEHOLDERS = [
+    "Rechercher parmi " + TOOLS.length + " outils...",
+    "Rechercher : fusionner des PDF...",
+    "Rechercher : Word en PDF...",
+    "Rechercher : compresser...",
+  ];
+  var placeholderIndex = 0;
+  setInterval(function () {
+    if (document.activeElement === input || input.value) return;
+    input.classList.add("placeholder-fade");
+    setTimeout(function () {
+      placeholderIndex = (placeholderIndex + 1) % PLACEHOLDERS.length;
+      input.placeholder = PLACEHOLDERS[placeholderIndex];
+      input.classList.remove("placeholder-fade");
+    }, 220);
+  }, 3000);
 })();
 
 /* Routage intelligent : deposer un fichier n'importe ou sur la page detecte
