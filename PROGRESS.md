@@ -177,3 +177,179 @@ lecture pour diagnostic), aucune dépendance ajoutée (uniquement du code
 réutilisant pdf-lib déjà en place), aucun push effectué. 7 commits
 locaux, tous avec message explicite en français, tous vérifiés par lint
 et suite de tests avant d'être créés.
+
+---
+
+# MISSION : Réorganisation accueil + robustesse + nouveaux outils
+
+Mission distincte de celle ci-dessus (section précédente = session
+nocturne antérieure, conservée telle quelle). Rapport final ci-dessous,
+par phase, avec ce qui est fait, comment le tester, et ce qui reste.
+
+## PHASE 1 : réorganisation de la page d'accueil : TERMINÉE
+
+- **Hero compact** : titre, sous-titre, badge confidentialité, barre de
+  recherche et une nouvelle zone de dépôt persistante (clic ou glisser,
+  même routage intelligent que le dépôt sur toute la page), le tout
+  tenant dans un écran sans défilement (vérifié à 1280px de large).
+- **Section "Outils populaires"** : 8 cartes (Fusionner, Compresser,
+  Word en PDF, JPG en PDF, Signer, OCR, Diviser, Scanner), juste après
+  le hero.
+- **Catalogue complet filtrable** : les anciennes sections empilées
+  (Modifier / Convertir avec 3 sous-groupes / Tous les autres outils)
+  sont remplacées par une grille unique de 44 cartes (dont la nouvelle
+  Caviarder PDF, voir Phase 3), chacune taguée `data-category`, filtrée
+  instantanément en JS par des boutons-onglets (Tous / Modifier /
+  Convertir / Organiser / Sécurité / Extraire). Grille responsive : 1
+  colonne mobile, 2 tablette, 3 puis 4 colonnes desktop.
+- **Les 13 conversions "Vers PDF"** restent des cartes individuelles
+  (accessibles sous le filtre Convertir), pas réduites à un seul lien :
+  aucune page ni URL retirée du site.
+- **Catalogue replié par défaut** (hauteur limitée + dégradé + bouton
+  "Voir tous les outils") : sans ce repli, afficher les 44 cartes ne
+  réduisait la hauteur de la page que de 4 % (le filtrage seul ne
+  suffit pas si l'onglet par défaut est "Tous"). Avec, la page passe de
+  4945px à 2136px, soit 2,3× plus courte (mesuré à 1280px via un git
+  worktree sur le commit précédent). Tous les liens restent dans le DOM
+  dès le chargement : aucun impact sur le référencement.
+- **Footer condensé** sur une seule ligne responsive (flex + wrap).
+- **Bug corrigé au passage** : le bandeau de consentement (déjà
+  existant) pouvait recouvrir plus de la moitié de l'écran sur mobile,
+  cachant entièrement la nouvelle barre de recherche pour tout visiteur
+  n'ayant pas encore répondu au bandeau. Corrigé avec une hauteur
+  maximale + défilement interne, uniquement sur mobile (≤520px).
+
+**Comment tester** : ouvrir `index.html`. Le hero (titre à la zone de
+dépôt) doit tenir sans défiler sur un écran desktop standard. Cliquer
+sur les onglets de catégorie doit filtrer instantanément. Cliquer
+"Voir tous les outils" doit déplier le catalogue complet. Réduire à
+360px doit garder tout utilisable, zones tactiles ≥44px.
+
+Commits : `1171c51`.
+
+## PHASE 2 : robustesse : PARTIELLEMENT TERMINÉE
+
+**Fait, testé, commité** :
+1. `validateFile()` (`js/common.js`) : validation uniforme type + taille.
+   Au-delà de 100 Mo, avertit désormais au lieu de rejeter ("le
+   traitement reste possible mais peut être lent"), conformément à la
+   consigne.
+2. `showError()` (`js/common.js`) : composant d'erreur uniforme (bouton
+   "Réessayer" + suggestion optionnelle), même zone que `showMsg`.
+3. Appliqués aux 7 outils majeurs cités par la mission : `fusionner.js`
+   (ajoute le contrôle de taille qui manquait), `diviser.js`,
+   `signer-pdf.js`, `proteger-pdf.js`, `formulaires-pdf.js` (rejet dur →
+   avertissement + réessayer), `compresser-pdf.js` (fichiers >100 Mo
+   restent dans la file au lieu d'être écartés). `ocr-pdf.js`
+   volontairement non touché sur ce point précis : sa limite de 50 Mo
+   (au lieu de 100) est une décision déjà documentée dans le code (l'OCR
+   est nettement plus lourd par octet), l'aligner aveuglément sur le
+   seuil générique aurait pu dégrader l'expérience plutôt que
+   l'améliorer.
+4. Suite Playwright étendue : un test de bout en bout par outil majeur
+   (fusionner, compresser, diviser, OCR, signer, protéger, formulaires),
+   soit 6 nouveaux fichiers de test (fusionner en avait déjà un).
+
+**Identifié mais non fait** (voir BLOCAGES.md pour le détail) :
+- Validation warn-au-lieu-de-rejeter : appliquée à 7 outils sur 44.
+  Audit fait (script d'exploration dédié) : 42/44 outils valident déjà
+  type+taille, avec un comportement de rejet dur à généraliser en
+  avertissement sur les 37 restants : mécanique mais long, non fait
+  faute de temps dans cette session.
+- Composant d'erreur uniforme : même limite, 7/44 outils l'utilisent.
+  Le reste utilise toujours `showMsg` (déjà centralisé, juste sans
+  bouton Réessayer).
+- Web Workers (item 3) : audit fait, résultat encourageant : OCR,
+  Compresser PDF et Word en PDF sont déjà dans un Worker dédié.
+  Tournent encore sur le thread principal : `heic-en-pdf.js`,
+  `heic-en-jpg.js` (bibliothèque `heic2any`), `tiff-en-pdf.js`
+  (`UTIF.js`), et la boucle de rendu par page de `pdf-en-jpg.js` /
+  `extraire-images-pdf.js`. Migration non commencée : envelopper une
+  bibliothèque tierce dans un Worker (via `importScripts`) est un
+  travail non trivial par bibliothèque, risqué à faire vite.
+- Indicateurs de progression (item 4) : déjà largement en place
+  (`setProgress` utilisé dans 44/44 fichiers). Seule lacune notée :
+  `heic-en-pdf.js`/`heic-en-jpg.js` sautent de 30 % à 100 % sans étape
+  intermédiaire réelle pendant la conversion HEIC elle-même. Non
+  corrigé.
+
+**Comment tester ce qui est fait** : sur fusionner/diviser/signer/
+protéger/formulaires/compresser, déposer un fichier de plus de 100 Mo
+doit afficher un avertissement mais laisser l'action possible (au lieu
+de bloquer). Provoquer un échec de traitement (ex. fichier corrompu
+après un chargement réussi) doit afficher un bouton "Réessayer"
+fonctionnel. `npm test` couvre déjà le chemin nominal de ces 7 outils.
+
+Commit : `feb6494`.
+
+## PHASE 3 : nouveaux outils : 1 SUR 3 TERMINÉ (+ bonus non tenté)
+
+### 1. Caviarder PDF : TERMINÉ
+
+`caviarder-pdf.html` / `js/caviarder-pdf.js`. Dessin de zones noires sur
+l'aperçu de chaque page ; garantie centrale vérifiée empiriquement (pas
+seulement supposée) : le texte sous une zone caviardée est réellement
+supprimé du PDF de sortie, pas juste recouvert visuellement.
+
+Approche : toute page contenant au moins une zone caviardée est
+intégralement rendue en image (pdf.js, zones noircies dans les pixels)
+avant d'être réinsérée dans le document ; le texte et les objets
+vectoriels de cette page n'existent alors plus du tout dans le fichier
+final. Les pages sans zone caviardée restent copiées telles quelles,
+toujours cherchables. Choix délibéré plutôt qu'une édition chirurgicale
+du flux de contenu PDF (retirer uniquement le texte sous la zone en
+gardant le reste vectoriel) : cette dernière approche est beaucoup plus
+risquée (une erreur y laisserait silencieusement du texte "caviardé"
+mais toujours présent) et hors de portée sûre dans le temps disponible.
+Compromis assumé et expliqué dans l'interface elle-même : une page
+caviardée perd sa recherche/sélection de texte pour la page entière, pas
+seulement sous la zone.
+
+Ajouté à l'accueil (catégorie Sécurité), au sitemap.xml, balises SEO
+complètes.
+
+**Comment tester** : ouvrir `caviarder-pdf.html`, charger un PDF,
+dessiner un rectangle sur une zone de texte, cliquer "Caviarder le
+PDF", télécharger le résultat et vérifier (ex. Ctrl+F dans un lecteur
+PDF, ou copier-coller) que le texte sous la zone n'est plus trouvable.
+Test automatisé dédié : `tests/caviarder-pdf.spec.js`, qui fait
+exactement cette vérification par extraction de texte pdf.js plutôt que
+de se contenter de vérifier qu'un fichier est généré.
+
+Commit : `2c795ab`.
+
+### 2. PDF/A : NON TENTÉ
+
+Voir BLOCAGES.md : risque de livrer un outil qui affiche "conforme
+PDF/A" sans vérification réelle de conformité (pdf-lib n'a aucun
+support PDF/A natif). Volontairement non commencé plutôt que bâclé.
+Recommandation : rechercher une bibliothèque de validation existante
+avant d'écrire du code, lors d'une prochaine session dédiée.
+
+### 3. Traitement par lot : NON TENTÉ
+
+Non commencé car PDF/A (tâche précédente dans l'ordre demandé par la
+mission) ne l'est pas. Pas de difficulté technique équivalente à
+PDF/A : des patterns de file d'attente multi-fichiers avec ZIP existent
+déjà dans le dépôt (`js/compresser-pdf.js`, `js/rogner-pdf.js`) et
+seraient directement réutilisables.
+
+### Bonus : OCR en arabe : NON TENTÉ
+
+Explicitement conditionné par la mission à "si tout est terminé", ce
+qui n'est pas le cas (PDF/A, traitement par lot). Non commencé
+conformément à cette consigne, pas à cause d'un blocage technique.
+
+## Récapitulatif des commits de cette mission
+
+```
+1171c51  feat: refonte de la page d'accueil (hero compact, populaires, catalogue filtrable)
+feb6494  feat: validation uniforme, composant d'erreur avec Reessayer, tests etendus (Phase 2 partielle)
+2c795ab  feat: nouvel outil Caviarder PDF (Phase 3, priorite 1)
+```
+
+Règles de la mission respectées : aucune fonctionnalité existante
+supprimée, aucun fichier de déploiement ni `.env` modifié, aucune
+dépendance ajoutée (uniquement pdf-lib/pdf.js déjà en place), aucun
+push effectué. Chaque commit vérifié par `npm run check-style`,
+`npm run check-versions` et `npm test` avant d'être créé.
