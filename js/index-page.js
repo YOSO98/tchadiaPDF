@@ -335,6 +335,15 @@
     reader.readAsArrayBuffer(file.slice(0, 65536));
   }
 
+  // Zone de depot compacte et persistante du hero : meme routage que le
+  // survol de la page entiere, mais accessible au clic (choix de fichier)
+  // sans avoir a faire glisser quoi que ce soit.
+  if (document.getElementById("heroDropzone") && typeof initDropzone === "function") {
+    initDropzone("heroDropzone", "heroFileInput", function (files) {
+      if (files && files.length) routeFile(files[0]);
+    });
+  }
+
   function showMsgOnHome(text) {
     var el = document.getElementById("msg");
     if (!el) {
@@ -348,4 +357,46 @@
     el.textContent = "ⓘ " + text + " Voir conversions.html.";
     el.classList.add("visible");
   }
+})();
+
+/* Le catalogue complet (43 outils) reste replie par defaut (hauteur limitee,
+   degrade visuel + bouton "Voir tous les outils") pour garder une page
+   d'accueil courte : tous les liens restent neanmoins presents dans le DOM
+   des le chargement (aucun impact sur le referencement). */
+(function () {
+  var catalog = document.getElementById("toolsCatalog");
+  var expandBtn = document.getElementById("catalogExpandBtn");
+  if (!catalog || !expandBtn) return;
+  expandBtn.addEventListener("click", function () {
+    catalog.classList.remove("collapsed");
+    expandBtn.classList.add("is-hidden");
+  });
+})();
+
+/* Filtre du catalogue d'outils par categorie (onglets), instantane, sans
+   rechargement. "Tous" reaffiche l'integralite du catalogue. */
+(function () {
+  var tabs = document.querySelectorAll(".category-tabs button");
+  var catalog = document.getElementById("toolsCatalog");
+  if (!tabs.length || !catalog) return;
+  var cards = Array.prototype.slice.call(catalog.querySelectorAll(".tool-card"));
+
+  function applyFilter(filter) {
+    cards.forEach(function (card) {
+      var match = filter === "tous" || card.dataset.category === filter;
+      card.classList.toggle("tool-card-hidden", !match);
+    });
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+      });
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+      applyFilter(tab.dataset.filter);
+    });
+  });
 })();
