@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caviarder un PDF gratuit en ligne : tchadiaPdf</title>
+  <meta name="description" content="Masquez et supprimez réellement le texte sensible d'un PDF : dessinez des zones noires, le contenu en dessous est retiré du document, pas seulement recouvert. Gratuit et 100% local.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Caviarder un PDF gratuit en ligne : tchadiaPdf">
+  <meta property="og:description" content="Masquez et supprimez réellement le texte sensible d'un PDF : dessinez des zones noires, le contenu en dessous est retiré du document, pas seulement recouvert. Gratuit et 100% local.">
+  <meta property="og:url" content="https://tchadiapdf.com/caviarder-pdf.html">
+  <meta property="og:image" content="https://tchadiapdf.com/docs/og/organiser.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="tchadiaPdf">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Caviarder un PDF gratuit en ligne : tchadiaPdf">
+  <meta name="twitter:description" content="Masquez et supprimez réellement le texte sensible d'un PDF : dessinez des zones noires, le contenu en dessous est retiré du document, pas seulement recouvert. Gratuit et 100% local.">
+  <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/organiser.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563EB">
+  <style>
+    /* Styles scopés à l'éditeur de caviardage, réutilisent les variables du design system */
+    .cav-wrap {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      margin: 0 auto;
+      touch-action: none;
+      user-select: none;
+    }
+    .cav-wrap canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+    }
+    #previewCanvas { cursor: crosshair; }
+    #overlayCanvas { position: absolute; left: 0; top: 0; pointer-events: none; border-radius: 8px; }
+    .cav-preview-holder { display: flex; justify-content: center; margin: 24px 0; }
+    .cav-hint { text-align: center; color: var(--slate); font-size: 0.9rem; margin-top: 10px; }
+    .cav-pager {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+    .cav-pager button { min-width: 44px; min-height: 44px; }
+    .cav-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 16px 0 20px;
+      flex-wrap: wrap;
+    }
+    .cav-actions .btn-secondary { width: auto; }
+    .cav-notice {
+      max-width: 640px;
+      margin: 20px auto 0;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: var(--blue-50);
+      color: var(--ink);
+      font-size: 0.85rem;
+    }
+    .cav-notice strong { display: block; margin-bottom: 4px; color: var(--blue-dark); }
+    @media (max-width: 480px) {
+      .cav-pager { flex-wrap: wrap; }
+    }
+  </style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Caviarder un PDF",
+  "url": "https://tchadiapdf.com/caviarder-pdf.html",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (navigateur web)",
+  "description": "Masquez et supprimez réellement le texte sensible d'un PDF : dessinez des zones noires, le contenu en dessous est retiré du document, pas seulement recouvert. Gratuit et 100% local.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+  }
+}
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Caviarder un PDF</h1>
+  <p class="tool-sub">Dessinez des zones noires sur le texte sensible : contrairement à un simple rectangle par-dessus, le contenu en dessous est réellement retiré du document.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-item" id="fileInfo" style="display:none">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="cav-preview-holder" id="cavPreviewHolder" style="display:none">
+    <div>
+      <div class="cav-wrap" id="cavWrap">
+        <canvas id="previewCanvas"></canvas>
+        <canvas id="overlayCanvas"></canvas>
+      </div>
+      <p class="cav-hint">Cliquez et glissez sur l'aperçu pour dessiner une ou plusieurs zones à caviarder sur cette page.</p>
+      <div class="cav-pager">
+        <button type="button" class="btn-secondary" id="prevPageBtn">← Page précédente</button>
+        <span id="pageLabel">Page 1 / 1</span>
+        <button type="button" class="btn-secondary" id="nextPageBtn">Page suivante →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cav-actions" id="cavActions" style="display:none">
+    <button type="button" class="btn-secondary" id="clearPageBtn">Effacer les zones de cette page</button>
+    <button type="button" class="btn-secondary" id="clearAllBtn">Tout effacer</button>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="caviarderBtn" disabled>Caviarder le PDF</button>
+
+  <p class="cav-notice">
+    <strong>Comment ça marche</strong>
+    Chaque page contenant au moins une zone caviardée est convertie en image avant l'export : le texte et les objets vectoriels de cette page précise sont réellement supprimés, pas seulement masqués visuellement. Cette page n'est donc plus sélectionnable ni cherchable après caviardage. Les autres pages du document restent inchangées.
+  </p>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Traitement…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Votre PDF caviardé est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="soutenir.html" class="support-link"><svg width="24" height="24" class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Soutenir le projet</a>
+    <a href="confidentialite.html">Confidentialité</a>
+    <a href="mentions-legales.html">Mentions légales</a>
+  </nav>
+  <button type="button" class="consent-banner-reopen-link">Gérer les publicités</button>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e" crossorigin="anonymous"></script>
+<script src="js/common.js?v=5"></script>
+<script src="js/caviarder-pdf.js?v=5"></script>
+<script src="js/analytics.js?v=5" defer></script>
+<script src="js/ads.js?v=5" defer></script>
+<script src="js/consent-banner.js?v=5" defer></script>
+<script src="js/support-fab.js?v=5" defer></script>
+</body>
+</html>
