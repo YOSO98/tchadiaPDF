@@ -1,0 +1,31 @@
+# tchadiaPdf
+
+> Outils PDF gratuits, illimités et open source, traitement 100% local dans le navigateur.
+
+tchadiaPdf est une boîte à outils PDF statique (HTML/CSS/JS, sans backend) : fusionner, diviser, compresser, convertir, modifier, protéger et signer des PDF. Aucun fichier déposé par un visiteur n'est envoyé vers un serveur ; tout le traitement s'exécute dans l'onglet du navigateur.
+
+## Outils principaux
+
+- [Fusionner PDF](https://tchadiapdf.com/fusionner) : combine plusieurs fichiers PDF en un seul, dans l'ordre choisi.
+- [Diviser PDF](https://tchadiapdf.com/diviser) : extrait les pages choisies dans un nouveau document PDF.
+- [Compresser PDF](https://tchadiapdf.com/compresser-pdf) : réduit la taille d'un fichier PDF sans sacrifier la qualité.
+- [Organiser PDF](https://tchadiapdf.com/organiser-pdf) : réordonne, supprime ou duplique les pages d'un document.
+- [Modifier PDF](https://tchadiapdf.com/modifier-pdf) : modifie le texte existant, les images, les formes et les annotations d'un PDF.
+- [Word en PDF](https://tchadiapdf.com/word-en-pdf) : convertit un document Word (.docx) en PDF en conservant la mise en page.
+- [JPG en PDF](https://tchadiapdf.com/jpg-en-pdf) : convertit des images JPG ou PNG en document PDF.
+- [Signer PDF](https://tchadiapdf.com/signer-pdf) : dessine une signature et la place sur un document.
+- [OCR PDF](https://tchadiapdf.com/ocr-pdf) : rend un PDF scanné recherchable (français et anglais).
+- [Protéger PDF](https://tchadiapdf.com/proteger-pdf) : ajoute un mot de passe pour chiffrer un document.
+
+## Guides
+
+- [Comment caviarder un PDF gratuitement](https://tchadiapdf.com/guides/comment-caviarder-un-pdf) : masquer une information sensible avec suppression réelle du texte, pas un simple rectangle par-dessus.
+- [Comment scanner un document avec son téléphone](https://tchadiapdf.com/guides/comment-scanner-un-document-avec-son-telephone) : transformer une photo en PDF net et redressé, sans application à installer.
+- [Comment imprimer un PDF en livret](https://tchadiapdf.com/guides/comment-imprimer-un-pdf-en-livret) : transformer un PDF en brochure pliée prête à imprimer.
+- [Comment réparer un PDF endommagé](https://tchadiapdf.com/guides/comment-reparer-un-pdf-endommage) : que faire quand un PDF refuse de s'ouvrir ou affiche une erreur.
+- [Comment aplatir un formulaire PDF](https://tchadiapdf.com/guides/comment-aplatir-un-formulaire-pdf) : rendre les champs remplis définitifs après avoir complété un formulaire.
+
+## Projet
+
+- [Politique de confidentialité](https://tchadiapdf.com/confidentialite) : détail des données réellement traitées par le site (aucune concernant les fichiers).
+- [Code source (GitHub)](https://github.com/YOSO98/tchadiaPDF) : dépôt public sous licence MIT, y compris les tests qui vérifient qu'aucun fichier n'est envoyé sur un serveur.
