@@ -17,13 +17,9 @@
   <meta name="twitter:title" content="PDF en texte gratuit en ligne, extraire le texte d'un PDF : tchadiaPdf">
   <meta name="twitter:description" content="Extrayez le texte d'un PDF gratuitement. Repli automatique proposé par OCR (français et anglais) pour les documents scannés. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.">
   <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/convertir.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" data-font-swap>
-  <script src="js/font-loader.js?v=5806dffd" async></script>
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="css/style.css?v=af092254">
+  <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=7e6a7e44">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
@@ -88,7 +84,7 @@
       border-radius: var(--radius-btn);
       background: var(--white);
       color: var(--ink);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Inter', 'Inter Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 0.85rem;
       line-height: 1.5;
       padding: 14px;

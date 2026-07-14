@@ -2,6 +2,59 @@
    tchadiaPdf : Design system
    Deux couleurs : blanc + bleu
    ============================================ */
+
+/* Police Inter auto-hebergee (assets/fonts/, sous-ensemble latin, 4 graisses)
+   : plus aucune requete vers fonts.googleapis.com/fonts.gstatic.com (voir
+   DEPLOY.md pour les lignes _headers/CSP a retirer). font-display: swap
+   affiche le texte immediatement avec la police de secours ci-dessous, qui
+   remplace 'Inter Fallback' des que la vraie police a fini de charger. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/assets/fonts/inter-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/assets/fonts/inter-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/assets/fonts/inter-700.woff2') format('woff2');
+}
+
+/* Police de secours a metriques compensees (Arial locale, jamais
+   telechargee) : ascent-override/descent-override/size-adjust calcules a
+   partir des metriques publiques d'Inter (capHeight 1490, ascent 1984,
+   descent -494, lineGap 0, unitsPerEm 2048, largeur moyenne 978) et d'Arial
+   (largeur moyenne 913), formule size-adjust = largeurMoyenneInter /
+   largeurMoyenneArial (methode next/font). Objectif : que le texte affiche
+   avec cette police de secours occupe deja EXACTEMENT la meme largeur/
+   hauteur de ligne qu'avec la vraie police Inter, pour qu'aucun texte ne
+   bouge au moment du swap (CLS quasi nul). */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial');
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+
 :root {
   --blue: #2563EB;
   --blue-dark: #1D4ED8;
@@ -23,7 +76,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', 'Inter Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--white);
   color: var(--ink);
   line-height: 1.6;

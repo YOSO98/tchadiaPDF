@@ -34,12 +34,19 @@ quel : c'est un site statique pur.
   supplémentaire : c'est la convention Cloudflare Pages pour les en-têtes
   HTTP personnalisés.
 
-**Point d'attention futur** : si le Bloc 1 (audit performance) ajoute un jour
-une étape de minification CSS/JS via un script `build.js`, la commande de
-build Cloudflare Pages devra alors être mise à jour pour exécuter ce script
-avant le déploiement (par exemple `node build.js`), et le répertoire de
-sortie devra pointer vers le dossier généré plutôt que vers la racine du
-dépôt. Cela n'est pas fait par ce Bloc 2 : ce n'est pas son périmètre.
+**Décision prise (audit performance, pas juste différée)** : Lighthouse
+signale `js/security-utils.js` comme non minifié, ~2 Kio à gagner. Ajouter
+une étape de minification (script `build.js`, commande de build Cloudflare
+Pages à réécrire pour l'exécuter avant chaque déploiement, répertoire de
+sortie à faire pointer vers un dossier généré plutôt que la racine du
+dépôt) reviendrait à abandonner la garantie "site 100% statique, aucune
+étape de build" que ce projet maintient délibérément (voir l'introduction
+de ce document), pour un gain de 2 Kio sur un seul fichier parmi ~55. Non
+fait, volontairement : le rapport gain/complexité ne le justifie pas à
+cette échelle. Si ce type de signalement Lighthouse s'accumule sur
+davantage de fichiers à l'avenir, la décision serait à reconsidérer avec
+un vrai budget de complexité (choix d'un minifieur, double copie source/
+servi, intégration dans `deploy-prep`), pas ajoutée au fil de l'eau.
 
 ## 4. Ajouter un domaine personnalisé
 
@@ -344,12 +351,24 @@ chargements dynamiques de script trouvés dans `js/*.js`) :
 - `https://cdnjs.cloudflare.com` : pdf.js (`pdf.worker.min.js`), pdf-lib.
 - `https://cdn.jsdelivr.net` : tesseract.js (OCR), fontkit, la police
   Liberation Sans (`modifier-pdf.js`), le moteur qpdf-wasm.
-- `https://fonts.googleapis.com` : feuille de style de la police Inter
-  (Google Fonts).
-- `https://fonts.gstatic.com` : fichiers de police réels servis par la
-  feuille de style Google Fonts ci-dessus (jamais référencé directement
-  dans le HTML, mais nécessaire dans `font-src` sans quoi les polices
-  échoueraient à charger).
+
+**`fonts.googleapis.com` / `fonts.gstatic.com` retirés (police Inter
+auto-hébergée)** : la police Inter est désormais servie directement par le
+site (`assets/fonts/*.woff2`, déclarée via `@font-face` dans
+`css/style.css`), plus aucune requête vers Google au chargement d'une page.
+Le fichier `_headers` actuel autorise encore ces deux hôtes ; il faut
+retirer manuellement (ce commit ne modifie pas `_headers`, voir la
+justification du fichier lui-même) :
+
+- dans `style-src` : le segment ` https://fonts.googleapis.com` (n'était
+  utile que pour la feuille de style Google Fonts, qui n'est plus chargée).
+- dans `font-src` : le segment ` https://fonts.gstatic.com` (idem, plus
+  aucun fichier de police n'est demandé à Google).
+
+`font-src` devient donc `font-src 'self' data:;` et `style-src` devient
+`style-src 'self' 'unsafe-inline';`. Sans ce nettoyage la CSP reste
+fonctionnelle (elle autorise juste un hôte qui n'est plus jamais sollicité),
+ce n'est donc pas bloquant, seulement plus large que nécessaire.
 
 `'unsafe-inline'` a été nécessaire à deux endroits, faute d'alternative
 simple sur un site statique sans étape de build (pas de nonces/hash

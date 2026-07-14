@@ -17,13 +17,9 @@
   <meta name="twitter:title" content="Sécurité et confidentialité : tchadiaPdf">
   <meta name="twitter:description" content="Comment tchadiaPdf garantit techniquement que vos fichiers ne quittent jamais votre navigateur, et quelles en sont les limites honnêtes.">
   <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/defaut.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" data-font-swap>
-  <script src="js/font-loader.js?v=5806dffd" async></script>
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="css/style.css?v=af092254">
+  <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=7e6a7e44">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
@@ -74,9 +70,8 @@
   <ul>
     <li><strong>cdnjs.cloudflare.com</strong> : librairies de manipulation de PDF (pdf-lib, pdf.js) et de compression (JSZip).</li>
     <li><strong>cdn.jsdelivr.net</strong> : librairies de conversion de documents (docx, mammoth, xlsx, pptxgenjs, marked, epub.js), d'images (heic2any, UTIF, html2canvas) et de reconnaissance de texte (Tesseract.js).</li>
-    <li><strong>fonts.googleapis.com</strong> et <strong>fonts.gstatic.com</strong> : la police de caractères Inter utilisée pour l'interface du site.</li>
   </ul>
-  <p>Ces librairies ne sont chargées qu'une fois par visite (le navigateur les met ensuite en cache), et certaines ne sont chargées qu'au moment précis où elles deviennent nécessaires (par exemple, le moteur de reconnaissance de texte ne se charge que si vous utilisez l'OCR).</p>
+  <p>Ces librairies ne sont chargées qu'une fois par visite (le navigateur les met ensuite en cache), et certaines ne sont chargées qu'au moment précis où elles deviennent nécessaires (par exemple, le moteur de reconnaissance de texte ne se charge que si vous utilisez l'OCR). La police de caractères de l'interface (Inter) est hébergée directement par le site lui-même (<code>assets/fonts/</code>) : elle ne déclenche plus aucune requête vers un service externe.</p>
 
   <h2>Le code source est public et auditable</h2>
   <p>tchadiaPdf est un projet open source sous licence MIT. L'intégralité du code, y compris celui de chaque outil et de ce test de non-fuite réseau, est publiquement consultable sur GitHub : <a href="https://github.com/YOSO98/tchadiaPDF" target="_blank" rel="noopener noreferrer">github.com/YOSO98/tchadiaPDF</a>. N'importe qui peut lire ce code, vérifier qu'il correspond bien à ce qui est décrit ici, et signaler un problème.</p>

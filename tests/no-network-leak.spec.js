@@ -17,20 +17,20 @@
 //   4. On verifie sur l'ENSEMBLE des requetes interceptees pendant tout le
 //      scenario que :
 //        (a) aucune requete ne vise un domaine qui ne soit pas deja
-//            legitimement utilise par le site (CDN de librairie JS, police
-//            Google Fonts). Cette liste est construite dynamiquement a
-//            partir des balises <script src> / <link href> de TOUTES les
-//            pages HTML du site (et non codee en dur), unie aux requetes
-//            reellement observees pendant le chargement normal de la page
-//            testee (avant tout televersement). Le perimetre "site entier"
-//            (plutot que la seule page testee) est necessaire car certains
-//            outils chargent une librairie CDN a la demande via une balise
-//            <script> injectee en JavaScript au moment du traitement (ex :
-//            fontkit pour l'edition PDF avec polices personnalisees) : ce
-//            CDN est deja utilise ailleurs sur le site de facon statique,
-//            ce n'est donc pas un domaine nouveau ou suspect. Cela couvre
-//            aussi fonts.gstatic.com, sous-ressource chargee par la feuille
-//            de style Google Fonts sans balise directe.
+//            legitimement utilise par le site (CDN de librairie JS ; la
+//            police Inter est auto-hebergee depuis assets/fonts/, plus
+//            aucun domaine externe pour les polices). Cette liste est
+//            construite dynamiquement a partir des balises <script src> /
+//            <link href> de TOUTES les pages HTML du site (et non codee en
+//            dur), unie aux requetes reellement observees pendant le
+//            chargement normal de la page testee (avant tout televersement).
+//            Le perimetre "site entier" (plutot que la seule page testee)
+//            est necessaire car certains outils chargent une librairie CDN
+//            a la demande via une balise <script> injectee en JavaScript au
+//            moment du traitement (ex : fontkit pour l'edition PDF avec
+//            polices personnalisees) : ce CDN est deja utilise ailleurs sur
+//            le site de facon statique, ce n'est donc pas un domaine
+//            nouveau ou suspect.
 //        (b) aucune requete (URL, parametres, corps postData) ne contient
 //            le marqueur unique : preuve concrete que le contenu du
 //            fichier n'a jamais transite par le reseau.

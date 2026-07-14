@@ -33,13 +33,17 @@
 // qui declenche activate() ci-dessous et purge integralement l'ancien
 // cache (voir DEPLOY.md, section "Mettre a jour css/style.css ou un
 // fichier js/*.js").
-const CACHE_NAME = "tchadiapdf-shell-v1dc45c0b";
+const CACHE_NAME = "tchadiapdf-shell-v26b0a82e";
 
 const APP_SHELL = [
   "/",
   "/offline",
   "/manifest.json",
-  "/css/style.css?v=af092254",
+  "/css/style.css?v=7e6a7e44",
+  "/assets/fonts/inter-400.woff2",
+  "/assets/fonts/inter-500.woff2",
+  "/assets/fonts/inter-600.woff2",
+  "/assets/fonts/inter-700.woff2",
   "/js/common.js?v=19064f79",
   "/js/security-utils.js?v=df7bd91a",
   "/js/index-page.js?v=46af2584",
