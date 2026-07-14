@@ -151,7 +151,10 @@
       "Ce site peut afficher des publicités (Google AdSense) pour rester " +
       "gratuit. Cela nécessite votre consentement. Vos fichiers, eux, ne " +
       "quittent jamais votre appareil. Voir notre " +
-      '<a href="confidentialite.html">politique de confidentialité</a>.';
+      // Chemin absolu : confidentialite.html n'existe qu'en francais (pas
+      // de traduction par dossier de langue), un chemin relatif casserait
+      // depuis les dossiers de langue ou un sous-dossier comme guides/.
+      '<a href="/confidentialite.html">politique de confidentialité</a>.';
 
     var actions = document.createElement("div");
     actions.className = "consent-banner-actions";

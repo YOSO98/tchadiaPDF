@@ -16,8 +16,12 @@
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
     '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>';
 
+  // Chemin absolu depuis la racine du site : fonctionne identiquement
+  // depuis la racine, les dossiers de langue (chacun a sa propre traduction
+  // de soutenir.html) et n'importe quel autre sous-dossier (ex. guides/),
+  // contrairement a un chemin relatif qui casserait selon la profondeur.
   var link = document.createElement("a");
-  link.href = "soutenir.html";
+  link.href = lang === "fr" ? "/soutenir.html" : "/" + lang + "/soutenir.html";
   link.className = "support-fab";
   link.innerHTML = HEART + '<span class="fab-label">' + label + "</span>";
 

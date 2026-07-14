@@ -22,21 +22,21 @@
 // visiteur a retelecharger la derniere version, meme si son navigateur
 // avait deja mis en cache pour un an l'ancienne URL sans suffixe
 // (Cache-Control: immutable sur /css/* et /js/*, voir _headers).
-const CACHE_NAME = "tchadiapdf-shell-v6"; // v6 : chemins d'icones deplaces de /docs/icons/ vers /assets/icons/
+const CACHE_NAME = "tchadiapdf-shell-v7"; // v6 : chemins d'icones deplaces de /docs/icons/ vers /assets/icons/
 
 const APP_SHELL = [
   "/",
   "/index.html",
   "/offline.html",
   "/manifest.json",
-  "/css/style.css?v=6",
-  "/js/common.js?v=6",
-  "/js/security-utils.js?v=6",
-  "/js/index-page.js?v=6",
-  "/js/analytics.js?v=6",
-  "/js/ads.js?v=6",
-  "/js/consent-banner.js?v=6",
-  "/js/support-fab.js?v=6",
+  "/css/style.css?v=7",
+  "/js/common.js?v=7",
+  "/js/security-utils.js?v=7",
+  "/js/index-page.js?v=7",
+  "/js/analytics.js?v=7",
+  "/js/ads.js?v=7",
+  "/js/consent-banner.js?v=7",
+  "/js/support-fab.js?v=7",
   "/assets/icons/icon-192.png",
   "/assets/icons/icon-512.png",
   "/favicon.ico",
@@ -44,12 +44,12 @@ const APP_SHELL = [
   // ligne immediat ; les autres outils sont mis en cache automatiquement
   // des la premiere visite reussie (voir le gestionnaire "fetch" ci-dessous).
   "/fusionner.html",
-  "/js/fusionner.js?v=6",
+  "/js/fusionner.js?v=7",
   "/compresser-pdf.html",
-  "/js/compresser-pdf.js?v=6",
+  "/js/compresser-pdf.js?v=7",
   "/js/compresser-pdf.worker.js", // instancie via new Worker(...) dans js/compresser-pdf.js, jamais via une balise <script> : pas de suffixe ?v= a faire correspondre
   "/modifier-pdf.html",
-  "/js/modifier-pdf.js?v=6",
+  "/js/modifier-pdf.js?v=7",
 ];
 
 self.addEventListener("install", (event) => {

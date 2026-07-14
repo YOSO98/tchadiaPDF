@@ -794,6 +794,45 @@ body.has-consent-banner .support-fab { display: none; }
 .content-page h2 { font-size: 1.2rem; margin: 28px 0 10px; }
 .content-page p { color: var(--slate); margin-bottom: 12px; }
 
+/* Date de derniere mise a jour, sur les guides */
+.guide-updated { color: var(--slate); font-size: 0.85rem; margin-bottom: 24px; }
+
+/* Liste d'etapes numerotees, reutilisee sur les guides (et confiance.html) */
+.numbered-steps { counter-reset: numbered-step; list-style: none; margin: 16px 0; padding: 0; }
+.numbered-steps li {
+  counter-increment: numbered-step;
+  position: relative;
+  padding: 4px 0 16px 40px;
+  color: var(--ink);
+}
+.numbered-steps li::before {
+  content: counter(numbered-step);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bouton d'appel a l'action vers l'outil, en bas d'un guide */
+.guide-cta {
+  margin: 28px 0;
+  padding: 20px;
+  background: var(--blue-50);
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+.guide-cta p { color: var(--ink); margin-bottom: 12px; }
+.guide-cta .btn-primary { display: inline-block; width: auto; padding: 12px 28px; }
+
 /* Encadré "Fidélité de conversion" : honnêteté sur les pages de conversion */
 .fidelity-box {
   margin-top: 28px;
