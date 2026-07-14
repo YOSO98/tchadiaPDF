@@ -1,0 +1,32 @@
+#!/bin/sh
+# Hook pre-commit optionnel pour tchadiaPdf : verifie que le cache-busting
+# (scripts/version-assets.js) et les regles de style sont a jour AVANT
+# d'accepter un commit. Ne lance PAS la suite Playwright complete ici
+# (garder un hook local rapide) : celle-ci reste lancee par
+# `npm run deploy-prep` avant chaque deploiement, et par la CI a chaque push.
+#
+# Non actif par defaut (les hooks de .git/hooks/ ne sont pas suivis par git
+# et ne s'installent jamais tout seuls au clonage). Pour l'activer une fois
+# dans son clone local :
+#
+#   git config core.hooksPath .githooks
+#
+# Pour le desactiver :
+#
+#   git config --unset core.hooksPath
+
+echo "pre-commit : verification du cache-busting des assets..."
+if ! node scripts/check-asset-version-consistency.js; then
+  echo ""
+  echo "Commit bloque : lancez 'npm run version-assets' puis committez a nouveau."
+  exit 1
+fi
+
+echo "pre-commit : verification des regles de style..."
+if ! node scripts/check-style-rules.js; then
+  echo ""
+  echo "Commit bloque : corrigez les violations ci-dessus puis committez a nouveau."
+  exit 1
+fi
+
+exit 0

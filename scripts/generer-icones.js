@@ -4,9 +4,11 @@
  * a partir de assets/icons/favicon-source.png, le logo source haute
  * resolution a conserver pour toute regeneration future.
  *
- * A relancer (npm run generer-icones) des que le logo source change, puis
- * npm run bump-version pour que les visiteurs recoivent bien les nouvelles
- * icones malgre le cache long sur /assets/* et le service worker.
+ * A relancer (npm run generer-icones) des que le logo source change. Les
+ * fichiers d'icones ne sont pas concernes par le cache-busting par hash de
+ * scripts/version-assets.js (qui ne couvre que css/*.css et js/*.js) : si
+ * un visiteur a deja les anciennes icones en cache, seul un changement de
+ * CACHE_NAME du service worker (voir sw.js) declenchera leur rechargement.
  *
  * Depend de deux devDependencies : sharp (redimensionnement) et png-to-ico
  * (assemblage du .ico multi-tailles a partir de PNG), toutes deux MIT/

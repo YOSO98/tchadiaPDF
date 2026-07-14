@@ -8,7 +8,8 @@
     "test:ui": "playwright test --ui",
     "check-style": "node scripts/check-style-rules.js",
     "check-versions": "node scripts/check-asset-version-consistency.js",
-    "bump-version": "node scripts/bump-asset-version.js",
+    "version-assets": "node scripts/version-assets.js",
+    "deploy-prep": "npm run version-assets && npm run check-style && npm test",
     "generer-icones": "node scripts/generer-icones.js"
   },
   "devDependencies": {
