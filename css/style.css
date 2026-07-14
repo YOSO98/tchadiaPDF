@@ -382,6 +382,13 @@ a:hover { text-decoration: underline; }
 .cat-hub-link { text-align: center; margin: 4px 0 20px; }
 .cat-hub-link a { font-weight: 600; font-size: 0.95rem; }
 
+/* Dans le catalogue filtrable, les onglets et le lien vers les conversions
+   passent avant le titre h2 : marge genereuse au-dessus des onglets pour
+   se separer de la section precedente, et le titre reste rapproche de sa
+   grille (petite marge au-dessus, inchangee en dessous). */
+#catalogue > .category-tabs { margin-top: 40px; }
+#catalogue > h2 { margin: 8px 0 16px; }
+
 /* ---------- Grille d'outils ---------- */
 .tools-grid {
   display: grid;
