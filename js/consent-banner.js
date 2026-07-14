@@ -154,7 +154,7 @@
       // Chemin absolu : confidentialite.html n'existe qu'en francais (pas
       // de traduction par dossier de langue), un chemin relatif casserait
       // depuis les dossiers de langue ou un sous-dossier comme guides/.
-      '<a href="/confidentialite.html">politique de confidentialité</a>.';
+      '<a href="/confidentialite">politique de confidentialité</a>.';
 
     var actions = document.createElement("div");
     actions.className = "consent-banner-actions";

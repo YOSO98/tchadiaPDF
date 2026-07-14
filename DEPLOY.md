@@ -57,9 +57,38 @@ dépôt. Cela n'est pas fait par ce Bloc 2 : ce n'est pas son périmètre.
 **Page 404 personnalisée** : le fichier `404.html` à la racine du dépôt est
 servi automatiquement par Cloudflare Pages pour toute URL inexistante,
 sans configuration supplémentaire (convention native de Cloudflare Pages).
-Elle propose une recherche (redirige vers `index.html?q=...`, repris par
+Elle propose une recherche (redirige vers `/?q=...`, repris par
 `js/index-page.js`) et les outils les plus utilisés. Balisée `noindex` et
 volontairement absente de `sitemap.xml`.
+
+**URLs canoniques sans extension `.html`** : toutes les balises
+`canonical`/`og:url`/`hreflang`, le `sitemap.xml` et tous les liens internes
+du site utilisent la forme sans `.html` (`/organiser-pdf`, pas
+`/organiser-pdf.html` ; `/en/`, pas `/en/index.html`). C'est un
+comportement **natif de Cloudflare Pages** : toute requête vers
+`/page.html` est automatiquement redirigée (308) vers `/page`, et
+`/dossier/index.html` vers `/dossier/`, sans aucune configuration
+(`_redirects` ou autre) : ajouter des règles `_redirects` explicites pour
+ce cas serait donc redondant, pas nécessaire, et n'a volontairement pas été
+fait. Source : documentation officielle Cloudflare Pages sur le service
+des pages HTML ([developers.cloudflare.com/pages/configuration/serving-pages](https://developers.cloudflare.com/pages/configuration/serving-pages/)).
+
+**Point d'attention non résolu, à vérifier après déploiement** : le fichier
+`_headers` cible les pages HTML via le motif `/*.html` pour leur appliquer
+`Cache-Control: no-cache` (voir plus bas). Une fois les pages servies sous
+leur forme sans extension, il n'est pas certain que ce motif s'applique
+encore à `/organiser-pdf` (sans `.html`) : la documentation Cloudflare ne
+précise pas si le filtrage `_headers` s'effectue sur le chemin demandé par
+le visiteur ou sur le fichier statique résolu en interne. À vérifier
+empiriquement après déploiement, par exemple avec
+`curl -I https://tchadiapdf.com/organiser-pdf` et en comparant l'en-tête
+`Cache-Control` reçu à celui de `curl -I https://tchadiapdf.com/css/style.css`.
+Si `Cache-Control: no-cache` n'apparaît pas sur les pages HTML propres, le
+motif `/*.html` du fichier `_headers` devra être élargi (en évitant un motif
+générique `/*` qui chevaucherait `/css/*` et `/js/*` : Cloudflare **fusionne**
+les en-têtes de toutes les règles qui correspondent à une même requête au
+lieu de ne garder que la plus spécifique, ce qui produirait un
+`Cache-Control` incohérent, valeurs jointes par une virgule).
 
 ## 5. Protection de branche GitHub et CI obligatoire
 

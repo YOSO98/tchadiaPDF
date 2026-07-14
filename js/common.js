@@ -226,7 +226,7 @@ function showSupportLine(result) {
   }
   line.textContent = "tchadiaPdf est gratuit et le restera. Si cet outil vous a aidé, vous pouvez ";
   const a = document.createElement("a");
-  a.href = "soutenir.html";
+  a.href = "/soutenir";
   a.textContent = "soutenir le projet";
   a.addEventListener("click", () => {
     localStorage.setItem(SUPPORT_CLICKED_KEY, "1");

@@ -37,7 +37,7 @@
       return t.href && t.title;
     });
 
-  var POPULAR = ["fusionner.html", "compresser-pdf.html", "modifier-pdf.html", "word-en-pdf.html"]
+  var POPULAR = ["/fusionner", "/compresser-pdf", "/modifier-pdf", "/word-en-pdf"]
     .map(function (href) {
       for (var i = 0; i < TOOLS.length; i++) {
         if (TOOLS[i].href === href) return TOOLS[i];
@@ -124,7 +124,7 @@
 
     var seeAll = document.createElement("p");
     var link = document.createElement("a");
-    link.href = "conversions.html";
+    link.href = "/conversions";
     link.textContent = "Voir toutes les conversions";
     seeAll.appendChild(link);
     wrap.appendChild(seeAll);
@@ -279,18 +279,18 @@
   if (!overlay || typeof sniffFileType !== "function" || typeof savePendingFile !== "function") return;
 
   var ROUTES = {
-    pdf: "modifier-pdf.html",
-    docx: "word-en-pdf.html",
-    xlsx: "excel-en-pdf.html",
-    pptx: "powerpoint-en-pdf.html",
-    epub: "epub-en-pdf.html",
-    heic: "heic-en-pdf.html",
-    tiff: "tiff-en-pdf.html",
-    webp: "webp-en-pdf.html",
-    bmp: "bmp-en-pdf.html",
-    jpeg: "jpg-en-pdf.html",
-    png: "jpg-en-pdf.html",
-    texte: "texte-en-pdf.html",
+    pdf: "/modifier-pdf",
+    docx: "/word-en-pdf",
+    xlsx: "/excel-en-pdf",
+    pptx: "/powerpoint-en-pdf",
+    epub: "/epub-en-pdf",
+    heic: "/heic-en-pdf",
+    tiff: "/tiff-en-pdf",
+    webp: "/webp-en-pdf",
+    bmp: "/bmp-en-pdf",
+    jpeg: "/jpg-en-pdf",
+    png: "/jpg-en-pdf",
+    texte: "/texte-en-pdf",
   };
 
   var dragDepth = 0;
@@ -366,7 +366,7 @@
       var hero = document.querySelector(".hero");
       if (hero) hero.insertAdjacentElement("afterend", el);
     }
-    el.textContent = "ⓘ " + text + " Voir conversions.html.";
+    el.textContent = "ⓘ " + text + " Voir la page Conversions.";
     el.classList.add("visible");
   }
 })();

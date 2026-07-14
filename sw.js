@@ -22,34 +22,33 @@
 // visiteur a retelecharger la derniere version, meme si son navigateur
 // avait deja mis en cache pour un an l'ancienne URL sans suffixe
 // (Cache-Control: immutable sur /css/* et /js/*, voir _headers).
-const CACHE_NAME = "tchadiapdf-shell-v10"; // v6 : chemins d'icones deplaces de /docs/icons/ vers /assets/icons/
+const CACHE_NAME = "tchadiapdf-shell-v11"; // v6 : chemins d'icones deplaces de /docs/icons/ vers /assets/icons/
 
 const APP_SHELL = [
   "/",
-  "/index.html",
-  "/offline.html",
+  "/offline",
   "/manifest.json",
-  "/css/style.css?v=10",
-  "/js/common.js?v=10",
-  "/js/security-utils.js?v=10",
-  "/js/index-page.js?v=10",
-  "/js/analytics.js?v=10",
-  "/js/ads.js?v=10",
-  "/js/consent-banner.js?v=10",
-  "/js/support-fab.js?v=10",
+  "/css/style.css?v=11",
+  "/js/common.js?v=11",
+  "/js/security-utils.js?v=11",
+  "/js/index-page.js?v=11",
+  "/js/analytics.js?v=11",
+  "/js/ads.js?v=11",
+  "/js/consent-banner.js?v=11",
+  "/js/support-fab.js?v=11",
   "/assets/icons/icon-192.png",
   "/assets/icons/icon-512.png",
   "/favicon.ico",
   // Quelques outils vedettes pre-mis en cache pour un premier usage hors
   // ligne immediat ; les autres outils sont mis en cache automatiquement
   // des la premiere visite reussie (voir le gestionnaire "fetch" ci-dessous).
-  "/fusionner.html",
-  "/js/fusionner.js?v=10",
-  "/compresser-pdf.html",
-  "/js/compresser-pdf.js?v=10",
+  "/fusionner",
+  "/js/fusionner.js?v=11",
+  "/compresser-pdf",
+  "/js/compresser-pdf.js?v=11",
   "/js/compresser-pdf.worker.js", // instancie via new Worker(...) dans js/compresser-pdf.js, jamais via une balise <script> : pas de suffixe ?v= a faire correspondre
-  "/modifier-pdf.html",
-  "/js/modifier-pdf.js?v=10",
+  "/modifier-pdf",
+  "/js/modifier-pdf.js?v=11",
 ];
 
 self.addEventListener("install", (event) => {
@@ -94,7 +93,7 @@ async function networkFirst(request) {
     const cached = await cache.match(request);
     if (cached) return cached;
     if (request.mode === "navigate") {
-      const offline = await cache.match("/offline.html");
+      const offline = await cache.match("/offline");
       if (offline) return offline;
     }
     throw err;

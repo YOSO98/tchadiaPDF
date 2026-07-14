@@ -26,7 +26,14 @@ module.exports = defineConfig({
   ],
 
   webServer: {
-    command: "npx http-server -p 8943 -a 127.0.0.1 --silent .",
+    // -e html : sert une-page.html a la fois sur /une-page.html et sur /une-page
+    // (sans extension), pour se rapprocher du comportement natif de Cloudflare
+    // Pages en production (qui sert les pages HTML sans extension et redirige
+    // les URLs en .html vers leur equivalent propre). http-server ne reproduit
+    // pas la redirection 308 elle-meme, seulement la resolution d'URL propre :
+    // suffisant pour verifier que les liens internes (desormais sans .html)
+    // resolvent correctement en local.
+    command: "npx http-server -p 8943 -a 127.0.0.1 -e html --silent .",
     url: "http://127.0.0.1:8943/index.html",
     reuseExistingServer: !process.env.CI,
     timeout: 30000,

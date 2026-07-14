@@ -21,7 +21,7 @@
   // de soutenir.html) et n'importe quel autre sous-dossier (ex. guides/),
   // contrairement a un chemin relatif qui casserait selon la profondeur.
   var link = document.createElement("a");
-  link.href = lang === "fr" ? "/soutenir.html" : "/" + lang + "/soutenir.html";
+  link.href = lang === "fr" ? "/soutenir" : "/" + lang + "/soutenir";
   link.className = "support-fab";
   link.innerHTML = HEART + '<span class="fab-label">' + label + "</span>";
 

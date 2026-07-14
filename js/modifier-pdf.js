@@ -1718,7 +1718,7 @@ document.getElementById("editSubbar").addEventListener("click", (e) => {
   if (!btn) return;
   document.querySelectorAll("#editSubbar button[data-subtool]").forEach((b) => b.classList.toggle("active", b === btn));
   const sub = btn.dataset.subtool;
-  if (sub === "forms") { window.open("formulaires-pdf.html", "_blank"); return; }
+  if (sub === "forms") { window.open("/formulaires-pdf", "_blank"); return; }
   if (sub === "image") { imageInput.click(); return; }
   setTool(sub);
 });
