@@ -124,7 +124,22 @@ npm ci                          # installe les dependances de developpement
 npx playwright install chromium # installe le navigateur de test (une fois)
 npm test                        # lance la suite de tests Playwright
 npm run check-style             # verifie les regles de style (tirets, couleurs)
+npm run version-assets          # cache-busting : voir section dediee ci-dessous
+npm run deploy-prep             # enchaine les trois etapes ci-dessus, a lancer avant chaque deploiement
 ```
+
+**Hook pre-commit optionnel** : `.githooks/pre-commit` relance
+`check-asset-version-consistency.js` et `check-style-rules.js` (rapide,
+sans la suite Playwright complete) avant d'accepter un commit local. Non
+actif par defaut (un hook de `.git/hooks/` n'est jamais suivi par git ni
+installe automatiquement au clonage) ; pour l'activer une fois dans son
+clone local :
+
+```
+git config core.hooksPath .githooks
+```
+
+Pour le desactiver : `git config --unset core.hooksPath`.
 
 ---
 
@@ -144,47 +159,173 @@ npm run check-style             # verifie les regles de style (tirets, couleurs)
   `Cache-Control: public, max-age=31536000, immutable` (un an). Ces fichiers
   sont volumineux (moteurs de conversion, éditeur PDF) et chargés sur
   presque toutes les pages : un cache long améliore nettement les temps de
-  chargement pour les visiteurs récurrents.
-  **Point d'attention, avec solution en place** : sans étape de hachage de
-  nom de fichier (cache busting) au moment du build, une modification du
-  contenu d'un fichier `.css`/`.js` existant ne serait pas vue par les
-  navigateurs qui l'ont déjà en cache avant l'expiration de l'année. C'est
-  arrivé concrètement une fois en production (barre de recherche et zone de
-  dépôt de la page d'accueil affichées sans style pour les visiteurs ayant
-  déjà `css/style.css` en cache). Le site n'a toujours pas de build, mais un
-  cache busting manuel existe désormais via un suffixe `?v=N` sur toutes les
-  références locales à `css/style.css` et aux fichiers `js/*.js` : voir
-  "Mettre à jour `css/style.css` ou un fichier `js/*.js`" ci-dessous.
+  chargement pour les visiteurs récurrents. Sûr uniquement parce que le
+  cache-busting par hash (ci-dessous) change l'URL dès que le contenu
+  change : un fichier `immutable` en cache jamais mis à jour à la même URL
+  n'est alors jamais un problème, puisque cette URL ne référence plus qu'un
+  contenu qui, par construction, ne changera plus.
+  **Incident réel documenté** : c'est arrivé une fois en production avant la
+  mise en place du cache-busting (barre de recherche et zone de dépôt de la
+  page d'accueil affichées sans style pour les visiteurs ayant déjà
+  `css/style.css` en cache). Cause désormais éliminée par
+  `scripts/version-assets.js`, voir ci-dessous.
+- **`sw.js`** : `Cache-Control: max-age=0, must-revalidate`, **absent du
+  fichier `_headers` actuel, à ajouter** (voir "En-têtes cible" plus bas).
+  Sans cette règle explicite, le fichier du service worker lui-même
+  pourrait être mis en cache par un intermédiaire (proxy, CDN en amont) sans
+  revalidation, retardant la détection de toute nouvelle version : c'est le
+  seul fichier du site où un cache, même bref, va directement à l'encontre
+  du but recherché (voir "Cycle de vie d'une mise à jour" ci-dessous).
 
-### Mettre à jour `css/style.css` ou un fichier `js/*.js`
+### Cache-busting : `scripts/version-assets.js`
 
 À chaque fois que le contenu de `css/style.css` ou d'un fichier `js/*.js`
-change (nouveau style, correctif de bug, nouvelle fonctionnalité), le
-suffixe de version doit être incrémenté avant de committer, sans quoi les
-visiteurs ayant déjà l'ancienne version en cache (voir ci-dessus) ne
-recevront jamais la mise à jour :
+change (nouveau style, correctif de bug, nouvelle fonctionnalité), il faut
+relancer ce script avant de committer, sans quoi les visiteurs ayant déjà
+l'ancienne version en cache (voir ci-dessus) ne recevront jamais la mise à
+jour :
 
 ```
-node scripts/bump-asset-version.js   # ou : npm run bump-version
+node scripts/version-assets.js   # ou : npm run version-assets
 ```
 
-Ce script réécrit automatiquement toutes les références locales
-(`href="css/style.css?v=N"`, `src="js/*.js?v=N"`) dans les 59 pages HTML du
-site, avec le même nombre `N` partout, et synchronise `sw.js` (`CACHE_NAME`
-et la liste `APP_SHELL`). Il suffit ensuite de relire le diff, relancer
-`npm run check-style` et `npm test`, puis committer normalement : aucune
-étape de build n'est ajoutée, ce sont toujours des fichiers statiques
-ordinaires servis tels quels.
+Contrairement à l'ancien schéma (un seul numéro de version global,
+incrémenté manuellement à chaque exécution), ce script calcule un **hash du
+contenu** de chaque fichier `css/*.css` et `js/*.js` (SHA-256, 8 caractères
+hexadécimaux) et l'utilise comme suffixe `?v=<hash>` sur toutes les
+références locales, dans les 67 pages HTML du site (toutes langues) : le
+hash d'un fichier ne change **que si son contenu change**, deux fichiers
+non modifiés gardent exactement le même suffixe d'une exécution à l'autre
+(idempotent), et un seul fichier modifié n'entraîne la mise à jour que des
+pages qui le référencent réellement.
+
+Le script synchronise aussi `sw.js` : chaque entrée `APP_SHELL` reçoit le
+hash de son propre fichier, et `CACHE_NAME` reçoit un hash de *build*
+dérivé de l'ensemble des fichiers css/js du site (ordre trié, donc stable) :
+il change automatiquement dès qu'un seul fichier change, ce qui force le
+service worker à considérer qu'il s'agit d'une nouvelle version (voir
+"Cycle de vie d'une mise à jour" ci-dessous).
+
+Il suffit ensuite de relire le diff, relancer `npm run check-style` et
+`npm test` (ou directement `npm run deploy-prep`, qui enchaîne les trois),
+puis committer normalement : aucune étape de build n'est ajoutée, ce sont
+toujours des fichiers statiques ordinaires servis tels quels.
 
 Un garde-fou tourne automatiquement en CI (`npm run check-versions`,
-`scripts/check-asset-version-consistency.js`) : il échoue si une page a été
-oubliée lors d'un bump manuel (suffixe différent ou absent alors que
-d'autres pages en ont un), pour éviter qu'une incohérence passe inaperçue.
+`scripts/check-asset-version-consistency.js`) : il échoue si une page
+référence encore un hash périmé pour un fichier css/js, ou si `CACHE_NAME`
+de `sw.js` ne correspond plus au hash de build actuel, pour éviter qu'une
+incohérence passe inaperçue.
 
 Si `js/compresser-pdf.worker.js` (ou tout autre script instancié via
 `new Worker(...)` plutôt que par une balise `<script>`) change, il n'a pas
 besoin de suffixe : ce n'est pas concerné par la même casse de cache
 (vérifié au cas par cas, voir le commentaire dans `sw.js`).
+
+### Cycle de vie d'une mise à jour du service worker
+
+`sw.js` appelle `self.skipWaiting()` à l'installation et
+`self.clients.claim()` à l'activation : un nouveau service worker prend
+donc le contrôle de **tous les onglets déjà ouverts** dès que son
+installation se termine, sans attendre leur fermeture. À l'activation,
+tous les caches dont le nom ne correspond pas au `CACHE_NAME` courant sont
+intégralement supprimés (pas d'accumulation d'anciennes entrées).
+
+Cette prise de contrôle immédiate ne recharge toutefois jamais la page
+déjà chargée en mémoire dans un onglet ouvert : celle-ci continue d'utiliser
+le HTML/CSS/JS avec lequel elle a été chargée jusqu'à ce qu'elle soit
+rechargée. `js/common.js` écoute l'évènement `controllerchange` (déclenché
+juste après cette prise de contrôle) et affiche un bandeau discret "Nouvelle
+version disponible" avec un bouton "Actualiser" qui recharge la page ; la
+toute première occurrence de l'évènement (l'activation initiale, pas une
+vraie mise à jour) est explicitement ignorée pour ne jamais afficher ce
+bandeau à un visiteur de passage. Aucun rechargement automatique et
+silencieux n'est effectué : le choix reste toujours celui du visiteur.
+
+### Checklist de déploiement (à suivre avant chaque push vers `main`)
+
+1. `npm run deploy-prep` (enchaîne `version-assets`, `check-style`, `test`) :
+   corrige tout ce qui échoue avant de continuer.
+2. Relire le diff produit par `version-assets` (pages HTML, `sw.js`) :
+   confirmer qu'il ne touche que les suffixes `?v=` et `CACHE_NAME`.
+3. Committer, pousser, laisser la CI (`.github/workflows/ci.yml`) confirmer
+   une deuxième fois de façon indépendante.
+4. Une fois déployé sur Cloudflare Pages, vérifier qu'un visiteur reçoit
+   bien la nouvelle version : ouvrir le site dans un onglet resté ouvert
+   depuis avant le déploiement, attendre quelques secondes (le service
+   worker se met à jour en tâche de fond), et confirmer que le bandeau
+   "Nouvelle version disponible" apparaît. Sur un onglet fraîchement ouvert,
+   `curl -I https://tchadiapdf.com/css/style.css?v=<hash attendu>` doit
+   répondre 200 avec `Cache-Control: public, max-age=31536000, immutable`,
+   et `curl -I https://tchadiapdf.com/sw.js` doit répondre avec
+   `Cache-Control: max-age=0, must-revalidate` (voir "En-têtes cible"
+   ci-dessous : à ajouter manuellement à `_headers`, jamais généré
+   automatiquement).
+
+### En-têtes cible pour `_headers` (Cache-Control)
+
+Bloc complet, prêt à copier-coller dans `_headers` à la suite du bloc
+`Content-Security-Policy` existant. Toutes les lignes ci-dessous sont déjà
+présentes et correctes dans le fichier actuel, **à l'exception de la
+dernière** (`/sw.js`), qui manque et doit être ajoutée :
+
+```
+/
+  Cache-Control: no-cache
+
+/*.html
+  Cache-Control: no-cache
+
+/ar/*
+  Cache-Control: no-cache
+
+/en/*
+  Cache-Control: no-cache
+
+/es/*
+  Cache-Control: no-cache
+
+/pt/*
+  Cache-Control: no-cache
+
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/sw.js
+  Cache-Control: max-age=0, must-revalidate
+```
+
+Une phrase par ligne :
+
+- `/` et `/*.html` : jamais de cache long sur le HTML, le site évolue trop
+  souvent pour risquer qu'un visiteur reste bloqué sur une page périmée.
+- `/ar/*`, `/en/*`, `/es/*`, `/pt/*` : même règle pour les pages traduites,
+  qui vivent dans des sous-dossiers non couverts par le motif `/*.html`
+  seul (celui-ci ne matche que les chemins se terminant littéralement par
+  `.html`, pas un dossier entier).
+- `/css/*`, `/js/*`, `/*.wasm` : cache long et immuable, sûr uniquement
+  grâce au cache-busting par hash (`scripts/version-assets.js`) qui change
+  l'URL à chaque changement de contenu.
+- `/sw.js` : jamais de cache, même bref, c'est le seul fichier dont la
+  détection de mise à jour par le navigateur dépend directement de la
+  fraîcheur de la réponse HTTP.
+
+**Non résolu, à vérifier après déploiement** (déjà documenté plus haut dans
+ce fichier, rappelé ici car directement lié) : depuis le passage aux URLs
+canoniques sans extension `.html`, il n'est pas certain que le motif
+`/*.html` s'applique encore aux pages servies sous leur forme propre
+(`/organiser-pdf`). Vérifier avec `curl -I` après déploiement ; si
+`Cache-Control: no-cache` n'apparaît pas sur une page HTML propre, élargir
+le motif en évitant `/*` (qui chevaucherait `/css/*` et `/js/*` : Cloudflare
+fusionne les en-têtes de toutes les règles correspondantes au lieu de ne
+garder que la plus spécifique, ce qui produirait un `Cache-Control`
+incohérent).
 
 ### X-Frame-Options : DENY (plutôt que SAMEORIGIN)
 
