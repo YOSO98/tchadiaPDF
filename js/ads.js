@@ -1,16 +1,25 @@
 /**
  * ads.js : chargement conditionnel de Google AdSense (tchadiaPdf)
  *
- * Regle absolue : tant que l'utilisateur n'a pas explicitement accepte les
- * publicites via le bandeau de consentement (js/consent-banner.js), ce
- * script ne fait STRICTEMENT rien : aucune requete reseau vers Google,
+ * Regle absolue, appliquee par DEUX gardes independantes et cumulatives
+ * dans tchadiapdfInitAds() ci-dessous, verifiees a chaque appel (pas
+ * seulement au chargement initial) :
+ *   1. Consentement : tant que l'utilisateur n'a pas explicitement accepte
+ *      les publicites via le bandeau de consentement (js/consent-banner.js),
+ *      ce script ne fait STRICTEMENT rien.
+ *   2. Configuration : tant que ADSENSE_CLIENT_ID ci-dessous n'a pas ete
+ *      remplace par un vrai identifiant AdSense (voir
+ *      tchadiapdfIsAdsensePlaceholder), ce script ne fait STRICTEMENT rien
+ *      non plus, MEME si le consentement a ete donne.
+ * Dans les deux cas : aucune requete reseau vers Google, aucun cookie,
  * aucune modification du DOM. Le placeholder "Espace publicitaire" des
  * blocs .ad-slot reste affiche tel quel.
  *
  * Cle localStorage partagee avec consent-banner.js :
  *   "tchadiapdf_ad_consent" -> "granted" | "denied"
  *
- * Configuration requise avant mise en production :
+ * Configuration requise avant mise en production, seul endroit du fichier
+ * a modifier :
  *   - Remplacer ADSENSE_CLIENT_ID ci-dessous par l'ID client reel obtenu
  *     apres validation du compte Google AdSense (format "ca-pub-XXXXXXXXXXXXXXXX").
  *   - Remplacer ADSENSE_SLOT_ID par l'ID de bloc d'annonce reel (optionnel :
@@ -19,6 +28,9 @@
  */
 
 // [A COMPLETER] une fois le compte AdSense approuve : ID client (ca-pub-...).
+// C'est la SEULE constante a modifier pour activer les publicites (avec
+// ADSENSE_SLOT_ID juste en dessous) : tout le reste du fichier lit
+// exclusivement cette valeur, jamais de duplication ailleurs.
 const ADSENSE_CLIENT_ID = "[A COMPLETER : ca-pub-XXXXXXXXXXXXXXXX]";
 
 // [A COMPLETER] : ID de bloc d'annonce (data-ad-slot). Un slot "auto" /
@@ -32,6 +44,19 @@ const ADSENSE_SCRIPT_URL =
   "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
 
 var tchadiapdfAdsInitialized = false;
+
+/**
+ * Vrai si `value` est absente, vide, ou reconnaissable comme placeholder
+ * jamais renseigne (contient "XXXX" ou "A COMPLETER", insensible a la
+ * casse). Utilisee pour ADSENSE_CLIENT_ID et ADSENSE_SLOT_ID : aucune des
+ * deux constantes n'est jamais inspectee ailleurs dans ce fichier via un
+ * autre motif, pour ne garder qu'une seule definition de "non configure".
+ */
+function tchadiapdfIsAdsensePlaceholder(value) {
+  if (!value) return true;
+  var upper = String(value).toUpperCase();
+  return upper.indexOf("XXXX") !== -1 || upper.indexOf("A COMPLETER") !== -1;
+}
 
 function tchadiapdfHasAdConsent() {
   try {
@@ -57,7 +82,7 @@ function tchadiapdfPopulateAdSlots() {
     ins.className = "adsbygoogle";
     ins.style.display = "block";
     ins.setAttribute("data-ad-client", ADSENSE_CLIENT_ID);
-    if (ADSENSE_SLOT_ID.indexOf("A COMPLETER") === -1) {
+    if (!tchadiapdfIsAdsensePlaceholder(ADSENSE_SLOT_ID)) {
       ins.setAttribute("data-ad-slot", ADSENSE_SLOT_ID);
     }
     ins.setAttribute("data-ad-format", "auto");
@@ -90,18 +115,23 @@ function tchadiapdfInitAds() {
   }
   if (!tchadiapdfHasAdConsent()) {
     // Pas de consentement : on ne fait rien, le placeholder reste affiche.
+    // Cette garde doit toujours s'evaluer AVANT celle de la configuration
+    // ci-dessous, meme avec un ID reel deja renseigne : c'est la promesse
+    // faite dans le bandeau de consentement (js/consent-banner.js).
     return;
   }
-  if (ADSENSE_CLIENT_ID.indexOf("A COMPLETER") !== -1) {
+  if (tchadiapdfIsAdsensePlaceholder(ADSENSE_CLIENT_ID)) {
     // Consentement donne, mais ADSENSE_CLIENT_ID n'a pas encore ete
-    // renseigne avec l'ID reel (voir ADSENSE.md). On le signale clairement
-    // en console pour faciliter le diagnostic pendant le developpement ;
-    // en production, ce cas ne doit pas se produire (l'ID doit etre
-    // configure avant toute mise en ligne avec publicites activees).
+    // renseigne avec l'ID reel (voir ADSENSE.md) : on ne charge RIEN,
+    // silencieusement cote reseau (aucune requete vers Google, aucun
+    // cookie). Le console.warn est purement informatif pour un
+    // developpeur qui a active le consentement en test ; il ne declenche
+    // aucun chargement.
     console.warn(
       "[ads.js] Consentement publicitaire accorde, mais ADSENSE_CLIENT_ID " +
-      "n'est pas encore configure (voir ADSENSE.md)."
+      "n'est pas encore configure (voir ADSENSE.md) : aucune publicite chargee."
     );
+    return;
   }
   tchadiapdfAdsInitialized = true;
   tchadiapdfLoadAdsenseScript();
