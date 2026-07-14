@@ -198,6 +198,18 @@
     if (input.value.trim()) renderResults(input.value);
   });
 
+  // Reprend une recherche lancee depuis une autre page (ex. la page 404),
+  // via ?q=... dans l'URL : pre-remplit le champ et simule une saisie pour
+  // reutiliser exactement le meme moteur de recherche, sans en dupliquer un.
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var q = params.get("q");
+    if (!q) return;
+    input.value = q;
+    input.dispatchEvent(new Event("input"));
+    input.scrollIntoView({ behavior: "smooth", block: "center" });
+  })();
+
   input.addEventListener("keydown", function (e) {
     var options = resultsEl.querySelectorAll(".tool-search-result");
     if (e.key === "ArrowDown") {

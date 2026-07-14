@@ -54,6 +54,13 @@ dépôt. Cela n'est pas fait par ce Bloc 2 : ce n'est pas son périmètre.
 4. Le certificat HTTPS est émis et renouvelé automatiquement par Cloudflare
    (aucune action manuelle requise), généralement en quelques minutes.
 
+**Page 404 personnalisée** : le fichier `404.html` à la racine du dépôt est
+servi automatiquement par Cloudflare Pages pour toute URL inexistante,
+sans configuration supplémentaire (convention native de Cloudflare Pages).
+Elle propose une recherche (redirige vers `index.html?q=...`, repris par
+`js/index-page.js`) et les outils les plus utilisés. Balisée `noindex` et
+volontairement absente de `sitemap.xml`.
+
 ## 5. Protection de branche GitHub et CI obligatoire
 
 Le workflow `.github/workflows/ci.yml` s'exécute à chaque push et pull
