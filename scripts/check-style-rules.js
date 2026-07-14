@@ -43,8 +43,10 @@ const DASH_EXTENSIONS = new Set([".html", ".js", ".css", ".md"]);
 const COLOR_CHECK_EXTENSIONS = new Set([".css", ".html"]);
 
 // Palette de couleurs autorisee (insensible a la casse), sans le "#".
+// 475569 (--slate) remplace l'ancien 64748B (contraste WCAG AA insuffisant
+// sur fond blanc, 4.76:1 pour un seuil de 4.5:1) : voir css/style.css.
 const ALLOWED_HEX_COLORS = new Set(
-  ["2563EB", "1D4ED8", "EFF6FF", "FFFFFF", "FFF", "1E293B", "64748B", "E2E8F0"].map((c) =>
+  ["2563EB", "1D4ED8", "EFF6FF", "FFFFFF", "FFF", "1E293B", "475569", "E2E8F0"].map((c) =>
     c.toUpperCase()
   )
 );

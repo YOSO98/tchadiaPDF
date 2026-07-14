@@ -8,7 +8,11 @@
   --blue-50: #EFF6FF;
   --white: #FFFFFF;
   --ink: #1E293B;
-  --slate: #64748B;
+  /* L'ancien gris (contraste 4.76:1 sur blanc) etait trop pres du seuil
+     AA (4.5:1) pour rester fiable selon le rendu/l'anti-aliasing ; cette
+     teinte tient 7.58:1 sur blanc et 6.96:1 sur --blue-50, avec une marge
+     confortable, cf. rapport WCAG AA du 15/07/2026. */
+  --slate: #475569;
   --border: #E2E8F0;
   --radius-card: 12px;
   --radius-btn: 8px;
