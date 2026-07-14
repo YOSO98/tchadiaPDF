@@ -19,7 +19,7 @@
   <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/modifier.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/style.css?v=10">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
@@ -190,14 +190,17 @@
     .text-block-hit.editing { background: var(--white); outline: 2px solid var(--blue); }
     .text-block-hit.unsupported:hover { background: rgba(100, 116, 139, 0.18); cursor: not-allowed; }
 
-    /* Blocs détectés (Partie 1) : toujours visibles en pointillés bleus en mode Modifier */
+    /* Blocs détectés (Partie 1) : toujours visibles en pointillés bleus en mode Modifier.
+       Le texte du canevas ne doit jamais être masqué avant que l'édition ne remplace
+       réellement son contenu : survol et sélection restent donc à fond transparent,
+       seul le contour change, pour que le texte reste lisible en permanence. */
     .block-hit {
       position: absolute; box-sizing: border-box; cursor: text;
       border: 1px dashed var(--blue); border-radius: 2px; background: transparent;
       touch-action: none;
     }
-    .block-hit:hover { border-style: solid; background: var(--blue-50); }
-    .block-hit.active { border-width: 2px; border-style: solid; background: var(--blue-50); }
+    .block-hit:hover { border-style: solid; background: transparent; }
+    .block-hit.active { border-width: 1.5px; border-style: solid; background: transparent; }
     .block-hit.overflow-warning { box-shadow: inset 0 0 0 2px var(--blue-dark); }
     .reflow-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--slate); white-space: nowrap; }
     .img-hit {
@@ -223,15 +226,17 @@
 
     .text-edit-area {
       position: absolute; z-index: 6; box-sizing: border-box;
-      font-family: inherit; color: #1E293B; background: var(--white);
-      border: 2px solid var(--blue); border-radius: 3px; padding: 0 2px;
+      font-family: inherit; color: #1E293B; background: rgba(255, 255, 255, 0.96);
+      border: 1.5px solid var(--blue); border-radius: 3px; padding: 0 2px;
       outline: none; resize: none; overflow: hidden; line-height: 1.15;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.18);
     }
     .block-edit-area {
       position: absolute; z-index: 6; box-sizing: border-box;
-      font-family: inherit; background: var(--white);
-      border: 2px solid var(--blue); border-radius: 3px; padding: 1px 2px;
+      font-family: inherit; background: rgba(255, 255, 255, 0.96);
+      border: 1.5px solid var(--blue); border-radius: 3px; padding: 1px 2px;
       outline: none; resize: none; overflow: auto; line-height: 1.2; white-space: pre-wrap;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.18);
     }
 
     .text-annotation-input {
@@ -600,11 +605,11 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e" crossorigin="anonymous"></script>
-<script src="js/common.js?v=9"></script>
-<script src="js/modifier-pdf.js?v=9"></script>
-<script src="js/analytics.js?v=9" defer></script>
-<script src="js/ads.js?v=9" defer></script>
-<script src="js/consent-banner.js?v=9" defer></script>
-<script src="js/support-fab.js?v=9" defer></script>
+<script src="js/common.js?v=10"></script>
+<script src="js/modifier-pdf.js?v=10"></script>
+<script src="js/analytics.js?v=10" defer></script>
+<script src="js/ads.js?v=10" defer></script>
+<script src="js/consent-banner.js?v=10" defer></script>
+<script src="js/support-fab.js?v=10" defer></script>
 </body>
 </html>

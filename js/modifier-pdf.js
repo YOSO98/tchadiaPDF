@@ -44,6 +44,8 @@ const DATE_PATTERNS = [
 ];
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 
+const TRASH_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+
 // ---------- État global ----------
 let currentFile = null;
 let srcBytes = null;
@@ -636,13 +638,32 @@ function rebuildBlockOverlays() {
     if (block.dateMatches.length) label += " (contient une date)";
     if (block.emailMatches.length) label += " (contient un e-mail)";
     hit.title = label;
-    hit.addEventListener("pointerdown", (e) => { if (currentTool === "select") selectBlockVisual(block); });
+    hit.tabIndex = 0;
+    hit.setAttribute("role", "button");
+    hit.setAttribute("aria-label", label + " : appuyez sur Entrée pour modifier le texte");
+    // Un simple clic ouvre directement l'edition sur place (comportement attendu de type
+    // Adobe) : le texte reste visible et devient editable immediatement, sans etat
+    // intermediaire "selectionne mais pas encore editable" qui masquerait le texte.
+    hit.addEventListener("pointerdown", (e) => {
+      if (currentTool !== "select") return;
+      // Empêche le focus par défaut du navigateur sur cette div (rendue focusable pour le
+      // clavier via tabIndex) de voler le focus à la zone d'édition juste après son
+      // ouverture, ce qui déclencherait sinon un blur immédiat et la refermerait.
+      e.preventDefault();
+      const c = eventToCanvasPx(e);
+      const p = canvasPxToPdf(c.x, c.y);
+      openBlockEditor(block, p);
+    });
     hit.addEventListener("dblclick", (e) => {
       if (currentTool !== "select") return;
       e.preventDefault();
       const c = eventToCanvasPx(e);
       const p = canvasPxToPdf(c.x, c.y);
       openBlockEditor(block, p);
+    });
+    hit.addEventListener("keydown", (e) => {
+      if (currentTool !== "select") return;
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openBlockEditor(block, null); }
     });
     if (block.dateMatches.length) hit.addEventListener("contextmenu", (e) => onBlockContextMenu(e, block));
     previewWrap.appendChild(hit);
@@ -956,7 +977,10 @@ function renderOverlay() {
   renderFloatingActions();
 }
 
-/** Barre d'actions flottante (Supprimer, et Remplacer l'image pour une image) sous l'élément sélectionné (Partie 2/3). */
+/** Barre d'actions flottante (Remplacer l'image) sous l'élément sélectionné (Partie 3).
+ * Pour un bloc de texte, l'action "Supprimer" vit désormais dans la barre contextuelle
+ * d'édition (showContextBarForBlock), affichée juste au-dessus du bloc pendant l'édition ;
+ * cette fonction ne gère donc plus que la sélection d'image. */
 function renderFloatingActions() {
   const old = document.getElementById("floatingActionsBar");
   if (old) old.remove();
@@ -965,15 +989,7 @@ function renderFloatingActions() {
   bar.className = "floating-actions";
   bar.id = "floatingActionsBar";
   let geom;
-  if (selection.kind === "block") {
-    const block = (pageBlocksCache.get(currentPageIndex) || []).find((b) => b.id === selection.id);
-    if (!block) return;
-    geom = getEffectiveBlockGeom(currentPageIndex, block);
-    const delBtn = document.createElement("button");
-    delBtn.type = "button"; delBtn.className = "danger"; delBtn.textContent = "Supprimer le bloc";
-    delBtn.addEventListener("click", () => deleteSelectedBlock());
-    bar.appendChild(delBtn);
-  } else if (selection.kind === "image") {
+  if (selection.kind === "image") {
     const img = getEffectiveImages(currentPageIndex).find((i) => i.id === selection.id);
     if (!img || img.deleted) return;
     geom = img;
@@ -1024,6 +1040,25 @@ function positionOverlayEl(el, pdfX, pdfY, pdfW, pdfH) {
   el.style.top = Math.min(a.y, b.y) + "px";
   el.style.width = Math.abs(b.x - a.x) + "px";
   el.style.height = Math.abs(b.y - a.y) + "px";
+}
+
+/** Positionne une barre flottante juste au-dessus d'un bloc (comme une barre d'outils
+ * contextuelle classique), en mesurant sa hauteur réellement rendue (elle peut passer
+ * sur plusieurs lignes selon la largeur disponible) plutôt qu'en supposant une taille
+ * fixe ; bascule automatiquement en dessous si la page ne laisse pas assez de place
+ * au-dessus (bloc proche du haut de la page), quel que soit le zoom ou l'orientation. */
+function positionFloatingAboveOrBelow(el, geom, marginPx) {
+  positionOverlayEl(el, geom.x, geom.y + geom.height, Math.max(geom.width, 10), 0);
+  el.style.width = "auto";
+  el.style.height = "auto";
+  const anchorTop = parseFloat(el.style.top);
+  const measuredHeight = el.offsetHeight;
+  let top = anchorTop - measuredHeight - marginPx;
+  if (top < 0) {
+    positionOverlayEl(el, geom.x, geom.y, Math.max(geom.width, 10), 0);
+    top = parseFloat(el.style.top) + marginPx;
+  }
+  el.style.top = top + "px";
 }
 
 function fontCssFamily(family) {
@@ -1256,17 +1291,10 @@ function getEffectiveBlockGeom(pageIndex, block) {
   return { x: rec.x, y: rec.y, width: rec.width, height: rec.height };
 }
 
-let activeBlockEditArea = null;
-function openBlockEditor(block, initialPdfPoint) {
-  closeTextEditor();
-  closeBlockEditor();
-  const data = getBlockCurrentRecordOrDefault(currentPageIndex, block);
-  const geom = getEffectiveBlockGeom(currentPageIndex, block);
-  const area = document.createElement("textarea");
-  area.className = "block-edit-area";
-  area.value = data.text !== undefined ? data.text : block.text;
-  area.spellcheck = false;
-  positionOverlayEl(area, geom.x, geom.y, geom.width, geom.height);
+/** Applique en direct (police, taille, style, couleur, alignement) sur la zone d'édition
+ * ouverte : appelé aussi bien à l'ouverture qu'à chaque changement de style pendant
+ * l'édition, pour que le texte visible reflète toujours exactement le style courant. */
+function applyBlockEditAreaStyle(area, data) {
   const scalePx = Math.abs(pdfToCanvasPx(0, 0)[1] - pdfToCanvasPx(0, 1)[1]);
   const rect = pageCanvas.getBoundingClientRect();
   const cssScale = rect.width / pageCanvas.width;
@@ -1276,41 +1304,84 @@ function openBlockEditor(block, initialPdfPoint) {
   area.style.fontWeight = data.bold ? "700" : "400";
   area.style.fontFamily = fontCssFamily(data.fontFamily);
   area.style.color = rgbCss(data.color || INK, 1);
+  area.style.textDecoration = data.underline ? "underline" : "none";
+  area.style.textAlign = data.align || "left";
+}
+/** Place le curseur au caractère exact cliqué (position écran -> point PDF -> index de
+ * caractère), sans jamais recréer la zone d'édition (garde la frappe en cours intacte). */
+function placeCursorInBlockEditor(area, block, initialPdfPoint) {
+  if (!initialPdfPoint) return;
+  const li = findNearestLineInBlock(block, initialPdfPoint[1]);
+  const liIdx = block.lines.indexOf(li);
+  const charIdx = charIndexAtX(li, initialPdfPoint[0]);
+  const textLines = area.value.split("\n");
+  let abs = 0;
+  for (let i = 0; i < liIdx && i < textLines.length; i++) abs += textLines[i].length + 1;
+  abs += Math.min(charIdx, (textLines[liIdx] || "").length);
+  const pos = Math.min(abs, area.value.length);
+  area.setSelectionRange(pos, pos);
+}
+
+let activeBlockEditArea = null; // { area, block, commit }
+function openBlockEditor(block, initialPdfPoint) {
+  // Reclic (ou double-clic) sur le bloc déjà en cours d'édition : replace juste le
+  // curseur, ne recrée jamais la zone d'édition (perdrait sinon la frappe en cours).
+  if (activeBlockEditArea && activeBlockEditArea.block.id === block.id) {
+    activeBlockEditArea.area.focus();
+    placeCursorInBlockEditor(activeBlockEditArea.area, block, initialPdfPoint);
+    return;
+  }
+  closeTextEditor();
+  closeBlockEditor(true); // commit et ferme l'édition en cours sur un AUTRE bloc, sans perdre la frappe
+  const data = getBlockCurrentRecordOrDefault(currentPageIndex, block);
+  const geom = getEffectiveBlockGeom(currentPageIndex, block);
+  const area = document.createElement("textarea");
+  area.className = "block-edit-area";
+  area.value = data.text !== undefined ? data.text : block.text;
+  area.spellcheck = false;
+  positionOverlayEl(area, geom.x, geom.y, geom.width, geom.height);
+  applyBlockEditAreaStyle(area, data);
   previewWrap.appendChild(area);
   area.focus();
+  placeCursorInBlockEditor(area, block, initialPdfPoint);
 
-  if (initialPdfPoint) {
-    const li = findNearestLineInBlock(block, initialPdfPoint[1]);
-    const liIdx = block.lines.indexOf(li);
-    const charIdx = charIndexAtX(li, initialPdfPoint[0]);
-    const textLines = area.value.split("\n");
-    let abs = 0;
-    for (let i = 0; i < liIdx && i < textLines.length; i++) abs += textLines[i].length + 1;
-    abs += Math.min(charIdx, (textLines[liIdx] || "").length);
-    area.setSelectionRange(Math.min(abs, area.value.length), Math.min(abs, area.value.length));
-  }
-
-  const originalText = area.value;
-  let cancelled = false;
+  let originalText = area.value;
   const commit = () => {
-    if (cancelled) return;
-    if (area.value !== originalText) commitBlockEdit(currentPageIndex, block, area.value);
+    if (area.value !== originalText) { commitBlockEdit(currentPageIndex, block, area.value); originalText = area.value; }
   };
-  area.addEventListener("blur", () => { commit(); closeBlockEditor(); });
+  area.addEventListener("blur", (e) => {
+    // Le focus part vers un contrôle de la barre contextuelle ou du panneau latéral
+    // (police, taille, couleur...) : on committe la frappe en cours mais on laisse la
+    // zone d'édition ouverte, pour ne pas perdre le curseur pendant un réglage de style.
+    const next = e.relatedTarget;
+    if (next && (contextBar.contains(next) || rightPanel.contains(next))) { commit(); return; }
+    closeBlockEditor(true);
+  });
   area.addEventListener("keydown", (e) => {
     e.stopPropagation();
-    if (e.key === "Escape") { e.preventDefault(); cancelled = true; closeBlockEditor(); }
+    // Échap valide (comme un clic en dehors du bloc) et désélectionne proprement : ce
+    // n'est pas une annulation, la frappe en cours est conservée.
+    if (e.key === "Escape") { e.preventDefault(); closeBlockEditor(true); }
     // Entrée : insère un saut de ligne dans le bloc (comportement natif du textarea, pas de preventDefault).
   });
-  activeBlockEditArea = { area, block };
+  activeBlockEditArea = { area, block, commit };
   selectBlockVisual(block);
+  showContextBarForBlock(block, data);
 }
-function closeBlockEditor() {
+function closeBlockEditor(commit) {
   if (!activeBlockEditArea) return;
+  if (commit) activeBlockEditArea.commit();
   const a = activeBlockEditArea.area;
   activeBlockEditArea = null;
   if (a && a.parentNode) a.parentNode.removeChild(a);
+  contextBar.classList.remove("visible");
 }
+// Échap doit aussi valider et fermer proprement quand le focus est sur un contrôle de
+// la barre contextuelle ou du panneau latéral (police, taille...), pas seulement quand
+// il est resté dans la zone d'édition elle-même.
+[contextBar, rightPanel].forEach((el) => el.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && activeBlockEditArea) { e.preventDefault(); closeBlockEditor(true); }
+}));
 
 function drawDecoration(ctx, line, type) {
   const y = type === "strikethrough" ? line.baseline + line.height * 0.28 : line.baseline - line.height * 0.08;
@@ -1578,7 +1649,7 @@ function deselect() {
   wordSelection = null;
   contextBar.classList.remove("visible");
   closeTextEditor();
-  closeBlockEditor();
+  closeBlockEditor(true);
   closeDateMenu();
   closeDatePopup();
   document.querySelectorAll(".block-hit.active").forEach((el) => el.classList.remove("active"));
@@ -1592,7 +1663,7 @@ function deleteSelectedBlock() {
   const blocks = pageBlocksCache.get(currentPageIndex) || [];
   const block = blocks.find((b) => b.id === selection.id);
   if (!block) return;
-  closeBlockEditor();
+  closeBlockEditor(false);
   commitBlockDelete(currentPageIndex, block);
   deselect();
 }
@@ -1611,7 +1682,7 @@ function setTool(tool) {
   overlayCanvas.className = tool === "select" ? "tool-select" : tool === "text" ? "tool-text" : "";
   deselect();
   const hints = {
-    select: "Cliquez sur un bloc (texte ou image) pour le sélectionner, glissez-le pour le déplacer. Double-cliquez sur un bloc de texte pour le modifier : Entrée insère une nouvelle ligne, Échap annule, un clic en dehors du bloc valide.",
+    select: "Cliquez sur un bloc (texte ou image) pour le sélectionner, glissez-le pour le déplacer. Cliquez sur un bloc de texte pour le modifier directement sur place : la barre d'outils affiche police, taille, style et couleur. Entrée insère une nouvelle ligne, Échap ou un clic en dehors du bloc valide et referme.",
     text: "Cliquez sur la page pour ajouter du texte neuf.",
     whiteout: "Cliquez et glissez pour masquer une zone en blanc.",
     highlight: "Cliquez et glissez pour surligner une zone.",
@@ -1671,6 +1742,11 @@ function clearRightPanel() {
   rightPanelEmpty.style.display = "block";
   rightPanelFields.style.display = "none";
 }
+/** Empêche un bouton de voler le focus au clic (mousedown), pour que la zone d'édition
+ * d'un bloc reste focalisée (curseur visible) pendant qu'on utilise la barre d'outils. */
+function preventFocusSteal(el) {
+  el.addEventListener("mousedown", (e) => e.preventDefault());
+}
 function updateSelectedBlockStyle(patch) {
   if (!selection || selection.kind !== "block" || selection.pageIndex !== currentPageIndex) return;
   const blocks = pageBlocksCache.get(currentPageIndex) || [];
@@ -1678,7 +1754,22 @@ function updateSelectedBlockStyle(patch) {
   if (!block) return;
   const currentText = getBlockCurrentText(currentPageIndex, block);
   commitBlockEdit(currentPageIndex, block, currentText, patch);
+  const newData = getBlockCurrentRecordOrDefault(currentPageIndex, block);
   showRightPanelForBlock(block);
+  // Applique le changement EN DIRECT sur le texte visible : si ce bloc est en cours
+  // d'édition, la zone d'édition ouverte (position, police, taille, couleur...) et la
+  // barre d'outils contextuelle sont mises à jour immédiatement, sans perdre le focus.
+  if (activeBlockEditArea && activeBlockEditArea.block.id === block.id) {
+    const geom = getEffectiveBlockGeom(currentPageIndex, block);
+    positionOverlayEl(activeBlockEditArea.area, geom.x, geom.y, geom.width, geom.height);
+    applyBlockEditAreaStyle(activeBlockEditArea.area, newData);
+    showContextBarForBlock(block, newData);
+    // showContextBarForBlock recree les controles de la barre : si le focus se retrouve
+    // perdu (ex. changement de taille via le clavier, qui detruit le controle focalise),
+    // on le rend a la zone d'edition plutot que de le laisser filer sur <body>, ce qui
+    // casserait Echap et les raccourcis clavier globaux pendant l'edition.
+    if (document.activeElement === document.body) activeBlockEditArea.area.focus();
+  }
 }
 document.getElementById("rpFontFamily").addEventListener("change", (e) => updateSelectedBlockStyle({ fontFamily: e.target.value }));
 document.getElementById("rpFontSize").addEventListener("change", (e) => updateSelectedBlockStyle({ fontSize: parseFloat(e.target.value) || 11 }));
@@ -1689,6 +1780,79 @@ document.getElementById("rpAlignLeft").addEventListener("click", () => updateSel
 document.getElementById("rpAlignCenter").addEventListener("click", () => updateSelectedBlockStyle({ align: "center" }));
 document.getElementById("rpAlignRight").addEventListener("click", () => updateSelectedBlockStyle({ align: "right" }));
 document.getElementById("rpColor").addEventListener("input", (e) => updateSelectedBlockStyle({ color: hexToRgb(e.target.value) }));
+[document.getElementById("rpBold"), document.getElementById("rpItalic"), document.getElementById("rpUnderline"), document.getElementById("rpAlignLeft"), document.getElementById("rpAlignCenter"), document.getElementById("rpAlignRight")].forEach(preventFocusSteal);
+
+/** Barre d'outils contextuelle flottante, affichée juste au-dessus du bloc pendant son
+ * édition (en plus du panneau latéral, avec lequel elle reste synchronisée via
+ * updateSelectedBlockStyle) : police, taille, gras/italique/souligné, alignement,
+ * couleur, et l'action supprimer (déplacée ici pour ne plus masquer le texte). */
+function showContextBarForBlock(block, data) {
+  contextBar.innerHTML = "";
+  contextBar.classList.add("visible");
+
+  const famSel = document.createElement("select");
+  famSel.title = "Police de substitution";
+  ["sans", "serif", "mono"].forEach((f) => {
+    const o = document.createElement("option");
+    o.value = f; o.textContent = f === "sans" ? "Sans serif" : f === "serif" ? "Serif" : "Monospace";
+    if (f === data.fontFamily) o.selected = true;
+    famSel.appendChild(o);
+  });
+  famSel.addEventListener("change", () => updateSelectedBlockStyle({ fontFamily: famSel.value }));
+
+  const sizeInput = document.createElement("input");
+  sizeInput.type = "number"; sizeInput.min = "6"; sizeInput.max = "96"; sizeInput.style.width = "54px";
+  sizeInput.title = "Taille";
+  sizeInput.value = Math.round(data.fontSize);
+  sizeInput.addEventListener("change", () => updateSelectedBlockStyle({ fontSize: parseFloat(sizeInput.value) || data.fontSize }));
+
+  const boldBtn = document.createElement("button");
+  boldBtn.type = "button"; boldBtn.innerHTML = "<strong>G</strong>"; boldBtn.title = "Gras";
+  if (data.bold) boldBtn.classList.add("active");
+  boldBtn.addEventListener("click", () => updateSelectedBlockStyle({ bold: !boldBtn.classList.contains("active") }));
+
+  const italicBtn = document.createElement("button");
+  italicBtn.type = "button"; italicBtn.innerHTML = "<em>I</em>"; italicBtn.title = "Italique";
+  if (data.italic) italicBtn.classList.add("active");
+  italicBtn.addEventListener("click", () => updateSelectedBlockStyle({ italic: !italicBtn.classList.contains("active") }));
+
+  const underlineBtn = document.createElement("button");
+  underlineBtn.type = "button"; underlineBtn.innerHTML = "<u>S</u>"; underlineBtn.title = "Souligné";
+  if (data.underline) underlineBtn.classList.add("active");
+  underlineBtn.addEventListener("click", () => updateSelectedBlockStyle({ underline: !underlineBtn.classList.contains("active") }));
+
+  const alignLeftBtn = document.createElement("button");
+  alignLeftBtn.type = "button"; alignLeftBtn.textContent = "◀"; alignLeftBtn.title = "Aligner à gauche";
+  if ((data.align || "left") === "left") alignLeftBtn.classList.add("active");
+  alignLeftBtn.addEventListener("click", () => updateSelectedBlockStyle({ align: "left" }));
+
+  const alignCenterBtn = document.createElement("button");
+  alignCenterBtn.type = "button"; alignCenterBtn.textContent = "■"; alignCenterBtn.title = "Centrer";
+  if (data.align === "center") alignCenterBtn.classList.add("active");
+  alignCenterBtn.addEventListener("click", () => updateSelectedBlockStyle({ align: "center" }));
+
+  const alignRightBtn = document.createElement("button");
+  alignRightBtn.type = "button"; alignRightBtn.textContent = "▶"; alignRightBtn.title = "Aligner à droite";
+  if (data.align === "right") alignRightBtn.classList.add("active");
+  alignRightBtn.addEventListener("click", () => updateSelectedBlockStyle({ align: "right" }));
+
+  const colorInput = document.createElement("input");
+  colorInput.type = "color";
+  colorInput.title = "Couleur du texte";
+  colorInput.value = rgbToHex(data.color || INK);
+  colorInput.addEventListener("input", () => updateSelectedBlockStyle({ color: hexToRgb(colorInput.value) }));
+
+  const delBtn = document.createElement("button");
+  delBtn.className = "del-btn"; delBtn.title = "Supprimer le bloc";
+  delBtn.innerHTML = TRASH_ICON_SVG;
+  delBtn.addEventListener("click", () => deleteSelectedBlock());
+
+  [boldBtn, italicBtn, underlineBtn, alignLeftBtn, alignCenterBtn, alignRightBtn, delBtn].forEach(preventFocusSteal);
+  [famSel, sizeInput, boldBtn, italicBtn, underlineBtn, alignLeftBtn, alignCenterBtn, alignRightBtn, colorInput, delBtn].forEach((el) => contextBar.appendChild(el));
+
+  const geom = getEffectiveBlockGeom(currentPageIndex, block);
+  positionFloatingAboveOrBelow(contextBar, geom, 8);
+}
 
 // ---------- Navigation de page (barre basse) et ajustement à la largeur (Partie 4) ----------
 function updatePageNavLabel() {
@@ -1924,6 +2088,11 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => setZoom(zo
 function setZoom(z) {
   zoomFactor = Math.max(0.5, Math.min(2.5, z));
   updateZoomLabel();
+  // Une zone d'édition ouverte est positionnée en pixels d'écran pour le zoom précédent :
+  // la fermer (en committant la frappe en cours) avant de recalculer le viewport, plutôt
+  // que de la laisser affichée à un endroit désormais faux après le nouveau rendu.
+  closeTextEditor();
+  closeBlockEditor(true);
   if (pdfjsDoc) renderCurrentPage();
 }
 function updateZoomLabel() { document.getElementById("zoomValue").textContent = Math.round(zoomFactor * 100) + " %"; }
