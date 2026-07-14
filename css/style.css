@@ -795,6 +795,39 @@ body.has-consent-banner .support-fab { display: none; }
   .consent-banner { max-height: 34vh; overflow-y: auto; }
 }
 
+/* Bandeau discret "nouvelle version disponible" (service worker) : en haut
+   de l'ecran, pour ne jamais se superposer au bandeau de consentement ni au
+   bouton flottant de soutien, tous deux ancres en bas. */
+.sw-update-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--ink);
+  color: var(--white);
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.16);
+}
+.sw-update-banner button {
+  width: auto;
+  margin-top: 0;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--blue);
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+}
+.sw-update-banner button:hover { background: var(--blue-dark); }
+
 /* Page de contenu (à propos, confidentialité) */
 .content-page { max-width: 720px; margin: 0 auto; padding: 48px 20px 64px; }
 .content-page h1 { font-size: 1.8rem; margin-bottom: 20px; letter-spacing: -0.02em; }

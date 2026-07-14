@@ -8,34 +8,45 @@
  *   plupart, les toucher ici n'apporterait rien et ajouterait un risque
  *   de contournement de l'integrite sans le vouloir.
  * - "Reseau d'abord, secours sur le cache" (network-first) pour TOUTES
- *   les ressources de meme origine, y compris CSS/JS. Un visiteur en
- *   ligne recoit donc toujours la version la plus recente (jamais de
- *   contenu perime servi par erreur) ; le cache ne sert que de secours
- *   hors connexion, mis a jour a chaque visite reussie.
- * - Une page jamais visitee, demandee hors ligne, affiche offline.html
- *   plutot que l'erreur de navigateur par defaut.
+ *   les ressources de meme origine, y compris le HTML, CSS et JS : jamais
+ *   de cache-first, un visiteur en ligne recoit donc toujours la version
+ *   la plus recente ; le cache ne sert que de secours hors connexion, mis
+ *   a jour a chaque visite reussie.
+ * - Une page jamais visitee, demandee hors ligne, affiche /offline plutot
+ *   que l'erreur de navigateur par defaut.
+ *
+ * Cycle de vie d'une mise a jour : skipWaiting() (installation) et
+ * clients.claim() (activation) font qu'un nouveau service worker prend le
+ * controle de tous les onglets ouverts DES QUE son installation termine,
+ * sans attendre leur fermeture. Comme la page deja chargee en memoire dans
+ * ces onglets reste toutefois figee sur l'ancien HTML/CSS/JS tant qu'elle
+ * n'est pas rechargee, js/common.js ecoute l'evenement "controllerchange"
+ * et affiche un bandeau "Nouvelle version disponible" invitant a actualiser
+ * (jamais de rechargement automatique et silencieux).
  */
 
-// Le suffixe ?v=2 sur les ressources css/js locales suit celui utilise dans
-// le HTML (voir les balises <link>/<script> des pages) : un simple
-// changement de nom de fichier (via la chaine de requete) force chaque
-// visiteur a retelecharger la derniere version, meme si son navigateur
-// avait deja mis en cache pour un an l'ancienne URL sans suffixe
-// (Cache-Control: immutable sur /css/* et /js/*, voir _headers).
-const CACHE_NAME = "tchadiapdf-shell-v11"; // v6 : chemins d'icones deplaces de /docs/icons/ vers /assets/icons/
+// CACHE_NAME et les suffixes ?v=<hash> ci-dessous sont generes par
+// scripts/version-assets.js (npm run version-assets), a relancer a chaque
+// modification de css/style.css ou d'un fichier js/*.js avant de committer.
+// Le hash de CACHE_NAME derive du contenu de TOUS les fichiers css/js du
+// site : il change automatiquement des qu'un seul d'entre eux change, ce
+// qui declenche activate() ci-dessous et purge integralement l'ancien
+// cache (voir DEPLOY.md, section "Mettre a jour css/style.css ou un
+// fichier js/*.js").
+const CACHE_NAME = "tchadiapdf-shell-v4d4dbaa6";
 
 const APP_SHELL = [
   "/",
   "/offline",
   "/manifest.json",
-  "/css/style.css?v=11",
-  "/js/common.js?v=11",
-  "/js/security-utils.js?v=11",
-  "/js/index-page.js?v=11",
-  "/js/analytics.js?v=11",
-  "/js/ads.js?v=11",
-  "/js/consent-banner.js?v=11",
-  "/js/support-fab.js?v=11",
+  "/css/style.css?v=24360943",
+  "/js/common.js?v=19064f79",
+  "/js/security-utils.js?v=df7bd91a",
+  "/js/index-page.js?v=46af2584",
+  "/js/analytics.js?v=ced09caa",
+  "/js/ads.js?v=bf55e602",
+  "/js/consent-banner.js?v=1c4f5cf9",
+  "/js/support-fab.js?v=09b1a127",
   "/assets/icons/icon-192.png",
   "/assets/icons/icon-512.png",
   "/favicon.ico",
@@ -43,12 +54,12 @@ const APP_SHELL = [
   // ligne immediat ; les autres outils sont mis en cache automatiquement
   // des la premiere visite reussie (voir le gestionnaire "fetch" ci-dessous).
   "/fusionner",
-  "/js/fusionner.js?v=11",
+  "/js/fusionner.js?v=eeffb607",
   "/compresser-pdf",
-  "/js/compresser-pdf.js?v=11",
+  "/js/compresser-pdf.js?v=9dac478a",
   "/js/compresser-pdf.worker.js", // instancie via new Worker(...) dans js/compresser-pdf.js, jamais via une balise <script> : pas de suffixe ?v= a faire correspondre
   "/modifier-pdf",
-  "/js/modifier-pdf.js?v=11",
+  "/js/modifier-pdf.js?v=de782a08",
 ];
 
 self.addEventListener("install", (event) => {

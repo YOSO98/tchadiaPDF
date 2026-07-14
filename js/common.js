@@ -9,6 +9,19 @@ if (window.pdfjsLib) {
 // Support hors ligne (PWA) : enregistre le service worker une fois la page
 // chargee, jamais avant (pour ne jamais retarder le premier affichage).
 if ("serviceWorker" in navigator) {
+  // sw.js prend le controle immediatement a chaque mise a jour (skipWaiting
+  // + clients.claim), mais la page deja chargee en memoire reste figee sur
+  // l'ancien HTML/CSS/JS tant qu'elle n'est pas rechargee. "controllerchange"
+  // se declenche juste apres cette prise de controle : on ignore la toute
+  // premiere occurrence (simple activation initiale, pas une mise a jour) et
+  // on affiche le bandeau uniquement pour les suivantes (vraie mise a jour
+  // pendant que l'onglet est deja ouvert).
+  let hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (hadController) showUpdateBanner();
+    hadController = true;
+  });
+
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch(() => {
       // Echec silencieux volontaire : le site fonctionne normalement sans
@@ -16,6 +29,22 @@ if ("serviceWorker" in navigator) {
       // ce n'est jamais une fonctionnalite bloquante.
     });
   });
+}
+
+function showUpdateBanner() {
+  if (document.getElementById("swUpdateBanner")) return;
+  const bar = document.createElement("div");
+  bar.id = "swUpdateBanner";
+  bar.className = "sw-update-banner";
+  const text = document.createElement("span");
+  text.textContent = "Nouvelle version disponible";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = "Actualiser";
+  btn.addEventListener("click", () => window.location.reload());
+  bar.appendChild(text);
+  bar.appendChild(btn);
+  document.body.appendChild(bar);
 }
 
 /**
