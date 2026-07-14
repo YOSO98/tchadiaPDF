@@ -29,14 +29,14 @@ const APP_SHELL = [
   "/index.html",
   "/offline.html",
   "/manifest.json",
-  "/css/style.css?v=5",
-  "/js/common.js?v=5",
-  "/js/security-utils.js?v=5",
-  "/js/index-page.js?v=5",
-  "/js/analytics.js?v=5",
-  "/js/ads.js?v=5",
-  "/js/consent-banner.js?v=5",
-  "/js/support-fab.js?v=5",
+  "/css/style.css?v=6",
+  "/js/common.js?v=6",
+  "/js/security-utils.js?v=6",
+  "/js/index-page.js?v=6",
+  "/js/analytics.js?v=6",
+  "/js/ads.js?v=6",
+  "/js/consent-banner.js?v=6",
+  "/js/support-fab.js?v=6",
   "/assets/icons/icon-192.png",
   "/assets/icons/icon-512.png",
   "/favicon.ico",
@@ -44,12 +44,12 @@ const APP_SHELL = [
   // ligne immediat ; les autres outils sont mis en cache automatiquement
   // des la premiere visite reussie (voir le gestionnaire "fetch" ci-dessous).
   "/fusionner.html",
-  "/js/fusionner.js?v=5",
+  "/js/fusionner.js?v=6",
   "/compresser-pdf.html",
-  "/js/compresser-pdf.js?v=5",
+  "/js/compresser-pdf.js?v=6",
   "/js/compresser-pdf.worker.js", // instancie via new Worker(...) dans js/compresser-pdf.js, jamais via une balise <script> : pas de suffixe ?v= a faire correspondre
   "/modifier-pdf.html",
-  "/js/modifier-pdf.js?v=5",
+  "/js/modifier-pdf.js?v=6",
 ];
 
 self.addEventListener("install", (event) => {

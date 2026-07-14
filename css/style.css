@@ -94,6 +94,24 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 
+/* Badge discret "Verifiable : code open source", en bas de chaque page d'outil, lien vers confiance.html */
+.verifiable-badge { text-align: center; margin: 20px 0 4px; }
+.verifiable-badge a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--slate);
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+.verifiable-badge a:hover { color: var(--blue); border-color: var(--blue); background: var(--blue-50); }
+.verifiable-badge svg { width: 14px; height: 14px; flex-shrink: 0; }
+
 /* ---------- Recherche d'outils (accueil) : element central de la page ---------- */
 .tool-search {
   position: relative;

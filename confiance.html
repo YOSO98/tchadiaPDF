@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pourquoi nous faire confiance : tchadiaPdf</title>
+  <link rel="canonical" href="https://tchadiapdf.com/confiance.html">
+  <meta name="description" content="Comment vérifier vous-même que tchadiaPdf traite vos fichiers uniquement dans votre navigateur : test en mode avion, code source public, preuve automatisée sans fuite réseau.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pourquoi nous faire confiance : tchadiaPdf">
+  <meta property="og:description" content="Comment vérifier vous-même que tchadiaPdf traite vos fichiers uniquement dans votre navigateur : test en mode avion, code source public, preuve automatisée sans fuite réseau.">
+  <meta property="og:url" content="https://tchadiapdf.com/confiance.html">
+  <meta property="og:image" content="https://tchadiapdf.com/docs/og/defaut.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="tchadiaPdf">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pourquoi nous faire confiance : tchadiaPdf">
+  <meta name="twitter:description" content="Comment vérifier vous-même que tchadiaPdf traite vos fichiers uniquement dans votre navigateur : test en mode avion, code source public, preuve automatisée sans fuite réseau.">
+  <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/defaut.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563EB">
+  <style>
+    /* Diagramme "votre fichier reste chez vous", propre a cette page, base uniquement sur les variables du design system */
+    .trust-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 24px 0 8px;
+    }
+    .trust-flow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 150px;
+      text-align: center;
+    }
+    .trust-flow-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--blue-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue);
+    }
+    .trust-flow-step span { font-size: 0.85rem; color: var(--ink); font-weight: 600; }
+    .trust-flow-arrow { color: var(--slate); flex-shrink: 0; }
+    .trust-flow-blocked {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 150px;
+      text-align: center;
+      opacity: 0.55;
+    }
+    .trust-flow-blocked .trust-flow-icon { background: var(--white); border: 2px dashed var(--border); color: var(--slate); }
+    @media (max-width: 560px) {
+      .trust-flow { flex-direction: column; }
+      .trust-flow-arrow { transform: rotate(90deg); }
+    }
+
+    .trust-steps { counter-reset: trust-step; list-style: none; margin: 16px 0; padding: 0; }
+    .trust-steps li {
+      counter-increment: trust-step;
+      position: relative;
+      padding: 4px 0 16px 40px;
+      color: var(--ink);
+    }
+    .trust-steps li::before {
+      content: counter(trust-step);
+      position: absolute;
+      left: 0;
+      top: 2px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: var(--white);
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Pourquoi nous faire confiance : tchadiaPdf",
+  "url": "https://tchadiapdf.com/confiance.html",
+  "description": "Comment vérifier vous-même que tchadiaPdf traite vos fichiers uniquement dans votre navigateur : test en mode avion, code source public, preuve automatisée sans fuite réseau.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "tchadiaPdf",
+    "url": "https://tchadiapdf.com/"
+  }
+}
+  </script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="index.html#outils">Tous les outils</a></nav>
+  </div>
+</header>
+<main class="content-page">
+  <h1>Pourquoi nous faire confiance</h1>
+  <p>« 100% privé, aucun fichier envoyé sur un serveur » : c'est facile à écrire sur un site web. Cette page explique ce que ça veut dire concrètement, et surtout comment le vérifier vous-même, sans avoir besoin d'être technicien.</p>
+
+  <h2>Ce que veut dire « traitement local »</h2>
+  <p>Quand vous utilisez un outil tchadiaPdf, votre fichier ne quitte jamais votre appareil. Tout le travail (fusionner, compresser, convertir...) est fait par votre navigateur lui-même, comme si c'était un petit logiciel installé sur votre ordinateur ou votre téléphone, pas un service distant.</p>
+
+  <div class="trust-flow">
+    <div class="trust-flow-step">
+      <div class="trust-flow-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      </div>
+      <span>Votre fichier</span>
+    </div>
+    <div class="trust-flow-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    <div class="trust-flow-step">
+      <div class="trust-flow-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <span>Reste dans votre navigateur</span>
+    </div>
+    <div class="trust-flow-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    <div class="trust-flow-step">
+      <div class="trust-flow-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <span>Vous téléchargez le résultat</span>
+    </div>
+  </div>
+  <p style="text-align:center; font-size:0.85rem; color:var(--slate);">À aucun moment le fichier ne passe par ceci :</p>
+  <div class="trust-flow" style="margin-top:8px;">
+    <div class="trust-flow-blocked">
+      <div class="trust-flow-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="6" rx="1"/><rect x="2" y="14" width="20" height="6" rx="1"/><line x1="6" y1="7" x2="6.01" y2="7"/><line x1="6" y1="17" x2="6.01" y2="17"/></svg>
+      </div>
+      <span>Un serveur distant</span>
+    </div>
+  </div>
+
+  <h2>Vérifiez-le vous-même : le test du mode avion</h2>
+  <p>C'est le test le plus simple et le plus convaincant, et il ne demande aucune compétence technique :</p>
+  <ol class="trust-steps">
+    <li>Ouvrez la page d'un outil tchadiaPdf (par exemple <a href="fusionner.html">Fusionner PDF</a>) et laissez-la charger complètement.</li>
+    <li>Activez le mode avion de votre appareil, ou coupez votre Wi-Fi/données mobiles.</li>
+    <li>Utilisez l'outil normalement : déposez un fichier, lancez l'action, téléchargez le résultat.</li>
+    <li>Tout fonctionne exactement pareil, sans connexion. C'est la preuve qu'aucune donnée n'a besoin de sortir de votre appareil pour que l'outil fasse son travail.</li>
+  </ol>
+  <p>Seule nuance honnête : la toute première visite d'une page doit se faire en ligne (le temps que la page elle-même et les quelques bibliothèques qu'elle utilise se chargent), exactement comme pour installer une application. Une fois la page chargée, le mode avion ne change plus rien à son fonctionnement.</p>
+
+  <h2>Le code est public, vous pouvez le lire</h2>
+  <p>tchadiaPdf est un projet open source, sous licence MIT. Le code source complet est disponible publiquement sur GitHub : n'importe qui (vous, un développeur, un journaliste, une association) peut l'inspecter ligne par ligne et vérifier qu'aucune donnée de fichier n'est envoyée où que ce soit.</p>
+  <p><a href="https://github.com/YOSO98/tchadiaPDF" target="_blank" rel="noopener noreferrer">Voir le code source sur GitHub →</a></p>
+
+  <h2>Une preuve automatisée, pas seulement une promesse</h2>
+  <p>Au-delà de la lecture du code, le dépôt contient un test automatisé (<code>tests/no-network-leak.spec.js</code>) qui vérifie concrètement l'absence de fuite : il dépose un fichier contenant un identifiant unique fabriqué pour l'occasion, utilise l'outil du début à la fin, puis inspecte <strong>toutes</strong> les requêtes réseau envoyées pendant l'opération pour confirmer qu'aucune ne contient cet identifiant. Ce test s'exécute avant chaque mise en ligne d'une nouvelle version du site.</p>
+
+  <h2>Et les publicités, alors ?</h2>
+  <p>tchadiaPdf reste gratuit grâce à des publicités optionnelles (Google AdSense), affichées uniquement si vous donnez votre consentement, et à des dons volontaires. Ces publicités chargent des scripts qui leur sont propres, comme sur n'importe quel site avec de la publicité : c'est une réalité technique différente du traitement de vos fichiers, et il ne faut pas confondre les deux. La distinction est simple : <strong>vos fichiers</strong> ne quittent jamais votre appareil, quoi qu'il arrive ; les scripts publicitaires, eux, ne voient jamais vos fichiers non plus, ils ne font que charger une publicité comme sur n'importe quelle page web. Détail complet sur la page <a href="confidentialite.html">Confidentialité</a>.</p>
+</main>
+<footer class="site-footer">
+  <nav>
+    <a href="a-propos.html">À propos</a>
+    <a href="soutenir.html" class="support-link"><svg width="24" height="24" class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Soutenir le projet</a>
+    <a href="confidentialite.html">Confidentialité</a>
+    <a href="mentions-legales.html">Mentions légales</a>
+  </nav>
+  <button type="button" class="consent-banner-reopen-link">Gérer les publicités</button>
+  © 2026 tchadiaPdf
+</footer>
+<script src="js/analytics.js?v=6" defer></script>
+<script src="js/ads.js?v=6" defer></script>
+<script src="js/consent-banner.js?v=6" defer></script>
+<script src="js/support-fab.js?v=6" defer></script>
+</body>
+</html>
