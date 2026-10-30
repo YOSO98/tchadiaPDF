@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signets PDF gratuit en ligne, table des matières : tchadiaPdf</title>
+  <link rel="canonical" href="https://tchadiapdf.com/signets-pdf">
+  <meta name="description" content="Ajoutez, modifiez ou générez automatiquement les signets (table des matières) d'un PDF à partir de ses titres, gratuitement et sans envoi sur un serveur.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Signets PDF gratuit en ligne, table des matières : tchadiaPdf">
+  <meta property="og:description" content="Ajoutez, modifiez ou générez automatiquement les signets (table des matières) d'un PDF à partir de ses titres, gratuitement et sans envoi sur un serveur.">
+  <meta property="og:url" content="https://tchadiapdf.com/signets-pdf">
+  <meta property="og:image" content="https://tchadiapdf.com/docs/og/organiser.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="tchadiaPdf">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Signets PDF gratuit en ligne, table des matières : tchadiaPdf">
+  <meta name="twitter:description" content="Ajoutez, modifiez ou générez automatiquement les signets (table des matières) d'un PDF à partir de ses titres, gratuitement et sans envoi sur un serveur.">
+  <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/organiser.png">
+  <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=7e6a7e44">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563EB">
+  <style>
+    /* Styles propres à l'outil Signets PDF, basés uniquement sur les variables du design system */
+    .signets-panel {
+      margin-top: 24px;
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px;
+    }
+    .signets-panel.visible { display: flex; }
+
+    .signets-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .signets-toolbar .btn-secondary { width: auto; }
+    .check-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .check-option input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--blue); }
+
+    .signets-help {
+      font-size: 0.85rem;
+      color: var(--slate);
+      line-height: 1.5;
+    }
+    .signets-help kbd {
+      font-family: inherit;
+      font-size: 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0 5px;
+      background: var(--white);
+    }
+
+    .outline-tree {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .outline-item {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 8px 10px;
+      background: var(--white);
+      margin-left: calc((var(--lvl, 1) - 1) * 28px);
+    }
+    .outline-item:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .outline-item[aria-selected="true"] { border-color: var(--blue); background: var(--blue-50); }
+    .outline-item .o-level {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--slate);
+      min-width: 22px;
+      text-align: center;
+    }
+    .outline-item input[type="text"],
+    .outline-item input[type="number"],
+    .signets-add input[type="text"],
+    .signets-add input[type="number"],
+    .signets-add select,
+    .signets-io textarea {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      color: var(--ink);
+      background: var(--white);
+    }
+    .outline-item input:focus,
+    .signets-add input:focus,
+    .signets-add select:focus,
+    .signets-io textarea:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .outline-item .o-title { flex: 1 1 200px; min-width: 0; }
+    .outline-item .o-page-label { font-size: 0.85rem; color: var(--slate); white-space: nowrap; }
+    .outline-item .o-page { width: 72px; }
+    .outline-item .o-actions { display: flex; gap: 4px; }
+    .outline-item .o-actions .icon-btn { width: 28px; height: 28px; font-size: 0.8rem; }
+
+    .outline-empty {
+      font-size: 0.9rem;
+      color: var(--slate);
+      padding: 14px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-btn);
+      text-align: center;
+    }
+
+    .signets-add {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .signets-add .field { display: flex; flex-direction: column; gap: 4px; }
+    .signets-add .field label { font-size: 0.8rem; font-weight: 600; }
+    .signets-add .field-title { flex: 1 1 220px; }
+    .signets-add .field-title input { width: 100%; }
+    .signets-add .field-page input { width: 90px; }
+    .signets-add .btn-secondary { width: auto; }
+
+    .signets-io {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .signets-io summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+    .signets-io textarea {
+      width: 100%;
+      min-height: 140px;
+      resize: vertical;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      white-space: pre;
+      margin-top: 10px;
+    }
+    .signets-io .io-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .signets-io .io-actions .btn-secondary { width: auto; }
+    .signets-io input[type="file"] { display: none; }
+
+    .signets-options {
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 560px) {
+      .signets-panel { padding: 16px; }
+      .outline-item { margin-left: calc((var(--lvl, 1) - 1) * 14px); }
+      .outline-item .o-title { flex-basis: calc(100% - 40px); }
+    }
+  </style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Signets PDF",
+  "url": "https://tchadiapdf.com/signets-pdf",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (navigateur web)",
+  "description": "Ajoutez, modifiez ou générez automatiquement les signets (table des matières) d'un PDF à partir de ses titres, gratuitement et sans envoi sur un serveur.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+  }
+}
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="/#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Signets PDF</h1>
+  <p class="tool-sub">Consultez, modifiez ou générez automatiquement la table des matières (signets) de votre PDF, comme dans le panneau Signets d'Acrobat.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-list" id="fileList"></div>
+
+  <div class="signets-panel" id="signetsPanel">
+    <div class="badge-prive">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Votre PDF ne quitte jamais votre appareil : lecture des titres et écriture des signets ont lieu entièrement dans votre navigateur.
+    </div>
+
+    <div class="signets-toolbar">
+      <button type="button" class="btn-secondary" id="generateBtn">Générer depuis les titres</button>
+      <label class="check-option"><input type="checkbox" id="numberedChk"> Motifs numérotés (1., 1.1, Chapitre N, Article N)</label>
+      <button type="button" class="btn-secondary" id="clearAllBtn">Tout supprimer</button>
+    </div>
+
+    <p class="signets-help" id="treeHelp">Chaque ligne est un signet : modifiez le titre et la page cible directement. Au clavier, sur une ligne : <kbd>Alt</kbd>+<kbd>Haut</kbd>/<kbd>Bas</kbd> pour déplacer, <kbd>Alt</kbd>+<kbd>Droite</kbd>/<kbd>Gauche</kbd> pour indenter ou désindenter, <kbd>Suppr</kbd> pour supprimer, <kbd>Entrée</kbd> pour modifier le titre.</p>
+
+    <ul class="outline-tree" id="outlineTree" role="tree" aria-label="Signets du document" aria-describedby="treeHelp"></ul>
+
+    <div class="signets-add">
+      <div class="field field-title">
+        <label for="addTitle">Titre du signet</label>
+        <input type="text" id="addTitle" placeholder="Introduction" maxlength="300">
+      </div>
+      <div class="field field-page">
+        <label for="addPage">Page</label>
+        <input type="number" id="addPage" min="1" value="1">
+      </div>
+      <div class="field">
+        <label for="addLevel">Niveau</label>
+        <select id="addLevel">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      <button type="button" class="btn-secondary" id="addBtn">Ajouter un signet</button>
+    </div>
+
+    <details class="signets-io" id="ioDetails">
+      <summary>Importer ou exporter la table des matières en texte</summary>
+      <p class="signets-help">Une ligne par signet : des tabulations pour le niveau, le titre, une tabulation, puis le numéro de page.</p>
+      <textarea id="tocText" aria-label="Table des matières en texte" spellcheck="false" placeholder="Chapitre 1&#9;1&#10;&#9;Résumé&#9;2&#10;Chapitre 2&#9;3"></textarea>
+      <div class="io-actions">
+        <button type="button" class="btn-secondary" id="exportTextBtn">Exporter vers le texte</button>
+        <button type="button" class="btn-secondary" id="downloadTextBtn">Télécharger le fichier texte</button>
+        <button type="button" class="btn-secondary" id="openTextBtn">Ouvrir un fichier texte</button>
+        <button type="button" class="btn-secondary" id="importTextBtn">Appliquer le texte aux signets</button>
+      </div>
+      <input type="file" id="textFileInput" accept=".txt,text/plain">
+    </details>
+
+    <div class="signets-options">
+      <label class="check-option"><input type="checkbox" id="pageModeChk"> Afficher le panneau des signets à l'ouverture du document</label>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="saveBtn" disabled>Enregistrer les signets</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Analyse en cours…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p>Vos signets ont été enregistrés.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+  <p class="verifiable-badge"><a href="/confiance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7z"/></svg>Vérifiable : code open source</a></p>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="/a-propos">À propos</a>
+    <a href="/soutenir" class="support-link"><svg width="24" height="24" class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Soutenir le projet</a>
+    <a href="/confidentialite">Confidentialité</a>
+    <a href="/mentions-legales">Mentions légales</a>
+  </nav>
+  <button type="button" class="consent-banner-reopen-link">Gérer les publicités</button>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="/vendor/pdf-lib-1.17.1.min.js"></script>
+<script src="/vendor/pdf-3.11.174.min.js"></script>
+<script src="js/common.js?v=718db2ae"></script>
+<script src="js/signets-pdf.js"></script>
+<script src="js/analytics.js?v=ced09caa" defer></script>
+<script src="js/ads.js?v=744cd80e" defer></script>
+<script src="js/consent-banner.js?v=1c4f5cf9" defer></script>
+<script src="js/support-fab.js?v=09b1a127" defer></script>
+</body>
+</html>
