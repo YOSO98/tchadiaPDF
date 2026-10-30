@@ -33,23 +33,23 @@
 // qui declenche activate() ci-dessous et purge integralement l'ancien
 // cache (voir DEPLOY.md, section "Mettre a jour css/style.css ou un
 // fichier js/*.js").
-const CACHE_NAME = "tchadiapdf-shell-v7da90733";
+const CACHE_NAME = "tchadiapdf-shell-v8611cab0";
 
 const APP_SHELL = [
   "/",
   "/offline",
   "/manifest.json",
-  "/css/style.css?v=7e6a7e44",
+  "/css/style.css?v=50d263c9",
   "/assets/fonts/inter-400.woff2",
   "/assets/fonts/inter-500.woff2",
   "/assets/fonts/inter-600.woff2",
   "/assets/fonts/inter-700.woff2",
-  "/js/common.js?v=19064f79",
+  "/js/common.js?v=f60d9a45",
   "/js/security-utils.js?v=df7bd91a",
-  "/js/index-page.js?v=46af2584",
+  "/js/index-page.js?v=cfa4ba6e",
   "/js/analytics.js?v=ced09caa",
   "/js/ads.js?v=744cd80e",
-  "/js/consent-banner.js?v=1c4f5cf9",
+  "/js/consent-banner.js?v=0277e002",
   "/js/support-fab.js?v=09b1a127",
   "/assets/icons/icon-192.png",
   "/assets/icons/icon-512.png",
@@ -60,10 +60,10 @@ const APP_SHELL = [
   "/fusionner",
   "/js/fusionner.js?v=eeffb607",
   "/compresser-pdf",
-  "/js/compresser-pdf.js?v=9dac478a",
+  "/js/compresser-pdf.js?v=41f78c10",
   "/js/compresser-pdf.worker.js", // instancie via new Worker(...) dans js/compresser-pdf.js, jamais via une balise <script> : pas de suffixe ?v= a faire correspondre
   "/modifier-pdf",
-  "/js/modifier-pdf.js?v=de782a08",
+  "/js/modifier-pdf.js?v=cbba30b1",
 ];
 
 self.addEventListener("install", (event) => {

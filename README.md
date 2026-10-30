@@ -6,7 +6,7 @@ Français | [English](README.en.md)
 
 <p align="center">
   <a href="LICENSE"><img alt="Licence MIT" src="https://img.shields.io/badge/licence-MIT-2563EB"></a>
-  <a href="#les-43-outils-disponibles"><img alt="43 outils" src="https://img.shields.io/badge/outils-43-2563EB"></a>
+  <a href="#les-47-outils-disponibles"><img alt="47 outils" src="https://img.shields.io/badge/outils-47-2563EB"></a>
   <a href="https://tchadiapdf.com"><img alt="Site en ligne" src="https://img.shields.io/website?url=https%3A%2F%2Ftchadiapdf.com"></a>
   <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-2563EB"></a>
   <a href="#contribuer"><img alt="5 langues" src="https://img.shields.io/badge/langues-5-2563EB"></a>
@@ -30,7 +30,7 @@ Français | [English](README.en.md)
 - **100% privé** : tout le traitement a lieu dans l'onglet de votre navigateur, aucun fichier n'est envoyé sur un serveur. L'absence de trafic réseau est vérifiée par un test automatisé qui intercepte toutes les requêtes pendant une conversion réelle : [tests/no-network-leak.spec.js](tests/no-network-leak.spec.js).
 - **Open source** : code auditable sous licence MIT, contributions bienvenues.
 
-## Les 43 outils disponibles
+## Les 47 outils disponibles
 
 ### Modifier
 
@@ -62,7 +62,7 @@ Français | [English](README.en.md)
 
 | Outil | Lien |
 |---|---|
-| PDF en JPG | [tchadiapdf.com/pdf-en-jpg.html](https://tchadiapdf.com/pdf-en-jpg.html) |
+| PDF en JPG, PNG, TIFF ou WebP | [tchadiapdf.com/pdf-en-jpg.html](https://tchadiapdf.com/pdf-en-jpg.html) |
 | PDF en Word | [tchadiapdf.com/pdf-en-word.html](https://tchadiapdf.com/pdf-en-word.html) |
 | PDF en Excel | [tchadiapdf.com/pdf-en-excel.html](https://tchadiapdf.com/pdf-en-excel.html) |
 | PDF en PowerPoint | [tchadiapdf.com/pdf-en-powerpoint.html](https://tchadiapdf.com/pdf-en-powerpoint.html) |
@@ -86,7 +86,7 @@ Français | [English](README.en.md)
 | Diviser PDF | [tchadiapdf.com/diviser.html](https://tchadiapdf.com/diviser.html) |
 | Faire pivoter PDF | [tchadiapdf.com/pivoter.html](https://tchadiapdf.com/pivoter.html) |
 | Organiser PDF | [tchadiapdf.com/organiser-pdf.html](https://tchadiapdf.com/organiser-pdf.html) |
-| Numéros de page | [tchadiapdf.com/numeros-de-pages.html](https://tchadiapdf.com/numeros-de-pages.html) |
+| Numéros de page, Bates, en-tête et pied de page | [tchadiapdf.com/numeros-de-pages.html](https://tchadiapdf.com/numeros-de-pages.html) |
 | Filigrane | [tchadiapdf.com/filigrane.html](https://tchadiapdf.com/filigrane.html) |
 | Rogner PDF | [tchadiapdf.com/rogner-pdf.html](https://tchadiapdf.com/rogner-pdf.html) |
 | Protéger PDF | [tchadiapdf.com/proteger-pdf.html](https://tchadiapdf.com/proteger-pdf.html) |
@@ -99,6 +99,9 @@ Français | [English](README.en.md)
 | Scanner un document | [tchadiapdf.com/scanner-pdf.html](https://tchadiapdf.com/scanner-pdf.html) |
 | Aplatir PDF | [tchadiapdf.com/aplatir-pdf.html](https://tchadiapdf.com/aplatir-pdf.html) |
 | Métadonnées PDF | [tchadiapdf.com/metadonnees-pdf.html](https://tchadiapdf.com/metadonnees-pdf.html) |
+| Signets PDF | [tchadiapdf.com/signets-pdf.html](https://tchadiapdf.com/signets-pdf.html) |
+| Pièces jointes PDF | [tchadiapdf.com/pieces-jointes-pdf.html](https://tchadiapdf.com/pieces-jointes-pdf.html) |
+| Assainir PDF | [tchadiapdf.com/assainir-pdf.html](https://tchadiapdf.com/assainir-pdf.html) |
 | Extraire les images | [tchadiapdf.com/extraire-images-pdf.html](https://tchadiapdf.com/extraire-images-pdf.html) |
 | Livret PDF | [tchadiapdf.com/livret-pdf.html](https://tchadiapdf.com/livret-pdf.html) |
 
@@ -111,7 +114,7 @@ tchadiaPdf est un site 100% statique : HTML, CSS et JavaScript sans framework ni
 - [Tesseract.js](https://github.com/naptha/tesseract.js) : reconnaissance de texte (OCR) pour les PDF scannés
 - [qpdf](https://qpdf.readthedocs.io/) compilé en WebAssembly ([qpdf-wasm](https://github.com/neslinesli93/qpdf-wasm)) : chiffrement AES-256 et réparation de PDF corrompus
 
-D'autres bibliothèques ciblées (mammoth.js, SheetJS, docx, pptxgenjs, html2canvas, marked, epub.js, UTIF.js, heic2any, JSZip) prennent en charge les outils de conversion, chargées uniquement quand l'outil correspondant en a besoin. Deux traitements sont déportés dans un Web Worker pour ne pas bloquer l'interface : la recompression d'images de Compresser PDF (`js/compresser-pdf.worker.js`) et l'analyse DOCX de Word en PDF.
+D'autres bibliothèques ciblées (mammoth.js, SheetJS, docx, pptxgenjs, html2canvas, marked, epub.js, UTIF.js, heic2any, JSZip) prennent en charge les outils de conversion, chargées uniquement quand l'outil correspondant en a besoin. Toutes ces bibliothèques sont auto-hébergées dans le dossier `vendor/` et servies par tchadiapdf.com : aucune requête vers un CDN tiers, le site fonctionne entièrement hors ligne et sans aucun domaine externe (vérifié par `tests/no-network-leak.spec.js`). Deux traitements sont déportés dans un Web Worker pour ne pas bloquer l'interface : la recompression d'images de Compresser PDF (`js/compresser-pdf.worker.js`) et l'analyse DOCX de Word en PDF.
 
 ## Lancer en local
 

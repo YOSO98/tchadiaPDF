@@ -19,7 +19,7 @@
   <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/defaut.png">
   <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=7e6a7e44">
+  <link rel="stylesheet" href="css/style.css?v=50d263c9">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
@@ -42,13 +42,21 @@
   </script>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 <header class="site-header">
   <div class="container">
-    <a href="/" class="logo">tchadia<span>Pdf</span></a>
-    <nav class="nav-tools"><a href="/#outils">Tous les outils</a></nav>
+    <a href="/" class="logo" aria-label="tchadiaPdf, accueil">tchadia<span>Pdf</span></a>
+    <form class="header-search" role="search" action="/" method="get">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" name="q" placeholder="Rechercher un outil" aria-label="Rechercher un outil" autocomplete="off">
+    </form>
+    <nav class="nav-tools" aria-label="Navigation principale">
+      <a href="/#outils">Tous les outils</a>
+      <a class="github-link" href="https://github.com/YOSO98/tchadiaPDF" rel="noopener" aria-label="Code source sur GitHub" title="Code source sur GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3C5.37.3 0 5.67 0 12.3c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.04c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.41-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 22.1 24 17.6 24 12.3 24 5.67 18.63.3 12 .3z"/></svg></a>
+    </nav>
   </div>
 </header>
-<main class="content-page">
+<main id="contenu" class="content-page">
   <h1>Sécurité et confidentialité : la preuve, pas juste la promesse</h1>
   <p>tchadiaPdf affirme que vos fichiers ne sont jamais envoyés sur un serveur. Cette page explique, en termes simples, comment cette promesse est techniquement tenue, ce qu'elle garantit réellement, et ce qu'elle ne garantit pas.</p>
 
@@ -61,15 +69,14 @@
     <li>intercepte absolument toutes les requêtes réseau d'un outil dès l'ouverture de la page ;</li>
     <li>lui fait traiter un fichier de test contenant un marqueur unique inséré dans son contenu ;</li>
     <li>va jusqu'au bout du traitement, jusqu'au téléchargement du résultat ;</li>
-    <li>vérifie ensuite qu'aucune requête interceptée ne contient ce marqueur, et qu'aucune requête ne vise un domaine qui ne soit pas un CDN de librairie déjà utilisé par le site.</li>
+    <li>vérifie ensuite qu'aucune requête interceptée ne contient ce marqueur, et qu'aucune requête ne vise un autre domaine que tchadiapdf.com lui-même (depuis l'auto-hébergement des bibliothèques, la liste des domaines tiers tolérés est vide).</li>
   </ul>
   <p>Ce test est exécuté automatiquement à chaque modification du code (intégration continue). Si un jour un outil venait à envoyer, même par erreur, le contenu d'un fichier vers un serveur, ce test échouerait et l'alerterait avant toute mise en ligne.</p>
 
   <h2>Les seules requêtes réseau : charger le code, pas vos fichiers</h2>
-  <p>Les outils utilisent des librairies JavaScript spécialisées (lecture et écriture de PDF, d'images, de documents Word ou Excel...) pour effectuer les conversions. Pour rester rapide et léger, le site charge ces librairies depuis des CDN (réseaux de diffusion de contenu) publics et largement utilisés par l'industrie, plutôt que de les héberger lui-même. Ces requêtes ne transportent que du code (les librairies elles-mêmes), jamais vos fichiers. Les CDN utilisés par tchadiaPdf sont :</p>
+  <p>Les outils utilisent des librairies JavaScript spécialisées (lecture et écriture de PDF, d'images, de documents Word ou Excel...) pour effectuer les conversions. Depuis octobre 2026, le site héberge lui-même toutes ces librairies dans son dossier <code>/vendor/</code>, versions figées et licences incluses : la seule chose que votre navigateur télécharge, c'est du code, depuis tchadiapdf.com, jamais vos fichiers vers qui que ce soit.</p>
   <ul>
-    <li><strong>cdnjs.cloudflare.com</strong> : librairies de manipulation de PDF (pdf-lib, pdf.js) et de compression (JSZip).</li>
-    <li><strong>cdn.jsdelivr.net</strong> : librairies de conversion de documents (docx, mammoth, xlsx, pptxgenjs, marked, epub.js), d'images (heic2any, UTIF, html2canvas) et de reconnaissance de texte (Tesseract.js).</li>
+    <li><strong>Aucun CDN de bibliothèques</strong> : depuis la migration vers le dossier <code>/vendor/</code>, toutes les bibliothèques (pdf-lib, pdf.js, JSZip, qpdf, Tesseract.js et ses données de langue, mammoth, SheetJS, etc.) sont servies par tchadiapdf.com lui-même. Votre navigateur ne contacte plus cdnjs ni jsdelivr.</li>
   </ul>
   <p>Ces librairies ne sont chargées qu'une fois par visite (le navigateur les met ensuite en cache), et certaines ne sont chargées qu'au moment précis où elles deviennent nécessaires (par exemple, le moteur de reconnaissance de texte ne se charge que si vous utilisez l'OCR). La police de caractères de l'interface (Inter) est hébergée directement par le site lui-même (<code>assets/fonts/</code>) : elle ne déclenche plus aucune requête vers un service externe.</p>
 
@@ -81,26 +88,34 @@
   <p><strong>Ce que ça ne garantit pas :</strong></p>
   <ul>
     <li>La sécurité de votre propre appareil ou de votre navigateur reste de votre responsabilité (mises à jour, antivirus, extensions installées, etc.). tchadiaPdf ne peut rien garantir au-delà de ce qui se passe dans l'onglet du navigateur.</li>
-    <li>Un CDN tiers compromis reste, en théorie, un risque résiduel : si un de ces CDN était piraté et se mettait à distribuer du code malveillant, ce code s'exécuterait dans votre navigateur. Ce risque est réduit par des mesures d'intégrité des sous-ressources (SRI), en cours de déploiement sur l'ensemble des outils, qui empêchent le navigateur d'exécuter un fichier de librairie dont le contenu ne correspond pas exactement à celui attendu.
-    </li>
+    <li>La chaîne d'approvisionnement logicielle reste un risque résiduel théorique : les bibliothèques auto-hébergées sont copiées telles quelles depuis les paquets npm officiels, à version figée (voir <code>DEPENDENCIES.md</code>). Si l'un de ces paquets avait été compromis à la source, le code s'exécuterait dans votre navigateur. Les versions sont choisies pour leur ancienneté et leur large usage, et toute mise à jour passe par la suite de tests.</li>
     <li>Un futur outil ou une future mise à jour pourrait, par erreur humaine, introduire un bug qui enverrait des données par inadvertance. C'est précisément pour se prémunir contre ce risque que le test automatisé de non-fuite réseau existe et tourne en continu, et que le code source reste ouvert à l'audit de quiconque souhaite le vérifier.</li>
   </ul>
   <p>Pour toute question ou tout signalement d'un comportement inattendu, voir la <a href="https://github.com/YOSO98/tchadiaPDF/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">politique de sécurité du dépôt</a> ou nous écrire à contact@tchadiapdf.com.</p>
+
+  <!-- outils-associes -->
+  <!-- /outils-associes -->
 </main>
 <footer class="site-footer">
-  <nav>
-    <a href="/a-propos">À propos</a>
-    <a href="/soutenir" class="support-link"><svg width="24" height="24" class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Soutenir le projet</a>
-    <a href="/confidentialite">Confidentialité</a>
-    <a href="/securite">Sécurité</a>
-    <a href="/mentions-legales">Mentions légales</a>
-  </nav>
-  <button type="button" class="consent-banner-reopen-link">Gérer les publicités</button>
-  © 2026 tchadiaPdf
+  <div class="container footer-inner">
+    <p class="footer-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span><strong>Confidentialité : 0 octet envoyé.</strong>Vos fichiers sont traités dans votre navigateur et n'en sortent jamais. Aucun compte, aucune limite.</span></p>
+    <nav aria-label="Pied de page">
+      <a href="/a-propos">À propos</a>
+      <a href="/confiance">Confiance et sécurité</a>
+      <a href="/soutenir" class="support-link"><svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Soutenir le projet</a>
+      <a href="/confidentialite">Confidentialité</a>
+      <a href="/mentions-legales">Mentions légales</a>
+      <a href="https://github.com/YOSO98/tchadiaPDF" rel="noopener">GitHub</a>
+    </nav>
+    <p class="footer-legal">
+    <button type="button" class="consent-banner-reopen-link">Gérer les publicités</button>
+    <span>© 2026 tchadiaPdf. Outils PDF gratuits, open source, traitement 100% local.</span>
+    </p>
+  </div>
 </footer>
 <script src="js/analytics.js?v=ced09caa" defer></script>
 <script src="js/ads.js?v=744cd80e" defer></script>
-<script src="js/consent-banner.js?v=1c4f5cf9" defer></script>
+<script src="js/consent-banner.js?v=0277e002" defer></script>
 <script src="js/support-fab.js?v=09b1a127" defer></script>
 </body>
 </html>

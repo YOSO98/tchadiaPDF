@@ -10,7 +10,7 @@
    Ce worker est cree a la demande (un par fichier) et termine juste apres sa reponse, pour
    rester coherent avec le fait qu'aucun etat ne doit persister entre deux fichiers. */
 
-importScripts("https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js");
+importScripts("/vendor/mammoth-1.7.2.browser.min.js");
 
 self.onmessage = async (e) => {
   const { arrayBuffer } = e.data || {};

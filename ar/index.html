@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>tchadiaPdf: أدوات PDF مجانية عبر الإنترنت للدمج والتقسيم والتحويل</title>
   <link rel="canonical" href="https://tchadiapdf.com/ar/">
-  <meta name="description" content="ادمج، قسّم، أدر واحول ملفات PDF مجانا. تبقى ملفاتك على جهازك: تتم كل المعالجة داخل متصفحك بنسبة 100%.">
+  <meta name="description" content="ادمج، قسّم، أدر وحوّل ملفات PDF مجانًا. تبقى ملفاتك على جهازك: تتم كل المعالجة داخل متصفحك بنسبة 100%.">
   <link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/">
   <link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/">
   <link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/">
@@ -14,7 +14,7 @@
   <link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/">
   <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../css/style.css?v=7e6a7e44">
+  <link rel="stylesheet" href="../css/style.css?v=50d263c9">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
@@ -22,27 +22,17 @@
   <link rel="manifest" href="../manifest.json">
   <meta name="theme-color" content="#2563EB">
   <style>
-    .tool-card.featured { grid-column: span 2; background: var(--blue-50); border-color: var(--blue); }
-    .tool-card.featured .tool-icon { width: 48px; height: 48px; }
-    .tool-card.featured h2 { font-size: 1.2rem; }
-    @media (max-width: 560px) { .tool-card.featured { grid-column: span 1; } }
-    .lang-switch { position: relative; margin-right: 16px; }
-    .lang-switch select {
-      font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--blue);
-      border: 1px solid var(--border); border-radius: var(--radius-btn); padding: 6px 10px; background: var(--white);
-    }
-    .lang-note { text-align: center; color: var(--slate); font-size: 0.85rem; margin-top: -8px; margin-bottom: 24px; }
-    /* Les icones directionnelles (fleches) sont miroir en RTL pour rester coherentes visuellement */
-    body[dir="rtl"] .tool-icon { transform: scaleX(-1); }
+    .lang-note { text-align: center; color: var(--slate); font-size: var(--fs-sm); margin: 0 auto; max-width: 680px; padding: 0 var(--space-5); }
   </style>
 </head>
 <body dir="rtl">
+<a class="skip-link" href="#contenu">تخطي إلى المحتوى</a>
 
 <header class="site-header">
   <div class="container">
-    <a href="/ar/" class="logo">tchadia<span>Pdf</span></a>
-    <nav class="nav-tools" style="display:flex; align-items:center;">
-      <a href="#outils">كل الأدوات</a>
+    <a href="/ar/" class="logo" aria-label="tchadiaPdf، الصفحة الرئيسية">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools" aria-label="التنقل الرئيسي">
+      <a href="#outils">جميع الأدوات</a>
       <span class="lang-switch">
         <select id="langSwitch" aria-label="اختيار اللغة">
           <option value="/">Français</option>
@@ -52,177 +42,472 @@
           <option value="" selected disabled>العربية</option>
         </select>
       </span>
+      <a class="github-link" href="https://github.com/YOSO98/tchadiaPDF" rel="noopener" aria-label="الشفرة المصدرية على GitHub" title="الشفرة المصدرية على GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3C5.37.3 0 5.67 0 12.3c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.04c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.41-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 22.1 24 17.6 24 12.3 24 5.67 18.63.3 12 .3z"/></svg></a>
     </nav>
   </div>
 </header>
 
-<section class="hero">
-  <h1>كل أدوات PDF التي تحتاجها، <em>مجانا</em> وبلا حدود</h1>
-  <p>دمج، تقسيم، تدوير، تحويل. ملفاتك لا تغادر جهازك أبدا: تتم معالجتها مباشرة داخل متصفحك.</p>
-  <div class="badge-prive">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    خصوصية 100%، لا يتم إرسال أي ملف إلى خادم
+<main id="contenu">
+
+  <section class="hero" aria-labelledby="heroTitre">
+    <h1 id="heroTitre">كل أدوات PDF التي تحتاجها، <em>مجانًا</em> وبلا حدود</h1>
+    <p class="hero-lead">دمج، تحويل، تعديل، توقيع، ضغط: 47 أداة تعمل داخل متصفحك. ملفاتك لا تغادر جهازك أبدًا.</p>
+
+    <div class="hero-drop" id="heroDropzone" role="button" tabindex="0" aria-labelledby="heroDropTitre heroDropAide heroDropFormats">
+      <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <strong id="heroDropTitre">أسقط ملفًا، ونحن نختار الأداة</strong>
+      <span id="heroDropAide">PDF أو Word أو Excel أو PowerPoint أو صورة أو نص: اسحبه إلى هنا أو انقر للاستعراض</span>
+      <div class="dz-formats" id="heroDropFormats"><span>PDF</span><span>DOCX</span><span>XLSX</span><span>PPTX</span><span>JPG</span><span>PNG</span><span>HEIC</span><span>EPUB</span></div>
+      <input type="file" id="heroFileInput" hidden>
+    </div>
+
+    <p class="hero-or" aria-hidden="true">أو ابحث عن أداة</p>
+
+    <div class="tool-search" id="toolSearchWrap" role="search">
+      <input type="search" id="toolSearch" role="combobox" placeholder="ابحث بين 47 أداة..." aria-label="البحث عن أداة" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="toolSearchResults" aria-expanded="false" autocomplete="off" spellcheck="false">
+      <svg width="24" height="24" class="tool-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <kbd class="tool-search-kbd" aria-hidden="true">/</kbd>
+      <div class="tool-search-results" id="toolSearchResults" role="listbox" aria-label="نتائج البحث" hidden></div>
+    </div>
+
+    <p class="badge-prive">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      0 بايت مُرسَل: تتم كل المعالجة داخل متصفحك
+    </p>
+  </section>
+
+  <p class="lang-note">هذه الصفحة الرئيسية متاحة باللغة العربية. الأدوات نفسها متاحة حاليًا باللغة الفرنسية فقط.</p>
+
+  <div id="dropRouterOverlay" class="drop-router-overlay" aria-hidden="true">
+    <div class="drop-router-box">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p>أسقط ملفك هنا<span>نجد لك الأداة المناسبة تلقائيًا</span></p>
+    </div>
   </div>
-</section>
 
-<p class="lang-note container">هذه الصفحة الرئيسية متاحة باللغة العربية. الأدوات نفسها متاحة حاليا باللغة الفرنسية فقط.</p>
+  <section class="home-section container" id="outils" aria-labelledby="outilsTitre">
+    <div class="section-head">
+      <h2 id="outilsTitre">جميع الأدوات</h2>
+      <a href="/conversions">عرض جميع التحويلات ←</a>
+    </div>
 
-<div class="ad-slot container" aria-hidden="true">مساحة إعلانية</div>
+    <div class="category-tabs" id="categoryTabs" role="group" aria-label="تصفية الأدوات حسب الفئة">
+      <button type="button" class="active" data-filter="populaires" aria-pressed="true">الأكثر استخدامًا</button>
+      <button type="button" data-filter="tous" aria-pressed="false">الكل</button>
+      <button type="button" data-filter="modifier" aria-pressed="false">تعديل</button>
+      <button type="button" data-filter="convertir" aria-pressed="false">تحويل</button>
+      <button type="button" data-filter="organiser" aria-pressed="false">تنظيم</button>
+      <button type="button" data-filter="securite" aria-pressed="false">أمان</button>
+      <button type="button" data-filter="extraire" aria-pressed="false">استخراج</button>
+    </div>
 
-<main class="container" id="outils">
-  <div class="tools-grid">
+    <div class="tools-grid tools-grid-all" id="toolsCatalog">
 
-    <a class="tool-card featured" href="/modifier-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-      <h2>تعديل PDF</h2>
-      <p>عدّل نص ملفات PDF الخاصة بك، مجانا وبلا حدود: النص الموجود، الصور، الأشكال، التعليقات.</p>
-    </a>
+      <a class="tool-card" href="/fusionner" data-category="organiser" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
+        <h3>دمج PDF</h3>
+        <p>ادمج عدة ملفات PDF في ملف واحد، بالترتيب الذي تريده.</p>
+      </a>
 
-    <a class="tool-card" href="/fusionner">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
-      <h2>دمج PDF</h2>
-      <p>ادمج عدة ملفات PDF في ملف واحد، بالترتيب الذي تريده.</p>
-    </a>
+      <a class="tool-card" href="/compresser-pdf" data-category="organiser" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        <h3>ضغط PDF</h3>
+        <p>قلّل حجم ملفات PDF دون التضحية بالجودة.</p>
+      </a>
 
-    <a class="tool-card" href="/compresser-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-      <h2>ضغط PDF</h2>
-      <p>قلّل حجم ملفات PDF دون التضحية بالجودة.</p>
-    </a>
+      <a class="tool-card" href="/modifier-pdf" data-category="modifier" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        <h3>تعديل PDF</h3>
+        <p>عدّل نص ملفات PDF الخاصة بك، مجانا وبلا حدود: النص الموجود، الصور، الأشكال، التعليقات.</p>
+      </a>
 
-    <a class="tool-card" href="/diviser">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/><path d="M21 21l-7-7"/><path d="M3 21l7-7"/></svg>
-      <h2>تقسيم PDF</h2>
-      <p>استخرج الصفحات التي تختارها إلى مستند PDF جديد.</p>
-    </a>
+      <a class="tool-card" href="/word-en-pdf" data-category="convertir" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>Word إلى PDF</h3>
+        <p>حوّل مستندات Word (‎.docx) إلى PDF مع الحفاظ على التنسيق والجداول والصور.</p>
+      </a>
 
-    <a class="tool-card" href="/jpg-en-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      <h2>JPG إلى PDF</h2>
-      <p>حوّل صور JPG أو PNG إلى مستند PDF.</p>
-    </a>
+      <a class="tool-card" href="/pdf-en-word" data-category="convertir" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF إلى Word</h3>
+        <p>حوّل ملف PDF إلى ملف Word (‎.docx) قابل للتحرير: نص وعناوين وقوائم وجداول بسيطة وصور.</p>
+      </a>
 
-    <a class="tool-card" href="/pdf-en-jpg">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      <h2>PDF إلى JPG</h2>
-      <p>صدّر كل صفحة من PDF كصورة JPG (أرشيف ZIP).</p>
-    </a>
+      <a class="tool-card" href="/jpg-en-pdf" data-category="convertir" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>JPG إلى PDF</h3>
+        <p>حوّل صور JPG أو PNG إلى مستند PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/pivoter">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/><path d="M21 3l-4 4"/></svg>
-      <h2>تدوير PDF</h2>
-      <p>أدر كل صفحات PDF بزاوية 90 أو 180 أو 270 درجة.</p>
-    </a>
+      <a class="tool-card" href="/signer-pdf" data-category="securite" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20c2-3 3-3 5 0s3 3 5 0 3-3 5 0"/><path d="M15 5l4 4L9 19H5v-4z"/></svg>
+        <h3>توقيع PDF</h3>
+        <p>ارسم توقيعك وضعه على مستندك.</p>
+      </a>
 
-    <a class="tool-card" href="/organiser-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg>
-      <h2>تنظيم PDF</h2>
-      <p>أعد ترتيب أو احذف أو كرر صفحات مستندك.</p>
-    </a>
+      <a class="tool-card" href="/diviser" data-category="organiser" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/><path d="M21 21l-7-7"/><path d="M3 21l7-7"/></svg>
+        <h3>تقسيم PDF</h3>
+        <p>استخرج الصفحات التي تختارها إلى مستند PDF جديد.</p>
+      </a>
 
-    <a class="tool-card" href="/numeros-de-pages">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/><line x1="15" y1="18" x2="17" y2="18"/></svg>
-      <h2>ترقيم الصفحات</h2>
-      <p>أضف ترقيما قابلا للتخصيص على كل صفحة.</p>
-    </a>
+      <a class="tool-card" href="/signets-pdf" data-category="modifier">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/><path d="M9 8h6"/><path d="M9 12h4"/></svg>
+        <h3>إشارات PDF المرجعية</h3>
+        <p>اعرض أو عدّل أو أنشئ جدول المحتويات (الإشارات المرجعية) لملف PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/filigrane">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 3.5 5 6.2 5 8.8a5 5 0 0 1-10 0C7 9.2 9 6.5 12 3z"/></svg>
-      <h2>العلامة المائية</h2>
-      <p>أضف علامة مائية نصية أو صورة على كل الصفحات.</p>
-    </a>
+      <a class="tool-card" href="/pivoter" data-category="organiser">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/><path d="M21 3l-4 4"/></svg>
+        <h3>تدوير PDF</h3>
+        <p>أدر كل صفحات PDF بزاوية 90 أو 180 أو 270 درجة.</p>
+      </a>
 
-    <a class="tool-card" href="/rogner-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
-      <h2>قص PDF</h2>
-      <p>اقصص كل الصفحات على المنطقة التي تختارها.</p>
-    </a>
+      <a class="tool-card" href="/organiser-pdf" data-category="organiser">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg>
+        <h3>تنظيم PDF</h3>
+        <p>أعد ترتيب أو احذف أو كرر صفحات مستندك.</p>
+      </a>
 
-    <a class="tool-card" href="/proteger-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      <h2>حماية PDF</h2>
-      <p>أضف كلمة مرور لتشفير مستندك.</p>
-    </a>
+      <a class="tool-card" href="/numeros-de-pages" data-category="modifier">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/><line x1="15" y1="18" x2="17" y2="18"/></svg>
+        <h3>ترقيم الصفحات</h3>
+        <p>أضف ترقيما قابلا للتخصيص على كل صفحة.</p>
+      </a>
 
-    <a class="tool-card" href="/reparer-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>
-      <h2>إصلاح PDF</h2>
-      <p>يعيد بناء بنية ملف PDF تالف أو معطوب.</p>
-    </a>
+      <a class="tool-card" href="/filigrane" data-category="modifier">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 3.5 5 6.2 5 8.8a5 5 0 0 1-10 0C7 9.2 9 6.5 12 3z"/></svg>
+        <h3>العلامة المائية</h3>
+        <p>أضف علامة مائية نصية أو صورة على كل الصفحات.</p>
+      </a>
 
-    <a class="tool-card" href="/deverrouiller-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.2-2.4"/></svg>
-      <h2>إلغاء قفل PDF</h2>
-      <p>أزل الحماية بكلمة المرور من ملف PDF.</p>
-    </a>
+      <a class="tool-card" href="/rogner-pdf" data-category="modifier">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+        <h3>قص PDF</h3>
+        <p>اقصص كل الصفحات على المنطقة التي تختارها.</p>
+      </a>
 
-    <a class="tool-card" href="/signer-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20c2-3 3-3 5 0s3 3 5 0 3-3 5 0"/><path d="M15 5l4 4L9 19H5v-4z"/></svg>
-      <h2>توقيع PDF</h2>
-      <p>ارسم توقيعك وضعه على مستندك.</p>
-    </a>
+      <a class="tool-card" href="/livret-pdf" data-category="organiser">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v13"/><path d="M4 6a2 2 0 0 1 2-2h6v15H6a2 2 0 0 0-2 2z"/><path d="M20 6a2 2 0 0 0-2-2h-6v15h6a2 2 0 0 1 2 2z"/></svg>
+        <h3>كتيب PDF</h3>
+        <p>أعد ترتيب الصفحات لطباعة كتيب مطوي.</p>
+      </a>
 
-    <a class="tool-card" href="/ocr-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10"/><path d="M7 13h6"/><circle cx="17.5" cy="16.5" r="2.5"/></svg>
-      <h2>التعرف الضوئي OCR</h2>
-      <p>اجعل ملف PDF ممسوح ضوئيا قابلا للبحث (الفرنسية والإنجليزية).</p>
-    </a>
+      <a class="tool-card" href="/reparer-pdf" data-category="organiser">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>
+        <h3>إصلاح PDF</h3>
+        <p>يعيد بناء بنية ملف PDF تالف أو معطوب.</p>
+      </a>
 
-    <a class="tool-card" href="/formulaires-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><rect x="8" y="12" width="3" height="3"/><path d="M13 13.5h3"/></svg>
-      <h2>نماذج PDF</h2>
-      <p>اكتشف واملأ حقول نموذج PDF.</p>
-    </a>
+      <a class="tool-card" href="/excel-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>Excel إلى PDF</h3>
+        <p>حوّل مصنفات Excel (‎.xlsx) أو ملفات CSV إلى PDF، جدول لكل ورقة.</p>
+      </a>
 
-    <a class="tool-card" href="/comparer-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg>
-      <h2>مقارنة PDF</h2>
-      <p>قارن بين ملفي PDF واكتشف الفروق بينهما.</p>
-    </a>
+      <a class="tool-card" href="/powerpoint-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>PowerPoint إلى PDF</h3>
+        <p>حوّل عروض PowerPoint (‎.pptx) إلى PDF، صفحة لكل شريحة.</p>
+      </a>
 
-    <a class="tool-card" href="/scanner-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2"/><path d="M4 16v2a2 2 0 0 0 2 2h2"/><path d="M20 8V6a2 2 0 0 0-2-2h-2"/><path d="M20 16v2a2 2 0 0 1-2 2h-2"/><circle cx="12" cy="12" r="3"/></svg>
-      <h2>مسح مستند ضوئيا</h2>
-      <p>حوّل صورة إلى PDF مع تصحيح المنظور.</p>
-    </a>
+      <a class="tool-card" href="/texte-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>نص إلى PDF</h3>
+        <p>حوّل ملفات ‎.txt إلى PDF بنص قابل للتحديد والبحث فعليًا.</p>
+      </a>
 
-    <a class="tool-card" href="/aplatir-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-      <h2>تسطيح PDF</h2>
-      <p>يثبت حقول النموذج داخل الصفحة، لتصبح غير قابلة للتعديل.</p>
-    </a>
+      <a class="tool-card" href="/heic-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>HEIC إلى PDF</h3>
+        <p>حوّل صور HEIC (صيغة هواتف iPhone الحديثة) إلى مستندات PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/metadonnees-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <h2>بيانات PDF الوصفية</h2>
-      <p>اطلع وعدّل العنوان والمؤلف والكلمات المفتاحية لملف PDF.</p>
-    </a>
+      <a class="tool-card" href="/webp-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>WebP إلى PDF</h3>
+        <p>حوّل صور WebP إلى مستندات PDF، صفحة لكل صورة.</p>
+      </a>
 
-    <a class="tool-card" href="/pdf-en-texte">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 11h2"/></svg>
-      <h2>PDF إلى نص</h2>
-      <p>استخرج نص ملف PDF، مع اللجوء إلى OCR عند الحاجة.</p>
-    </a>
+      <a class="tool-card" href="/tiff-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>TIFF إلى PDF</h3>
+        <p>حوّل صور TIFF، بما فيها متعددة الصفحات، إلى مستند PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/livret-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v13"/><path d="M4 6a2 2 0 0 1 2-2h6v15H6a2 2 0 0 0-2 2z"/><path d="M20 6a2 2 0 0 0-2-2h-6v15h6a2 2 0 0 1 2 2z"/></svg>
-      <h2>كتيب PDF</h2>
-      <p>أعد ترتيب الصفحات لطباعة كتيب مطوي.</p>
-    </a>
+      <a class="tool-card" href="/bmp-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>BMP إلى PDF</h3>
+        <p>حوّل صور BMP إلى مستندات PDF، صفحة لكل صورة.</p>
+      </a>
 
-  </div>
+      <a class="tool-card" href="/svg-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>SVG إلى PDF</h3>
+        <p>حوّل الصور المتجهة SVG إلى مستندات PDF، صفحة لكل صورة.</p>
+      </a>
+
+      <a class="tool-card" href="/markdown-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>Markdown إلى PDF</h3>
+        <p>الصق نص Markdown أو استورد ملف ‎.md: معاينة مباشرة وتصدير PDF مقسّم إلى صفحات.</p>
+      </a>
+
+      <a class="tool-card" href="/html-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>HTML إلى PDF</h3>
+        <p>حوّل ملف HTML إلى مستند PDF، صفحة بصفحة بتنسيق A4.</p>
+      </a>
+
+      <a class="tool-card" href="/epub-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>EPUB إلى PDF</h3>
+        <p>حوّل كتابًا إلكترونيًا EPUB إلى مستند PDF، مجموعة صفحات لكل فصل.</p>
+      </a>
+
+      <a class="tool-card" href="/pdf-en-jpg" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF إلى JPG</h3>
+        <p>صدّر كل صفحة من PDF كصورة JPG (أرشيف ZIP).</p>
+      </a>
+
+      <a class="tool-card" href="/pdf-en-excel" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF إلى Excel</h3>
+        <p>اكتشف الجداول في ملف PDF وصدّرها إلى ملف Excel (‎.xlsx) مع معاينة قبل التنزيل.</p>
+      </a>
+
+      <a class="tool-card" href="/pdf-en-powerpoint" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF إلى PowerPoint</h3>
+        <p>حوّل كل صفحة من ملف PDF إلى شريحة PowerPoint (‎.pptx) مع إضافة نص الصفحة كملاحظات.</p>
+      </a>
+
+      <a class="tool-card" href="/pdf-en-texte" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF إلى نص</h3>
+        <p>استخرج نص ملف PDF، مع اللجوء إلى OCR عند الحاجة.</p>
+      </a>
+
+      <a class="tool-card" href="/heic-en-jpg" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="13" rx="2"/><circle cx="6.5" cy="8.5" r="1.2"/><path d="M15 13l-3.5-3.5L5 17"/><path d="M17 7v13"/><path d="M14 17l3 3 3-3"/></svg>
+        <h3>HEIC إلى JPG</h3>
+        <p>حوّل صور HEIC (صيغة هواتف iPhone الحديثة) إلى JPG قابلة للقراءة في كل مكان.</p>
+      </a>
+
+      <a class="tool-card" href="/png-en-jpg" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="13" rx="2"/><circle cx="6.5" cy="8.5" r="1.2"/><path d="M15 13l-3.5-3.5L5 17"/><path d="M17 7v13"/><path d="M14 17l3 3 3-3"/></svg>
+        <h3>PNG إلى JPG</h3>
+        <p>حوّل صور PNG إلى JPG مجانًا وبدون تثبيت.</p>
+      </a>
+
+      <a class="tool-card" href="/jpg-en-png" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="13" rx="2"/><circle cx="6.5" cy="8.5" r="1.2"/><path d="M15 13l-3.5-3.5L5 17"/><path d="M17 7v13"/><path d="M14 17l3 3 3-3"/></svg>
+        <h3>JPG إلى PNG</h3>
+        <p>حوّل صور JPG إلى PNG مجانًا وبدون تثبيت.</p>
+      </a>
+
+      <a class="tool-card" href="/svg-en-png" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="13" rx="2"/><circle cx="6.5" cy="8.5" r="1.2"/><path d="M15 13l-3.5-3.5L5 17"/><path d="M17 7v13"/><path d="M14 17l3 3 3-3"/></svg>
+        <h3>SVG إلى PNG</h3>
+        <p>حوّل الصور المتجهة SVG إلى PNG بالدقة التي تختارها.</p>
+      </a>
+
+      <a class="tool-card" href="/proteger-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <h3>حماية PDF</h3>
+        <p>أضف كلمة مرور لتشفير مستندك.</p>
+      </a>
+
+      <a class="tool-card" href="/deverrouiller-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.2-2.4"/></svg>
+        <h3>إلغاء قفل PDF</h3>
+        <p>أزل الحماية بكلمة المرور من ملف PDF.</p>
+      </a>
+
+      <a class="tool-card" href="/aplatir-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        <h3>تسطيح PDF</h3>
+        <p>يثبت حقول النموذج داخل الصفحة، لتصبح غير قابلة للتعديل.</p>
+      </a>
+
+      <a class="tool-card" href="/metadonnees-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <h3>بيانات PDF الوصفية</h3>
+        <p>اطلع وعدّل العنوان والمؤلف والكلمات المفتاحية لملف PDF.</p>
+      </a>
+
+      <a class="tool-card" href="/assainir-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7z"/><path d="M9.5 9.5l5 5"/><path d="M14.5 9.5l-5 5"/></svg>
+        <h3>تنظيف PDF</h3>
+        <p>احذف المعلومات المخفية: البيانات الوصفية والنصوص البرمجية والمرفقات والتعليقات والطبقات.</p>
+      </a>
+
+      <a class="tool-card" href="/pieces-jointes-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <h3>مرفقات PDF</h3>
+        <p>اعرض الملفات المضمّنة في PDF أو استخرجها أو أضفها أو احذفها.</p>
+      </a>
+
+      <a class="tool-card" href="/caviarder-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="6" y="8" width="7" height="3" fill="currentColor" stroke="none"/><rect x="6" y="14" width="10" height="3" fill="currentColor" stroke="none"/></svg>
+        <h3>تنقيح PDF</h3>
+        <p>أخفِ النص الحساس من المستند واحذفه فعليًا.</p>
+      </a>
+
+      <a class="tool-card" href="/ocr-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10"/><path d="M7 13h6"/><circle cx="17.5" cy="16.5" r="2.5"/></svg>
+        <h3>التعرف الضوئي OCR</h3>
+        <p>اجعل ملف PDF ممسوح ضوئيا قابلا للبحث (الفرنسية والإنجليزية).</p>
+      </a>
+
+      <a class="tool-card" href="/scanner-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2"/><path d="M4 16v2a2 2 0 0 0 2 2h2"/><path d="M20 8V6a2 2 0 0 0-2-2h-2"/><path d="M20 16v2a2 2 0 0 1-2 2h-2"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>مسح مستند ضوئيا</h3>
+        <p>حوّل صورة إلى PDF مع تصحيح المنظور.</p>
+      </a>
+
+      <a class="tool-card" href="/formulaires-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><rect x="8" y="12" width="3" height="3"/><path d="M13 13.5h3"/></svg>
+        <h3>نماذج PDF</h3>
+        <p>اكتشف واملأ حقول نموذج PDF.</p>
+      </a>
+
+      <a class="tool-card" href="/comparer-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg>
+        <h3>مقارنة PDF</h3>
+        <p>قارن بين ملفي PDF واكتشف الفروق بينهما.</p>
+      </a>
+
+      <a class="tool-card" href="/extraire-images-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+        <h3>استخراج الصور</h3>
+        <p>استعد كل الصور المضمنة في ملف PDF (أرشيف ZIP).</p>
+      </a>
+
+    </div>
+    <p class="visually-hidden" id="catalogStatus" role="status" aria-live="polite"></p>
+  </section>
+
+  <div class="ad-slot container" aria-hidden="true">مساحة إعلانية</div>
+
+  <section class="home-section container" aria-labelledby="confianceTitre">
+    <h2 class="section-title" id="confianceTitre">لماذا tchadiaPdf</h2>
+    <p class="section-lead">نفس أدوات الحزم المدفوعة، بدون حساب، بدون رفع ملفات وبدون حد للاستخدام. الشفرة علنية: يمكن لأي شخص التحقق مما يفعله الموقع.</p>
+    <div class="trust-grid">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <div>
+          <h3>0 بايت مُرسَل</h3>
+          <p>تتم المعالجة داخل متصفحك. لا يمر أي ملف عبر خادم، <a href="/confiance">ويمكن التحقق من ذلك</a>.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+        <div>
+          <h3>مجاني، بلا حدود</h3>
+          <p>بدون حساب، بدون حصة يومية، بدون علامة مائية مضافة. كل الأدوات، طوال الوقت.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        <div>
+          <h3>مفتوح المصدر</h3>
+          <p>شفرة منشورة بترخيص MIT. <a href="https://github.com/YOSO98/tchadiaPDF" rel="noopener">اقرأها وحسّنها</a> أو استضف نسختك الخاصة.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a7 7 0 0 1 14 0"/><path d="M8.5 15.5a3.5 3.5 0 0 1 7 0"/><path d="M12 19v.01"/><path d="M2 9a14 14 0 0 1 20 0"/></svg>
+        <div>
+          <h3>يعمل دون اتصال</h3>
+          <p>بمجرد فتح أي أداة تبقى صالحة للاستخدام دون اتصال: ثبّت الموقع كتطبيق.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section container" aria-labelledby="compareTitre">
+    <h2 class="section-title" id="compareTitre">ما يفرض Acrobat رسومًا عليه، مجاني هنا</h2>
+    <p class="section-lead">الميزات أدناه محجوزة للمشتركين أو محدودة بدون حساب في Adobe Acrobat عبر الإنترنت. هنا هي مضمّنة، داخل متصفحك.</p>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th scope="col">الميزة</th>
+          <th scope="col">Acrobat عبر الإنترنت</th>
+          <th scope="col">tchadiaPdf</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="/modifier-pdf">تعديل النص الموجود في ملف PDF</a></td>
+          <td class="muted" data-label="Acrobat عبر الإنترنت">اشتراك أو استخدام محدود</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مجاني، بدون حساب</span></td>
+        </tr>
+        <tr>
+          <td><a href="/pdf-en-word">تصدير PDF إلى Word أو Excel أو PowerPoint</a></td>
+          <td class="muted" data-label="Acrobat عبر الإنترنت">اشتراك أو استخدام محدود</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مجاني، بدون حساب</span></td>
+        </tr>
+        <tr>
+          <td><a href="/caviarder-pdf">تنقيح (حذف فعلي) البيانات الحساسة</a></td>
+          <td class="muted" data-label="Acrobat عبر الإنترنت">اشتراك أو استخدام محدود</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مجاني، بدون حساب</span></td>
+        </tr>
+        <tr>
+          <td><a href="/ocr-pdf">التعرف على النص (OCR) في مستند ممسوح</a></td>
+          <td class="muted" data-label="Acrobat عبر الإنترنت">اشتراك أو استخدام محدود</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مجاني، بدون حساب</span></td>
+        </tr>
+        <tr>
+          <td><a href="/comparer-pdf">مقارنة نسختين من ملف PDF</a></td>
+          <td class="muted" data-label="Acrobat عبر الإنترنت">اشتراك أو استخدام محدود</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مجاني، بدون حساب</span></td>
+        </tr>
+        <tr>
+          <td><a href="/numeros-de-pages">ترقيم Bates والرؤوس والتذييلات</a></td>
+          <td class="muted" data-label="Acrobat عبر الإنترنت">اشتراك أو استخدام محدود</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مجاني، بدون حساب</span></td>
+        </tr>
+        <tr>
+          <td><a href="/proteger-pdf">حماية، فك قفل، توقيع</a></td>
+          <td class="muted" data-label="Acrobat عبر الإنترنت">اشتراك أو استخدام محدود</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مجاني، بدون حساب</span></td>
+        </tr>
+        <tr>
+          <td><a href="/compresser-pdf">معالجة دفعات من الملفات، بلا حد يومي</a></td>
+          <td class="muted" data-label="Acrobat عبر الإنترنت">اشتراك أو استخدام محدود</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>مجاني، بدون حساب</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="compare-note">مقارنة مبنية على العروض العلنية وقت الكتابة؛ وقد تتغير. Adobe وAcrobat علامتان تجاريتان لمالكهما.</p>
+  </section>
+
+
+  <!-- outils-associes -->
+  <!-- /outils-associes -->
 </main>
 
 <footer class="site-footer">
-  <nav>
-    <a href="/a-propos">حول</a>
-    <a href="/ar/soutenir" class="support-link"><svg width="24" height="24" class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>دعم المشروع</a>
-    <a href="/confidentialite">الخصوصية</a>
-  </nav>
-  © 2026 tchadiaPdf. أدوات PDF مجانية، معالجة محلية بنسبة 100%.
+  <div class="container footer-inner">
+    <p class="footer-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span><strong>الخصوصية: 0 بايت مُرسَل.</strong>تتم معالجة ملفاتك داخل متصفحك ولا تغادره أبدًا. بدون حساب، بدون حدود.</span></p>
+    <nav aria-label="تذييل الصفحة">
+      <a href="/a-propos">حول</a>
+      <a href="/confiance">الثقة والأمان</a>
+      <a href="/ar/soutenir" class="support-link"><svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>دعم المشروع</a>
+      <a href="/confidentialite">الخصوصية</a>
+      <a href="/mentions-legales">الإشعار القانوني</a>
+      <a href="https://github.com/YOSO98/tchadiaPDF" rel="noopener">GitHub</a>
+    </nav>
+    <p class="footer-legal">
+    <span>© 2026 tchadiaPdf. أدوات PDF مجانية، مفتوحة المصدر، معالجة محلية بنسبة 100%.</span>
+    </p>
+  </div>
 </footer>
 
-<script src="../js/index-page.js?v=46af2584"></script>
+<script src="../js/common.js?v=f60d9a45"></script>
+<script src="../js/security-utils.js?v=df7bd91a"></script>
+<script src="../js/index-page.js?v=cfa4ba6e"></script>
 <script src="../js/support-fab.js?v=09b1a127" defer></script>
 </body>
 </html>

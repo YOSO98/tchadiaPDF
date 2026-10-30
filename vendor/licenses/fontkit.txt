@@ -1,0 +1,1 @@
+MIT (voir https://github.com/Hopding/fontkit)

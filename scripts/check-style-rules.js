@@ -21,7 +21,7 @@ const ROOT = path.resolve(__dirname, "..");
 // Dossiers ignores lors du parcours recursif.
 const IGNORED_DIRS = new Set([
   "node_modules",
-  "vendor", // code tiers genere (voir scripts/build-vendor-pades.js)
+  "vendor", // bibliotheques tierces auto-hebergees (dont pades-libs.min.js genere par scripts/build-vendor-pades.js)
   ".git",
   "tests",
   ".github",
@@ -44,12 +44,15 @@ const DASH_EXTENSIONS = new Set([".html", ".js", ".css", ".md"]);
 const COLOR_CHECK_EXTENSIONS = new Set([".css", ".html"]);
 
 // Palette de couleurs autorisee (insensible a la casse), sans le "#".
-// 475569 (--slate) remplace l'ancien 64748B (contraste WCAG AA insuffisant
-// sur fond blanc, 4.76:1 pour un seuil de 4.5:1) : voir css/style.css.
+// 475569 (--slate) est le seul gris autorise pour du TEXTE (7.58:1 sur
+// blanc). L'echelle de gris neutres (F8FAFC, F1F5F9, E2E8F0, CBD5E1, 64748B)
+// sert uniquement aux fonds, bordures et icones au repos : voir
+// docs/DESIGN.md (tokens) et css/style.css.
 const ALLOWED_HEX_COLORS = new Set(
-  ["2563EB", "1D4ED8", "EFF6FF", "FFFFFF", "FFF", "1E293B", "475569", "E2E8F0"].map((c) =>
-    c.toUpperCase()
-  )
+  [
+    "2563EB", "1D4ED8", "EFF6FF", "FFFFFF", "FFF", "1E293B", "475569",
+    "F8FAFC", "F1F5F9", "E2E8F0", "CBD5E1", "64748B",
+  ].map((c) => c.toUpperCase())
 );
 
 const DASH_CHARS = [

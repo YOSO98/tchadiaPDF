@@ -3,7 +3,16 @@
 const MAX_SIZE = 100 * 1024 * 1024; // 100 Mo par fichier
 const MAX_FILES = 50; // fichiers maximum par lot
 
-let quality = 0.6;
+// Profils inspirés de la boîte « Optimiser le PDF » d'Acrobat : résolution
+// cible (ppp), qualité JPEG, conversion des images sans perte en JPEG et
+// linéarisation (optimisation pour l'affichage web progressif).
+const PROFILES = {
+  web: { dpi: 96, quality: 0.6, convertLossless: true, linearize: true },
+  print: { dpi: 150, quality: 0.8, convertLossless: true, linearize: false },
+  archive: { dpi: 300, quality: 0.9, convertLossless: false, linearize: false },
+  custom: null,
+};
+let profile = "web";
 let worker = null; // instance réutilisée pour tout le lot, un seul fichier traité à la fois
 let activeReject = null; // permet d'interrompre le fichier en cours en cas d'annulation
 
@@ -15,6 +24,15 @@ let cancelRequested = false;
 
 const fileListEl = document.getElementById("fileList");
 const qualityOptions = document.getElementById("qualityOptions");
+const dpiInput = document.getElementById("dpiInput");
+const qualityInput = document.getElementById("qualityInput");
+const qualityValue = document.getElementById("qualityValue");
+const convertBox = document.getElementById("convertLossless");
+const junkBox = document.getElementById("removeJunk");
+const linearizeBox = document.getElementById("linearize");
+const customOptions = document.getElementById("customOptions");
+const profileHint = document.getElementById("profileHint");
+const imagesReportEl = document.getElementById("imagesReport");
 const compressBtn = document.getElementById("compressBtn");
 const pauseBtn = document.getElementById("pauseBtn");
 const cancelAllBtn = document.getElementById("cancelAllBtn");
@@ -43,7 +61,7 @@ function statusLabel(item) {
   switch (item.status) {
     case "attente": return "En attente";
     case "encours": return "En cours…";
-    case "termine": return "Terminé";
+    case "termine": return item.message || "Terminé";
     case "erreur": return "Erreur : " + (item.message || "la compression a échoué");
     case "ignore": return "Ignoré" + (item.message ? " : " + item.message : "");
     default: return "";
@@ -150,16 +168,67 @@ initDropzone("dropzone", "fileInput", (newFiles) => {
   renderQueue();
 });
 
-document.querySelectorAll("#qualitySeg button").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#qualitySeg button").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    quality = parseFloat(btn.dataset.quality);
-  });
-});
+const PROFILE_HINTS = {
+  web: "96 ppp, qualité JPEG 60 %, photos sans perte converties en JPEG, fichier linéarisé : idéal pour l'envoi par e-mail et la lecture à l'écran.",
+  print: "150 ppp, qualité JPEG 80 %, photos sans perte converties en JPEG : bon compromis pour une impression de bureau.",
+  archive: "300 ppp, qualité JPEG 90 %, images sans perte conservées telles quelles : qualité maximale, gain plus modeste.",
+  custom: "Réglez la résolution cible (72 à 600 ppp), la qualité JPEG et les options ci-dessous.",
+};
 
-/** Compresse un seul fichier via le Web Worker partagé, retourne une promesse. */
-function compressOneFile(file, onProgress) {
+function applyProfile(name) {
+  profile = name;
+  document.querySelectorAll("#profileSeg button").forEach((b) => {
+    const active = b.dataset.profile === name;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  const preset = PROFILES[name];
+  const isCustom = !preset;
+  customOptions.hidden = !isCustom;
+  if (preset) {
+    dpiInput.value = String(preset.dpi);
+    qualityInput.value = String(preset.quality);
+    convertBox.checked = preset.convertLossless;
+    linearizeBox.checked = preset.linearize;
+  }
+  convertBox.disabled = !isCustom;
+  qualityValue.textContent = Math.round(parseFloat(qualityInput.value) * 100) + " %";
+  profileHint.textContent = PROFILE_HINTS[name];
+}
+
+/** Lit les options courantes (profil ou réglages personnalisés) pour un fichier. */
+function currentOptions() {
+  const preset = PROFILES[profile];
+  let dpi = parseInt(dpiInput.value, 10);
+  if (!Number.isFinite(dpi)) dpi = 150;
+  dpi = Math.min(600, Math.max(72, dpi));
+  let quality = parseFloat(qualityInput.value);
+  if (!Number.isFinite(quality)) quality = 0.7;
+  quality = Math.min(0.95, Math.max(0.3, quality));
+  return {
+    dpi: preset ? preset.dpi : dpi,
+    quality: preset ? preset.quality : quality,
+    convertLossless: preset ? preset.convertLossless : convertBox.checked,
+    removeJunk: junkBox.checked,
+    linearize: linearizeBox.checked,
+  };
+}
+
+document.querySelectorAll("#profileSeg button").forEach((btn) => {
+  btn.addEventListener("click", () => applyProfile(btn.dataset.profile));
+});
+qualityInput.addEventListener("input", () => {
+  qualityValue.textContent = Math.round(parseFloat(qualityInput.value) * 100) + " %";
+});
+dpiInput.addEventListener("change", () => {
+  let v = parseInt(dpiInput.value, 10);
+  if (!Number.isFinite(v)) v = 150;
+  dpiInput.value = String(Math.min(600, Math.max(72, v)));
+});
+applyProfile("web");
+
+/** Étape 1 : images et nettoyage dans le Web Worker partagé, retourne une promesse. */
+function compressInWorker(file, options, onProgress) {
   return new Promise((resolve, reject) => {
     activeReject = reject;
     onProgress(2, "Lecture du fichier…");
@@ -184,6 +253,7 @@ function compressOneFile(file, onProgress) {
               originalSize: data.originalSize,
               newSize: data.newSize,
               imagesFound: data.imagesFound,
+              stats: data.stats || null,
             });
             return;
           }
@@ -201,13 +271,103 @@ function compressOneFile(file, onProgress) {
         };
 
         onProgress(5, "Préparation de la compression…");
-        w.postMessage({ arrayBuffer, quality }, [arrayBuffer]);
+        w.postMessage({ arrayBuffer, options }, [arrayBuffer]);
       })
       .catch(() => {
         activeReject = null;
         reject(new Error("Impossible de lire ce fichier."));
       });
   });
+}
+
+const QPDF_ARGS = [
+  "--object-streams=generate",
+  "--recompress-flate",
+  "--compression-level=9",
+  "--remove-unreferenced-resources=yes",
+  "--stream-data=compress",
+];
+
+/**
+ * Étape 2 : passe finale qpdf (flux d'objets, recompression Flate maximale,
+ * ressources non référencées, linéarisation optionnelle). Renvoie null si
+ * qpdf échoue : le résultat du worker reste alors utilisable tel quel.
+ */
+async function qpdfPass(bytes, linearize, onProgress) {
+  if (!window.QpdfEngine) return null;
+  try {
+    return await window.QpdfEngine.runQpdf(
+      bytes,
+      (inName, outName) => QPDF_ARGS.concat(linearize ? ["--linearize"] : [], [inName, outName]),
+      (pct) => onProgress(86 + Math.round(pct * 0.08), "Téléchargement du moteur d'optimisation (une seule fois)…" + (pct < 100 ? " " + pct + "%" : ""))
+    );
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Compresse un fichier de bout en bout. Règle absolue : jamais un fichier
+ * plus gros que l'original ; dans ce cas l'original est livré tel quel et
+ * signalé comme déjà optimisé.
+ */
+async function compressOneFile(file, options, onProgress) {
+  const originalSize = file.size;
+  const workerResult = await compressInWorker(file, options, onProgress);
+  if (cancelRequested) throw new Error("Traitement annulé.");
+
+  onProgress(86, "Optimisation de la structure du fichier…");
+  const qpdfBytes = await qpdfPass(workerResult.bytes, options.linearize, onProgress);
+  if (cancelRequested) throw new Error("Traitement annulé.");
+
+  let bytes = workerResult.bytes;
+  if (qpdfBytes) {
+    // Linéarisation demandée : on garde la sortie qpdf dès qu'elle gagne sur
+    // l'original, sinon on retient simplement la plus petite des deux.
+    if (options.linearize ? qpdfBytes.byteLength < originalSize : qpdfBytes.byteLength < bytes.byteLength) {
+      bytes = qpdfBytes;
+    }
+  }
+
+  let alreadyOptimized = false;
+  if (bytes.byteLength >= originalSize) {
+    bytes = new Uint8Array(await readAsArrayBuffer(file));
+    alreadyOptimized = true;
+  }
+
+  return {
+    bytes,
+    originalSize,
+    newSize: bytes.byteLength,
+    imagesFound: workerResult.imagesFound,
+    stats: workerResult.stats || { imagesFound: workerResult.imagesFound, recompressed: 0, resampled: 0, converted: 0, skipped: 0 },
+    alreadyOptimized,
+    qpdfApplied: !!qpdfBytes,
+  };
+}
+
+function gainPercent(r) {
+  return r.originalSize > 0 ? Math.max(0, Math.round((1 - r.newSize / r.originalSize) * 100)) : 0;
+}
+
+function imagesReportText(stats) {
+  if (!stats || stats.imagesFound === 0) return "Aucune image dans ce PDF : seule la structure du fichier a été optimisée.";
+  const parts = [
+    stats.imagesFound + " image(s) trouvée(s)",
+    (stats.recompressed + stats.converted) + " traitée(s)",
+    stats.resampled + " ré-échantillonnée(s)",
+    stats.converted + " convertie(s) en JPEG",
+  ];
+  let text = "Images : " + parts.join(", ") + ".";
+  if (stats.skipped > 0) {
+    text += " " + stats.skipped + " image(s) non traitée(s) (masque de transparence, couleur indexée, CMJN ou format non pris en charge).";
+  }
+  return text;
+}
+
+function rowSummary(r) {
+  if (r.alreadyOptimized) return "Déjà optimisé : " + fmtSize(r.originalSize) + ", original conservé";
+  return "Terminé : " + fmtSize(r.originalSize) + " vers " + fmtSize(r.newSize) + ", gain " + gainPercent(r) + " %";
 }
 
 function baseNameCompressed(originalName) {
@@ -230,18 +390,16 @@ async function finalizeResults(successResults, failureCount, totalToProcess) {
   if (successResults.length === 1) {
     // Comportement identique à l'ancien mode un seul fichier : téléchargement direct, pas de ZIP.
     const r = successResults[0];
-    const reduction = r.originalSize > 0 ? Math.max(0, Math.round((1 - r.newSize / r.originalSize) * 100)) : 0;
 
-    resultTitleEl.textContent = "Votre PDF compressé est prêt.";
+    resultTitleEl.textContent = r.alreadyOptimized
+      ? "Ce PDF est déjà optimisé : l'original est livré tel quel."
+      : "Votre PDF compressé est prêt.";
     sizeBeforeEl.textContent = "Taille avant : " + fmtSize(r.originalSize);
     sizeAfterEl.textContent = "Taille après : " + fmtSize(r.newSize);
-    sizeReductionEl.textContent = "Réduction de " + reduction + " %";
+    sizeReductionEl.textContent = r.alreadyOptimized ? "Aucun gain possible sans perte de contenu" : "Réduction de " + gainPercent(r) + " %";
+    imagesReportEl.textContent = imagesReportText(r.stats);
 
     offerDownload(r.bytes, "tchadiapdf-compresse.pdf");
-
-    if (r.imagesFound === 0) {
-      showMsg("Aucune image compressible n'a été trouvée dans ce PDF.");
-    }
     return;
   }
 
@@ -251,10 +409,16 @@ async function finalizeResults(successResults, failureCount, totalToProcess) {
   sizeReductionEl.style.display = "none";
   batchSummaryEl.style.display = "block";
 
-  resultTitleEl.textContent = successResults.length + " fichier(s) compressé(s) avec succès sur " + totalToProcess + ".";
-  batchSummaryEl.textContent = failureCount > 0
-    ? failureCount + " fichier(s) en échec. Consultez la liste ci-dessus pour le détail."
-    : "Tous les fichiers ont été compressés sans erreur.";
+  const totalBefore = successResults.reduce((acc, r) => acc + r.originalSize, 0);
+  const totalAfter = successResults.reduce((acc, r) => acc + r.newSize, 0);
+  const totalGain = totalBefore > 0 ? Math.max(0, Math.round((1 - totalAfter / totalBefore) * 100)) : 0;
+  const alreadyCount = successResults.filter((r) => r.alreadyOptimized).length;
+
+  resultTitleEl.textContent = successResults.length + " fichier(s) traité(s) avec succès sur " + totalToProcess + ".";
+  batchSummaryEl.textContent = "Total : " + fmtSize(totalBefore) + " vers " + fmtSize(totalAfter) + ", gain " + totalGain + " %." +
+    (alreadyCount > 0 ? " " + alreadyCount + " fichier(s) déjà optimisé(s), livré(s) tel(s) quel(s)." : "") +
+    (failureCount > 0 ? " " + failureCount + " fichier(s) en échec, voir la liste ci-dessus." : "");
+  imagesReportEl.textContent = "Le détail par fichier (taille avant et après, gain) figure dans la liste ci-dessus.";
 
   const zip = new JSZip();
   successResults.forEach((r) => {
@@ -270,6 +434,7 @@ async function processQueue() {
   let doneCount = 0;
   let failureCount = 0;
   const successResults = [];
+  const options = currentOptions();
 
   setGlobalProgress(0, "0 / " + totalToProcess + " fichier(s) traité(s)");
 
@@ -286,18 +451,12 @@ async function processQueue() {
     renderQueue();
 
     try {
-      const outcome = await compressOneFile(item.file, (pct, label) => {
+      const outcome = await compressOneFile(item.file, options, (pct, label) => {
         setProgress(pct, (totalToProcess > 1 ? "Fichier " + (i + 1) + " / " + totalToProcess + " : " : "") + label);
       });
       item.status = "termine";
-      item.message = "";
-      successResults.push({
-        name: item.file.name,
-        bytes: outcome.bytes,
-        originalSize: outcome.originalSize,
-        newSize: outcome.newSize,
-        imagesFound: outcome.imagesFound,
-      });
+      item.message = rowSummary(outcome);
+      successResults.push(Object.assign({ name: item.file.name }, outcome));
     } catch (err) {
       item.status = "erreur";
       item.message = (err && err.message) ? err.message : "La compression a échoué.";

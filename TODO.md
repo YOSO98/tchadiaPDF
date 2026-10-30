@@ -14,6 +14,51 @@ professionnel) sont terminées, cf. git log et la suite de ce fichier.
 
 ---
 
+## PHASE PARITÉ ACROBAT PRO (octobre 2026)
+
+Objectif : offrir gratuitement les fonctions d'Acrobat Pro, en mieux, en
+restant 100 % local. Plan complet, cartographie des 55 fonctions et feuille
+de route en 4 vagues : voir le document « Acrobat Pro vers tchadiaPdf »
+(résumé dans BENCHMARK.md, section « Parité Acrobat Pro, vague 1 »).
+
+**Vague 1 : terminée (10 chantiers, 3 nouveaux outils, 47 outils au total).**
+- [x] Fondation : toutes les bibliothèques auto-hébergées dans `vendor/`
+      (zéro CDN tiers, OCR hors ligne, tests sans Internet), port de test
+      configurable (`TCHADIA_TEST_PORT`).
+- [x] Protéger PDF : mot de passe propriétaire, droits fins, mode « restreindre ».
+- [x] OCR PDF : 129 langues, redressement automatique, export texte, pages
+      cherchables conservées.
+- [x] PDF en images : PNG, WebP, TIFF multipage, 72 à 600 ppp, niveaux de gris.
+- [x] Numéros de page : numérotation Bates, en-têtes et pieds de page.
+- [x] Métadonnées : Info + XMP synchronisés, langue, mode d'ouverture.
+- [x] Caviarder : rechercher et caviarder par motifs validés.
+- [x] Compresser : profils, ré-échantillonnage, passe qpdf, rapport.
+- [x] Nouveaux outils : Signets PDF, Pièces jointes PDF, Assainir PDF.
+
+**Vague 2 (en cours, branche feat/signature-pades côté local)** :
+- [x] Signature numérique PAdES avec certificat .p12 local (pkijs + @signpdf).
+- [ ] Validation des signatures existantes (intégrité, certificat, chaîne).
+- [ ] Annotations PDF natives dans modifier-pdf (Highlight, Square, FreeText,
+      Ink, Text + Popup), export XFDF, tampons.
+- [ ] Comparer PDF : diff de mots en plus du diff pixel, rapport.
+- [ ] Extraction du noyau `core/` (modules ES partagés navigateur / Node),
+      tests Vitest.
+
+**Vague 3** : moteur PDFium (WASM, BSD) pour le caviardage vectoriel,
+l'édition avec la police d'origine et le déplacement réel des images.
+
+**Vague 4** : CLI `tchadiapdf` + serveur MCP (`npx tchadiapdf setup`),
+assistant IA local (WebLLM), recettes de lot, conversions Office
+vectorielles, PDF/A à la création.
+
+**Dette laissée par la vague 1, à traiter** :
+- [ ] Calque OCR Unicode (police embarquée) pour les langues non latines.
+- [ ] Rendu PDF vers image dans un Worker (OffscreenCanvas) pour les gros lots.
+- [ ] En-têtes/pieds sur pages pivotées (/Rotate).
+- [ ] Passe qpdf de la compression dans un Worker (annulation immédiate).
+- [ ] `npm audit` : vulnérabilité élevée dans sharp (outillage de dev
+      uniquement) à mettre à jour.
+
 ## PHASE SÉCURITÉ : durcissement de tchadiaPdf
 
 Objectif : sécuriser le site, sa chaîne de dépendances et l'expérience

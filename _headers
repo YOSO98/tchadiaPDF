@@ -1,10 +1,18 @@
 # Configuration Cloudflare Pages (fichier lu automatiquement au deploiement).
 # Voir DEPLOY.md pour la justification detaillee de chaque choix.
 #
-# IMPORTANT : la liste des hotes CDN autorises dans Content-Security-Policy
-# ci-dessous doit etre reverifiee une fois la Phase Conversions terminee
-# (elle ajoute encore de nouveaux outils qui pourraient utiliser d'autres
-# CDN). Voir DEPLOY.md, section "CSP a reverifier".
+# Depuis la migration vers /vendor/, toutes les bibliotheques JavaScript sont
+# auto-hebergees, donnees de langue OCR (fra, eng) comprises : script-src
+# n'autorise plus aucun CDN tiers.
+#
+# Seule exception, dans connect-src uniquement : https://cdn.jsdelivr.net,
+# d'ou l'outil OCR telecharge a la demande les donnees de langue Tesseract
+# NON vendorisees (plus de 100 langues au-dela du francais et de l'anglais,
+# paquets @tesseract.js-data/<code>). Ce sont des donnees publiques du
+# moteur, jamais du code executable (jsdelivr reste absent de script-src)
+# et jamais le document de l'utilisateur ; le telechargement n'a lieu
+# qu'apres un avertissement explicite et un clic de l'utilisateur
+# (voir js/ocr-pdf.js, creerWorker).
 
 # En-tetes de securite appliques a toutes les URLs du site.
 #
@@ -55,7 +63,7 @@
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), payment=(), magnetometer=(), gyroscope=(), accelerometer=(), midi=()
   Cross-Origin-Opener-Policy: same-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://plausible.io https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://plausible.io https://ep1.adtrafficquality.google; frame-src https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://plausible.io https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' blob: data: https://plausible.io https://ep1.adtrafficquality.google https://cdn.jsdelivr.net; frame-src https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
 # Pages HTML : jamais de cache long, le site evolue frequemment (nouveaux
 # outils, corrections). "no-cache" autorise quand meme une revalidation
@@ -102,3 +110,41 @@
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Bibliotheques auto-hebergees : la version fait partie du nom de fichier
+# (pdf-lib-1.17.1.min.js), donc le cache long est sans risque.
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# SEO : les fichiers techniques deployes avec le site (bibliotheques,
+# documentation Markdown, tests, scripts, registre) ne doivent pas apparaitre
+# dans les resultats de recherche. X-Robots-Tag: noindex est prefere a un
+# Disallow dans robots.txt pour /vendor/ et /docs/ : les robots doivent
+# pouvoir charger les bibliotheques pour rendre les pages, et les images
+# docs/og/ servent d'apercu Open Graph. Cloudflare fusionne ces en-tetes
+# avec ceux des regles de cache ci-dessus (voir DEPLOY.md).
+/vendor/*
+  X-Robots-Tag: noindex
+
+/docs/*
+  X-Robots-Tag: noindex
+
+/tests/*
+  X-Robots-Tag: noindex
+
+/scripts/*
+  X-Robots-Tag: noindex
+
+/data/*
+  X-Robots-Tag: noindex
+
+/*.md
+  X-Robots-Tag: noindex
+
+# Fichiers destines aux assistants IA (format llms.txt) : UTF-8 explicite
+# pour que les accents s'affichent correctement dans un navigateur.
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8

@@ -8,7 +8,7 @@ sont organisées par phase de développement, telles que suivies dans
 [TODO.md](TODO.md). Le détail technique de chaque affirmation ci-dessous
 (limites, choix assumés) se trouve dans [BENCHMARK.md](BENCHMARK.md).
 
-## [Non publié] : Parité Acrobat, vague 2
+## [Non publié] : Phase Parité Acrobat Pro, vague 1 et signature PAdES (octobre 2026)
 
 ### Ajouté
 
@@ -17,6 +17,60 @@ sont organisées par phase de développement, telles que suivies dans
   Le certificat, son mot de passe et le PDF ne quittent pas le navigateur.
   Bibliothèques pkijs et @signpdf vendorisées dans `vendor/` (SRI,
   chargement à la demande). Limites détaillées dans BENCHMARK.md.
+- Trois nouveaux outils : Signets PDF (table des matières éditable et
+  génération automatique), Pièces jointes PDF (lister, extraire, ajouter,
+  supprimer), Assainir PDF (suppression des informations masquées avec
+  rapport).
+- Protéger PDF : mot de passe propriétaire distinct, droits fins
+  (impression, modification, copie, lecteurs d'écran), mode « restreindre
+  sans mot de passe d'ouverture ».
+- OCR PDF : 129 langues, redressement automatique des pages inclinées,
+  export du texte brut, pages déjà cherchables conservées.
+- PDF en JPG devient PDF en JPG, PNG, TIFF ou WebP : 72 à 600 ppp, TIFF
+  multipage, niveaux de gris, plage de pages.
+- Numéros de page : numérotation Bates continue sur un lot, en-têtes et
+  pieds de page à six zones avec variables.
+- Métadonnées PDF : paquet XMP lu, comparé et réécrit avec Info ; langue,
+  mode d'ouverture, mise en page ; effacement complet.
+- Caviarder PDF : recherche par motifs validés (e-mail, téléphone, IBAN,
+  NIR, carte bancaire, dates, adresses IP) et texte libre.
+- Compresser PDF : profils Web / Impression / Archivage / Personnalisé,
+  ré-échantillonnage à la résolution cible, conversion des photos sans
+  perte, passe qpdf, rapport détaillé.
+
+### Design et expérience utilisateur
+
+- Système de design v2 (`css/style.css`, `docs/DESIGN.md`) : tokens
+  d'espacement et de typographie, composants retravaillés (dropzone,
+  messages, progression, résultat, boutons, champs, FAQ), focus visible,
+  cibles tactiles 44 px, `prefers-reduced-motion`, RTL.
+- Accueil repensé en 5 langues : dépôt de fichier en premier geste,
+  recherche, filtres par catégorie, sections « Pourquoi tchadiaPdf » et
+  « Ce qu'Acrobat fait payer, ici gratuit ».
+- Gabarit unifié sur toutes les pages (`scripts/appliquer-gabarit.js`) :
+  lien d'évitement, en-tête avec recherche d'outil, pied avec bloc
+  « 0 octet envoyé », emplacement « Outils associés ».
+- Bandeau de consentement : boutons Accepter / Refuser de nouveau
+  visibles sur mobile (défaut préexistant corrigé).
+
+### Référencement et visibilité dans les IA
+
+- Registre des outils `data/outils.json` et scripts idempotents
+  (`npm run seo`, `npm run check-seo`) : canonical, hreflang, Open Graph,
+  JSON-LD (WebApplication, FAQPage, BreadcrumbList, Organization,
+  WebSite), bloc « Outils associés » sur 47 pages, sitemap régénéré
+  (70 URL), descriptions dans la fourchette 70 à 160 caractères.
+- `llms.txt` au format standard et `llms-full.txt` ; pages
+  « tchadiaPdf vs Adobe Acrobat » et « Pourquoi c'est gratuit ».
+- Audit et plan 90 jours : `docs/SEO-AUDIT.md`, `docs/SEO-PLAN.md`.
+
+### Modifié
+
+- Toutes les bibliothèques tierces sont auto-hébergées dans `vendor/` :
+  plus aucune requête vers un CDN, CSP sans hôte tiers, site et tests
+  utilisables hors ligne.
+- Suite Playwright : port configurable (`TCHADIA_TEST_PORT`), Playwright
+  1.61.
 
 ## [Non publié] : Phase Conversions et Phase 6 (en cours)
 
