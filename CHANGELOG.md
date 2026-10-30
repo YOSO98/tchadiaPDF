@@ -33,6 +33,32 @@ sont organisées par phase de développement, telles que suivies dans
   ré-échantillonnage à la résolution cible, conversion des photos sans
   perte, passe qpdf, rapport détaillé.
 
+### Design et expérience utilisateur
+
+- Système de design v2 (`css/style.css`, `docs/DESIGN.md`) : tokens
+  d'espacement et de typographie, composants retravaillés (dropzone,
+  messages, progression, résultat, boutons, champs, FAQ), focus visible,
+  cibles tactiles 44 px, `prefers-reduced-motion`, RTL.
+- Accueil repensé en 5 langues : dépôt de fichier en premier geste,
+  recherche, filtres par catégorie, sections « Pourquoi tchadiaPdf » et
+  « Ce qu'Acrobat fait payer, ici gratuit ».
+- Gabarit unifié sur toutes les pages (`scripts/appliquer-gabarit.js`) :
+  lien d'évitement, en-tête avec recherche d'outil, pied avec bloc
+  « 0 octet envoyé », emplacement « Outils associés ».
+- Bandeau de consentement : boutons Accepter / Refuser de nouveau
+  visibles sur mobile (défaut préexistant corrigé).
+
+### Référencement et visibilité dans les IA
+
+- Registre des outils `data/outils.json` et scripts idempotents
+  (`npm run seo`, `npm run check-seo`) : canonical, hreflang, Open Graph,
+  JSON-LD (WebApplication, FAQPage, BreadcrumbList, Organization,
+  WebSite), bloc « Outils associés » sur 47 pages, sitemap régénéré
+  (70 URL), descriptions dans la fourchette 70 à 160 caractères.
+- `llms.txt` au format standard et `llms-full.txt` ; pages
+  « tchadiaPdf vs Adobe Acrobat » et « Pourquoi c'est gratuit ».
+- Audit et plan 90 jours : `docs/SEO-AUDIT.md`, `docs/SEO-PLAN.md`.
+
 ### Modifié
 
 - Toutes les bibliothèques tierces sont auto-hébergées dans `vendor/` :

@@ -1400,7 +1400,10 @@ body.has-consent-banner .support-fab { display: none; }
   min-height: var(--tap);
 }
 @media (max-width: 520px) {
-  .consent-banner-inner { flex-direction: column; align-items: stretch; }
+  .consent-banner-inner { flex-direction: column; align-items: stretch; gap: var(--space-3); }
+  /* En colonne, la base flex de 320px s'appliquerait a la hauteur et
+     pousserait les boutons hors de l'ecran : on la neutralise. */
+  .consent-banner-text { flex: 0 1 auto; }
   .consent-banner-actions { justify-content: stretch; }
   .consent-banner-actions .btn-primary,
   .consent-banner-actions .btn-secondary { flex: 1; }

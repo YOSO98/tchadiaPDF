@@ -269,7 +269,22 @@ function appliquerHead(html, bloc) {
   return html.slice(0, debut + "<head>".length) + nouveauHead + html.slice(fin);
 }
 
+function retirerBlocsAssociesSupplementaires(html) {
+  // Un seul bloc par page : si le gabarit (dans <main>) et une ancienne
+  // insertion avant <footer> coexistent, seul le premier est conserve.
+  const premier = html.indexOf(MARQUEUR);
+  if (premier < 0) return html;
+  const premierFin = html.indexOf(MARQUEUR_FIN, premier);
+  if (premierFin < 0) return html;
+  const tete = html.slice(0, premierFin + MARQUEUR_FIN.length);
+  let reste = html.slice(premierFin + MARQUEUR_FIN.length);
+  const motif = new RegExp("\\n*[ \\t]*" + MARQUEUR.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&") + "[\\s\\S]*?" + MARQUEUR_FIN.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&") + "[ \\t]*\\n?", "g");
+  reste = reste.replace(motif, "\n");
+  return tete + reste;
+}
+
 function appliquerAssocies(html, bloc) {
+  html = retirerBlocsAssociesSupplementaires(html);
   const iDebut = html.indexOf(MARQUEUR);
   if (iDebut >= 0) {
     const iFin = html.indexOf(MARQUEUR_FIN, iDebut);

@@ -73,7 +73,9 @@
     "  padding: 10px 20px;\n" +
     "}\n" +
     "@media (max-width: 520px) {\n" +
-    "  .consent-banner-inner { flex-direction: column; align-items: stretch; }\n" +
+    "  .consent-banner-inner { flex-direction: column; align-items: stretch; gap: 12px; }\n" +
+    "  .consent-banner-text { flex: 0 1 auto; }\n" +
+    "  .consent-banner { max-height: 60vh; overflow-y: auto; }\n" +
     "  .consent-banner-actions { justify-content: stretch; }\n" +
     "  .consent-banner-actions .btn-primary,\n" +
     "  .consent-banner-actions .btn-secondary { flex: 1; }\n" +
