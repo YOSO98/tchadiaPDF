@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Modifier les métadonnées d'un PDF gratuit en ligne : tchadiaPdf</title>
   <link rel="canonical" href="https://tchadiapdf.com/metadonnees-pdf">
-  <meta name="description" content="Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, le créateur et le producteur d'un PDF, gratuitement et sans envoi sur un serveur.">
+  <meta name="description" content="Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, les dates, la langue et les métadonnées XMP d'un PDF (Info et XMP synchronisés), gratuitement et sans envoi sur un serveur.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Modifier les métadonnées d'un PDF gratuit en ligne : tchadiaPdf">
-  <meta property="og:description" content="Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, le créateur et le producteur d'un PDF, gratuitement et sans envoi sur un serveur.">
+  <meta property="og:description" content="Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, les dates, la langue et les métadonnées XMP d'un PDF (Info et XMP synchronisés), gratuitement et sans envoi sur un serveur.">
   <meta property="og:url" content="https://tchadiapdf.com/metadonnees-pdf">
   <meta property="og:image" content="https://tchadiapdf.com/docs/og/organiser.png">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="tchadiaPdf">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Modifier les métadonnées d'un PDF gratuit en ligne : tchadiaPdf">
-  <meta name="twitter:description" content="Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, le créateur et le producteur d'un PDF, gratuitement et sans envoi sur un serveur.">
+  <meta name="twitter:description" content="Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, les dates, la langue et les métadonnées XMP d'un PDF (Info et XMP synchronisés), gratuitement et sans envoi sur un serveur.">
   <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/organiser.png">
   <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
@@ -47,7 +47,9 @@
     .meta-field { display: flex; flex-direction: column; gap: 6px; }
     .meta-field.meta-field-full { grid-column: 1 / -1; }
     .meta-field label { font-size: 0.9rem; font-weight: 600; }
-    .meta-field input[type="text"] {
+    .meta-field input[type="text"],
+    .meta-field input[type="datetime-local"],
+    .meta-field select {
       font-family: inherit;
       font-size: 0.95rem;
       padding: 10px 12px;
@@ -57,35 +59,37 @@
       background: var(--white);
       width: 100%;
     }
-    .meta-field input[type="text"]:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .meta-field input:focus, .meta-field select:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .meta-field input:disabled { color: var(--slate); background: var(--blue-50); }
+    .meta-field .meta-help { font-size: 0.8rem; color: var(--slate); }
 
-    .meta-dates {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
+    .meta-section {
       padding-top: 18px;
       border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
-    .meta-date-item strong {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 4px;
+    .meta-section h2 { font-size: 1rem; margin: 0; }
+    .meta-section .meta-text { font-size: 0.9rem; color: var(--slate); margin: 0; }
+    .meta-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
     }
-    .meta-date-item span { font-size: 0.9rem; color: var(--slate); }
+    .meta-check input { margin-top: 3px; accent-color: var(--blue); }
+    .meta-xmp p { margin: 0; font-size: 0.9rem; }
+    .meta-xmp ul { margin: 0; padding-left: 20px; font-size: 0.9rem; }
+    .meta-xmp ul li { margin-top: 4px; }
+    .meta-xmp .btn-secondary { width: auto; margin-top: 0; }
+    .meta-xmp .btn-secondary[hidden] { display: none; }
 
     @media (max-width: 560px) {
       .meta-grid { grid-template-columns: 1fr; }
     }
 
-    .meta-actions {
-      display: flex;
-      justify-content: flex-end;
-    }
-    .meta-actions .btn-secondary {
-      width: auto;
-    }
   </style>
   <script type="application/ld+json">
 {
@@ -95,7 +99,7 @@
   "url": "https://tchadiapdf.com/metadonnees-pdf",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Any (navigateur web)",
-  "description": "Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, le créateur et le producteur d'un PDF, gratuitement et sans envoi sur un serveur.",
+  "description": "Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, les dates, la langue et les métadonnées XMP d'un PDF (Info et XMP synchronisés), gratuitement et sans envoi sur un serveur.",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -115,7 +119,7 @@
 
 <main class="tool-page">
   <h1>Métadonnées PDF</h1>
-  <p class="tool-sub">Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, le créateur et le producteur de votre PDF.</p>
+  <p class="tool-sub">Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, les dates et la langue de votre PDF. Le dictionnaire Info et le paquet XMP sont lus, comparés et réécrits ensemble, comme dans Acrobat Pro.</p>
 
   <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
     <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -132,8 +136,10 @@
       Ces métadonnées ne quittent jamais votre appareil : lecture et modification ont lieu entièrement dans votre navigateur.
     </div>
 
-    <div class="meta-actions">
-      <button type="button" class="btn-secondary" id="clearAllBtn">Tout supprimer</button>
+    <div class="meta-xmp" id="xmpBlock" aria-live="polite">
+      <p id="xmpStatus"></p>
+      <ul id="xmpDiffList"></ul>
+      <button type="button" class="btn-secondary" id="useXmpBtn" hidden>Reprendre les valeurs XMP dans le formulaire</button>
     </div>
 
     <div class="meta-grid">
@@ -152,6 +158,7 @@
       <div class="meta-field meta-field-full">
         <label for="metaKeywords">Mots-clés</label>
         <input type="text" id="metaKeywords" placeholder="mot-clé 1, mot-clé 2, mot-clé 3" maxlength="500">
+        <span class="meta-help">Séparés par des virgules. Écrits dans Info (Keywords), XMP pdf:Keywords et dc:subject.</span>
       </div>
       <div class="meta-field">
         <label for="metaCreator">Créateur (logiciel d'origine)</label>
@@ -163,15 +170,76 @@
       </div>
     </div>
 
-    <div class="meta-dates">
-      <div class="meta-date-item">
-        <strong>Date de création</strong>
-        <span id="metaCreationDate">Non renseignée</span>
+    <div class="meta-section">
+      <h2>Dates</h2>
+      <p class="meta-text" id="metaDatesInfo"></p>
+      <div class="meta-grid">
+        <div class="meta-field">
+          <label for="metaCreationDate">Date de création</label>
+          <input type="datetime-local" id="metaCreationDate" step="1">
+          <span class="meta-help">Heure locale, écrite avec votre fuseau horaire (Info CreationDate et XMP xmp:CreateDate).</span>
+        </div>
+        <div class="meta-field">
+          <label for="metaModDate">Date de modification</label>
+          <input type="datetime-local" id="metaModDate" step="1" disabled>
+          <label class="meta-check" for="autoModDate">
+            <input type="checkbox" id="autoModDate" checked>
+            <span>Mettre à jour automatiquement à l'enregistrement (comportement d'Acrobat)</span>
+          </label>
+        </div>
       </div>
-      <div class="meta-date-item">
-        <strong>Date de modification</strong>
-        <span id="metaModDate">Non renseignée</span>
+    </div>
+
+    <div class="meta-section">
+      <h2>Propriétés du document</h2>
+      <div class="meta-grid">
+        <div class="meta-field">
+          <label for="metaLang">Langue du document</label>
+          <input type="text" id="metaLang" placeholder="fr-FR" maxlength="35" list="langSuggestions">
+          <datalist id="langSuggestions">
+            <option value="fr-FR"></option>
+            <option value="fr-CA"></option>
+            <option value="en-US"></option>
+            <option value="en-GB"></option>
+            <option value="ar"></option>
+            <option value="es-ES"></option>
+            <option value="pt-BR"></option>
+            <option value="de-DE"></option>
+          </datalist>
+          <span class="meta-help">Code BCP 47 (/Lang), utilisé par les lecteurs d'écran. Vide : aucune langue déclarée.</span>
+        </div>
+        <div class="meta-field">
+          <label for="metaPageMode">Mode d'ouverture</label>
+          <select id="metaPageMode">
+            <option value="UseNone">Page seule, sans panneau (par défaut)</option>
+            <option value="UseOutlines">Panneau des signets ouvert</option>
+            <option value="UseThumbs">Panneau des vignettes ouvert</option>
+            <option value="FullScreen">Plein écran</option>
+            <option value="UseOC">Panneau des calques ouvert</option>
+            <option value="UseAttachments">Panneau des pièces jointes ouvert</option>
+          </select>
+        </div>
+        <div class="meta-field">
+          <label for="metaPageLayout">Mise en page</label>
+          <select id="metaPageLayout">
+            <option value="SinglePage">Une page à la fois (par défaut)</option>
+            <option value="OneColumn">Défilement continu, une colonne</option>
+            <option value="TwoColumnLeft">Deux colonnes, première page à gauche</option>
+            <option value="TwoColumnRight">Deux colonnes, première page à droite</option>
+            <option value="TwoPageLeft">Deux pages, première page à gauche</option>
+            <option value="TwoPageRight">Deux pages, première page à droite</option>
+          </select>
+        </div>
       </div>
+    </div>
+
+    <div class="meta-section">
+      <h2>Effacement</h2>
+      <label class="meta-check" for="clearAll">
+        <input type="checkbox" id="clearAll">
+        <span><strong>Effacer toutes les métadonnées</strong> : dictionnaire Info vidé (titre, auteur, dates, producteur…) et paquet XMP supprimé. Les propriétés du document ci-dessus sont conservées.</span>
+      </label>
+      <p class="meta-text">Pour retirer aussi les pièces jointes, scripts, annotations et autres données cachées, utilisez l'outil <a href="/assainir-pdf">Assainir PDF</a>.</p>
     </div>
   </div>
 
