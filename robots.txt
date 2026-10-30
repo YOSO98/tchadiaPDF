@@ -1,4 +1,14 @@
+# tchadiaPdf : tout le site est indexable, sauf les dossiers techniques
+# deployes avec le code (tests, scripts, registre, documentation Markdown).
+# /vendor/ et /js/ restent accessibles aux robots pour le rendu des pages ;
+# ils portent un en-tete X-Robots-Tag: noindex (voir _headers).
 User-agent: *
 Allow: /
+Disallow: /tests/
+Disallow: /scripts/
+Disallow: /data/
+Disallow: /*.md$
+
+# Description du site pour les assistants IA : /llms.txt et /llms-full.txt
 
 Sitemap: https://tchadiapdf.com/sitemap.xml
