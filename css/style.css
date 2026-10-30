@@ -201,6 +201,8 @@ body[dir="rtl"] .skip-link { left: auto; right: var(--space-4); }
   white-space: nowrap;
 }
 .logo span { color: var(--blue); }
+/* Le logo est toujours lu "tchadiaPdf", meme dans une page en ecriture de droite a gauche */
+.logo { direction: ltr; unicode-bidi: isolate; }
 .logo:hover { text-decoration: none; }
 .nav-tools {
   display: flex;
@@ -217,6 +219,7 @@ body[dir="rtl"] .skip-link { left: auto; right: var(--space-4); }
   padding: 0 var(--space-3);
   border-radius: var(--radius-btn);
   color: var(--ink);
+  white-space: nowrap;
   transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
 }
 .nav-tools > a:hover { background: var(--gray-100); color: var(--blue); text-decoration: none; }
@@ -246,6 +249,8 @@ body[dir="rtl"] .skip-link { left: auto; right: var(--space-4); }
   background-position: right 10px center;
 }
 .lang-switch select:hover { border-color: var(--blue); }
+body[dir="rtl"] .lang-switch select { padding: 0 12px 0 32px; background-position: left 10px center; }
+body[dir="rtl"] .lang-switch { margin-left: 0; margin-right: var(--space-1); }
 
 /* Recherche d'outil depuis n'importe quelle page (formulaire GET vers /?q=,
    repris par js/index-page.js sur l'accueil : aucun script necessaire ici). */
@@ -292,6 +297,9 @@ body[dir="rtl"] .header-search svg { left: auto; right: 13px; }
 }
 @media (max-width: 420px) {
   .nav-tools .github-link { display: none; }
+  .nav-tools > a { padding: 0 var(--space-2); }
+  .lang-switch select { padding-left: 8px; font-size: var(--fs-xs); }
+  body[dir="rtl"] .lang-switch select { padding-right: 8px; }
   .logo { font-size: 1.2rem; }
 }
 
@@ -1174,10 +1182,10 @@ body[dir="rtl"] .seg button + button { border-left: none; border-right: 1px soli
 .result .result-actions .btn-ghost, .result .result-actions .btn-secondary { width: auto; margin-top: 0; }
 
 /* Ligne de soutien discrete apres un telechargement reussi (js/common.js) */
-.support-line { margin-top: var(--space-4); font-size: var(--fs-xs); color: var(--slate); text-align: center; font-weight: 400; }
+.support-line, .result .support-line { margin: var(--space-4) 0 0; font-size: var(--fs-xs); color: var(--slate); text-align: center; font-weight: 400; }
 .support-line a { font-weight: 600; }
 /* Phrase legere affichee au succes d'une action, en plus de la ligne de soutien */
-.fun-line { margin-top: var(--space-3); font-size: var(--fs-sm); color: var(--slate); font-style: italic; text-align: center; font-weight: 400; }
+.fun-line, .result .fun-line { margin: var(--space-3) 0 0; font-size: var(--fs-sm); color: var(--slate); font-style: italic; text-align: center; font-weight: 400; }
 
 /* ---------- Message (info / avertissement / erreur) : icone + texte + trait ---------- */
 .msg {
