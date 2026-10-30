@@ -129,7 +129,7 @@ for (const page of pages) {
   if (!/property="og:title"/.test(html)) avert("balises Open Graph absentes");
 
   // Tirets interdits
-  if (/[–—]/.test(html)) ou("tiret cadratin ou demi-cadratin présent");
+  if (new RegExp("[\\u2013\\u2014]").test(html)) ou("tiret cadratin ou demi-cadratin présent");
 
   // Pages d'outils : cohérence avec le registre
   const outil = parFichier.get(page);
