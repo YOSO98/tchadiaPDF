@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pièces jointes PDF : lister, extraire, ajouter ou supprimer gratuitement : tchadiaPdf</title>
+  <link rel="canonical" href="https://tchadiapdf.com/pieces-jointes-pdf">
+  <meta name="description" content="Affichez les fichiers embarqués dans un PDF, extrayez-les, ajoutez vos propres pièces jointes ou supprimez-les, gratuitement. Traitement 100% local, aucun fichier envoyé sur un serveur.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pièces jointes PDF : lister, extraire, ajouter ou supprimer gratuitement : tchadiaPdf">
+  <meta property="og:description" content="Affichez les fichiers embarqués dans un PDF, extrayez-les, ajoutez vos propres pièces jointes ou supprimez-les, gratuitement. Traitement 100% local, aucun fichier envoyé sur un serveur.">
+  <meta property="og:url" content="https://tchadiapdf.com/pieces-jointes-pdf">
+  <meta property="og:image" content="https://tchadiapdf.com/docs/og/organiser.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="tchadiaPdf">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pièces jointes PDF : lister, extraire, ajouter ou supprimer gratuitement : tchadiaPdf">
+  <meta name="twitter:description" content="Affichez les fichiers embarqués dans un PDF, extrayez-les, ajoutez vos propres pièces jointes ou supprimez-les, gratuitement. Traitement 100% local, aucun fichier envoyé sur un serveur.">
+  <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/organiser.png">
+  <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=7e6a7e44">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563EB">
+  <style>
+    /* Styles propres à l'outil pièces jointes, basés uniquement sur les variables du design system */
+    .file-info {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .file-info.visible { display: flex; }
+    .file-info .f-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-info .f-meta { font-size: 0.8rem; color: var(--slate); white-space: nowrap; }
+
+    .pj-panel {
+      margin-top: 24px;
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px;
+    }
+    .pj-panel.visible { display: flex; }
+    .pj-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .pj-head h2, .pj-add h3 { font-size: 1.05rem; font-weight: 700; }
+    .pj-head .btn-secondary { width: auto; }
+    .pj-empty { color: var(--slate); font-size: 0.9rem; }
+
+    .pj-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .pj-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 12px 14px;
+      background: var(--white);
+    }
+    .pj-item.pj-deleted { opacity: 0.55; }
+    .pj-item.pj-deleted .pj-name { text-decoration: line-through; }
+    .pj-item .pj-icon { flex: none; width: 22px; height: 22px; color: var(--blue); margin-top: 2px; }
+    .pj-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .pj-name { font-size: 0.92rem; font-weight: 600; overflow-wrap: anywhere; }
+    .pj-meta { font-size: 0.8rem; color: var(--slate); }
+    .pj-desc { font-size: 0.85rem; color: var(--ink); overflow-wrap: anywhere; }
+    .pj-tag { font-size: 0.78rem; font-weight: 600; color: var(--blue); }
+    .pj-desc-input {
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      color: var(--ink);
+      background: var(--white);
+      width: 100%;
+      margin-top: 4px;
+    }
+    .pj-desc-input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .pj-actions { flex: none; display: flex; flex-direction: column; gap: 6px; }
+    .pj-actions .btn-secondary { width: auto; padding: 7px 12px; font-size: 0.82rem; justify-content: center; }
+
+    .pj-add { border-top: 1px solid var(--border); padding-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .dropzone.dropzone-small { padding: 20px 16px; }
+    .dropzone.dropzone-small .dz-icon { width: 28px; height: 28px; margin-bottom: 6px; }
+    .dropzone.dropzone-small strong { font-size: 0.95rem; }
+
+    @media (max-width: 520px) {
+      .pj-item { flex-wrap: wrap; }
+      .pj-body { flex-basis: calc(100% - 34px); }
+      .pj-actions { flex-direction: row; width: 100%; }
+      .pj-actions .btn-secondary { flex: 1; }
+    }
+  </style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Pièces jointes PDF",
+  "url": "https://tchadiapdf.com/pieces-jointes-pdf",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (navigateur web)",
+  "description": "Affichez les fichiers embarqués dans un PDF, extrayez-les, ajoutez vos propres pièces jointes ou supprimez-les, gratuitement. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+  }
+}
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="/#outils">Tous les outils</a></nav>
+  </div>
+</header>
+
+<main class="tool-page">
+  <h1>Pièces jointes PDF</h1>
+  <p class="tool-sub">Listez, extrayez, ajoutez ou supprimez les fichiers embarqués dans un PDF, comme dans le panneau « Pièces jointes » d'Acrobat.</p>
+
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
+    <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <strong>Choisir un fichier PDF</strong>
+    <span>ou glissez-le ici, 100 Mo maximum</span>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="file-info" id="fileInfo">
+    <span class="f-name" id="fileName"></span>
+    <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <section class="pj-panel" id="pjPanel" aria-label="Pièces jointes du PDF">
+    <div class="badge-prive">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Vos fichiers ne quittent jamais votre appareil : lecture, extraction et modification ont lieu entièrement dans votre navigateur.
+    </div>
+
+    <div class="pj-head">
+      <h2 id="pjTitle">Pièces jointes</h2>
+      <button type="button" class="btn-secondary" id="extractAllBtn" hidden>Tout extraire (ZIP)</button>
+    </div>
+    <p class="pj-empty" id="pjEmpty" hidden>Ce PDF ne contient aucune pièce jointe.</p>
+    <ul class="pj-list" id="pjList" aria-live="polite"></ul>
+
+    <div class="pj-add">
+      <h3>Ajouter des fichiers</h3>
+      <div class="dropzone dropzone-small" id="addDropzone" role="button" tabindex="0" aria-label="Choisir des fichiers à joindre au PDF">
+        <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <strong>Choisir des fichiers à joindre</strong>
+        <span>tout type de fichier, 50 Mo maximum chacun</span>
+        <input type="file" id="addInput" multiple>
+      </div>
+      <ul class="pj-list" id="pjAddList" aria-live="polite"></ul>
+    </div>
+  </section>
+
+  <div class="msg" id="msg"></div>
+
+  <button class="btn-primary" id="saveBtn" disabled>Télécharger le PDF modifié</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label">Traitement en cours…</div>
+    <div class="progress-bar"><div></div></div>
+  </div>
+
+  <div class="result" id="result">
+    <p id="resultText">Votre PDF est prêt.</p>
+    <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Ce que fait cet outil, et ce qu'il ne fait pas</h3>
+    <p>Usages typiques : joindre à un rapport ses sources (tableur, données brutes), à une facture ses justificatifs (bons de commande, reçus), ou à un contrat ses annexes, pour que tout circule dans un seul fichier PDF.</p>
+    <ul>
+      <li>Lecture : les pièces jointes du document (arbre /EmbeddedFiles) et celles rattachées à une page (annotations « fichier joint ») sont listées avec leur nom, taille, type, description et dates.</li>
+      <li>Suppression : l'entrée est retirée de la liste et l'objet qui contenait le fichier est effacé du PDF produit, pas seulement masqué. Après enregistrement, l'outil relit le fichier produit pour vérifier qu'aucun flux correspondant ne subsiste ; si la vérification échoue, le PDF est reconstruit page par page à partir de zéro (ce qui peut faire perdre signets et champs de formulaire).</li>
+      <li>Limites : certains lecteurs mobiles n'affichent pas les pièces jointes (le contenu est bien présent, mais inaccessible depuis l'application). Les profils PDF/A-3 et Factur-X (facture électronique) ne sont pas pris en charge : un fichier conforme ne le restera pas forcément après modification.</li>
+    </ul>
+  </div>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Comment voir les pièces jointes d'un PDF ?</summary>
+      <p>Déposez le PDF : l'outil lit la liste des fichiers embarqués et l'affiche avec le nom, la taille et le type de chaque pièce jointe. Vous pouvez ensuite les télécharger une par une ou toutes à la fois dans une archive ZIP.</p>
+    </details>
+    <details>
+      <summary>Quels types de fichiers puis-je joindre à un PDF ?</summary>
+      <p>N'importe quel type : tableur, image, archive, autre PDF, fichier texte… Le type réel est détecté à partir du contenu du fichier (pas seulement de son extension), dans la limite de 50 Mo par fichier.</p>
+    </details>
+    <details>
+      <summary>La suppression d'une pièce jointe la fait-elle vraiment disparaître ?</summary>
+      <p>Oui : l'objet qui contenait le fichier est supprimé du PDF produit et l'outil vérifie, en relisant le résultat, qu'aucun flux correspondant ne reste présent dans le fichier.</p>
+    </details>
+    <details>
+      <summary>Mon fichier est-il envoyé sur un serveur ?</summary>
+      <p>Non, la lecture, l'extraction et la modification des pièces jointes se font entièrement dans votre navigateur.</p>
+    </details>
+  </section>
+
+  <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
+  <p class="verifiable-badge"><a href="/confiance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7z"/></svg>Vérifiable : code open source</a></p>
+</main>
+
+<footer class="site-footer">
+  <nav>
+    <a href="/a-propos">À propos</a>
+    <a href="/soutenir" class="support-link"><svg width="24" height="24" class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Soutenir le projet</a>
+    <a href="/confidentialite">Confidentialité</a>
+    <a href="/mentions-legales">Mentions légales</a>
+  </nav>
+  <button type="button" class="consent-banner-reopen-link">Gérer les publicités</button>
+  © 2026 tchadiaPdf
+</footer>
+
+<script src="/vendor/pdf-lib-1.17.1.min.js"></script>
+<script src="/vendor/pdf-3.11.174.min.js"></script>
+<script src="/vendor/jszip-3.10.1.min.js"></script>
+<script src="js/common.js?v=718db2ae"></script>
+<script src="js/security-utils.js?v=df7bd91a"></script>
+<script src="js/pieces-jointes-pdf.js"></script>
+<script src="js/analytics.js?v=ced09caa" defer></script>
+<script src="js/ads.js?v=744cd80e" defer></script>
+<script src="js/consent-banner.js?v=1c4f5cf9" defer></script>
+<script src="js/support-fab.js?v=09b1a127" defer></script>
+</body>
+</html>
