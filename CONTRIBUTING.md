@@ -16,24 +16,42 @@ côté client (pdf-lib, pdf.js, Tesseract.js, JSZip).
 ## Règles du design system
 
 Le design de tchadiaPdf est volontairement minimal et doit rester
-cohérent d'un outil à l'autre.
+cohérent d'un outil à l'autre. La référence complète (principes, tokens,
+composants avec HTML à copier, règles do/don't, check-list d'accessibilité)
+est dans [`docs/DESIGN.md`](docs/DESIGN.md) ; l'audit et les captures
+avant/après dans [`docs/DESIGN-AUDIT.md`](docs/DESIGN-AUDIT.md).
 
-1. **Deux couleurs seulement** : blanc (`#FFFFFF`) et bleu (`#2563EB`,
-   avec sa variante foncée `#1D4ED8` pour les survols et sa variante
-   très claire `#EFF6FF` pour les fonds). Texte en `#1E293B` (encre) ou
-   `#64748B` (gris atténué). Aucune autre couleur, aucun dégradé. Les
-   messages d'erreur ou d'information n'utilisent jamais de rouge ou de
-   vert : une icône et un texte suffisent (voir la classe `.msg` dans
-   `css/style.css`).
-2. **Un composant existe déjà probablement.** Avant d'ajouter du CSS,
-   vérifiez `css/style.css` : dropzone, liste de fichiers, miniatures,
-   options, boutons segmentés, boutons primaires/secondaires, barre de
-   progression, résultat, message, emplacement publicitaire. Réutilisez
-   ces classes plutôt que d'en créer de nouvelles.
-3. **Typographie** : jamais de tiret cadratin (Unicode U+2014) ni de tiret
+1. **Deux couleurs et une échelle de gris.** Blanc (`#FFFFFF`) et bleu
+   (`#2563EB`, `#1D4ED8` au survol, `#EFF6FF` en fond clair) portent
+   l'identité. Texte en `#1E293B` (encre) ou `#475569` (gris atténué, seul
+   gris autorisé pour du texte). Les gris neutres `#F8FAFC`, `#F1F5F9`,
+   `#E2E8F0`, `#CBD5E1`, `#64748B` servent uniquement aux fonds et aux
+   bordures. Aucune autre couleur, aucun dégradé, aucune ombre colorée.
+   Les messages n'utilisent jamais de rouge ni de vert : passez par
+   `showMsg()`, `showWarning()`, `showError()` (icône, texte, épaisseur du
+   trait). `npm run check-style` refuse toute autre valeur hexadécimale.
+2. **Utilisez les tokens** de `css/style.css` (`--space-*`, `--fs-*`,
+   `--radius-*`, `--dur-*`, `--focus-ring`) plutôt que des valeurs en dur :
+   toutes les distances sont des multiples de 4 px.
+3. **Un composant existe déjà probablement.** Avant d'ajouter du CSS,
+   vérifiez `docs/DESIGN.md` : dropzone (formats acceptés et nom accessible
+   automatiques via `initDropzone`), liste de fichiers, miniatures, options,
+   segmentés, champs, boutons (`.btn-primary`, `.btn-secondary`,
+   `.btn-ghost`, tailles, `.is-loading`), progression avec pourcentage,
+   carte de résultat, messages, encadré de fidélité, FAQ, bandeau. Une page
+   peut ajuster une marge dans son `<style>`, jamais redéfinir un composant.
+4. **En-tête, pied de page et lien d'évitement sont générés** par
+   `node scripts/appliquer-gabarit.js` : ne les éditez pas à la main dans une
+   page, modifiez le script puis relancez-le (idempotent).
+5. **Typographie** : jamais de tiret cadratin (Unicode U+2014) ni de tiret
    demi-cadratin (Unicode U+2013) dans les textes, titres ou messages.
    Utilisez les deux-points, la virgule ou le point selon le contexte.
-4. **Tout est en français** : interface, messages d'erreur, commentaires
+6. **Accessibilité WCAG 2.2 AA** : focus visible (ne retirez jamais
+   `outline` sans remplacer l'anneau), cibles de 44 px sur mobile, un
+   `label` par champ, un `aria-label` par bouton icône, texte 4,5:1 minimum,
+   `prefers-reduced-motion` respecté. Vérifiez avec
+   `node scripts/audit-design.js /tmp/audit` (captures + axe-core).
+7. **Tout est en français** : interface, messages d'erreur, commentaires
    de code.
 
 ## Proposer un nouvel outil
@@ -45,8 +63,9 @@ Chaque outil suit exactement la même structure que `fusionner.html` /
    page existante :
    - `<head>` avec titre et méta-description en français (utile pour le
      référencement), sans tiret long
-   - en-tête (`site-header`) et pied de page (`site-footer`) identiques
-     aux autres pages
+   - en-tête (`site-header`) et pied de page (`site-footer`) : copiez-les
+     d'une page existante puis lancez `node scripts/appliquer-gabarit.js`,
+     qui les met au gabarit commun (lien d'évitement, recherche, pied)
    - `<main class="tool-page">` contenant : un `<h1>`, un sous-titre
      (`.tool-sub`), une dropzone (`.dropzone` avec `role="button"` et
      `tabindex="0"` pour l'accessibilité clavier), les options propres à
