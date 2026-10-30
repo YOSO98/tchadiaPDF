@@ -3,7 +3,7 @@
 // Configuration de pdf.js (rendu des miniatures)
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    "/vendor/pdf.worker-3.11.174.min.js";
 }
 
 // Support hors ligne (PWA) : enregistre le service worker une fois la page

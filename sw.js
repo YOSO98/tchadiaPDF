@@ -33,7 +33,7 @@
 // qui declenche activate() ci-dessous et purge integralement l'ancien
 // cache (voir DEPLOY.md, section "Mettre a jour css/style.css ou un
 // fichier js/*.js").
-const CACHE_NAME = "tchadiapdf-shell-v26b0a82e";
+const CACHE_NAME = "tchadiapdf-shell-v4a08cbdd";
 
 const APP_SHELL = [
   "/",
@@ -44,7 +44,7 @@ const APP_SHELL = [
   "/assets/fonts/inter-500.woff2",
   "/assets/fonts/inter-600.woff2",
   "/assets/fonts/inter-700.woff2",
-  "/js/common.js?v=19064f79",
+  "/js/common.js?v=718db2ae",
   "/js/security-utils.js?v=df7bd91a",
   "/js/index-page.js?v=46af2584",
   "/js/analytics.js?v=ced09caa",
@@ -63,7 +63,7 @@ const APP_SHELL = [
   "/js/compresser-pdf.js?v=9dac478a",
   "/js/compresser-pdf.worker.js", // instancie via new Worker(...) dans js/compresser-pdf.js, jamais via une balise <script> : pas de suffixe ?v= a faire correspondre
   "/modifier-pdf",
-  "/js/modifier-pdf.js?v=de782a08",
+  "/js/modifier-pdf.js?v=cbba30b1",
 ];
 
 self.addEventListener("install", (event) => {

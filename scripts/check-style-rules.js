@@ -21,6 +21,7 @@ const ROOT = path.resolve(__dirname, "..");
 // Dossiers ignores lors du parcours recursif.
 const IGNORED_DIRS = new Set([
   "node_modules",
+  "vendor", // bibliotheques tierces auto-hebergees, servies telles quelles
   ".git",
   "tests",
   ".github",

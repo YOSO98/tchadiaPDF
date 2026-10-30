@@ -49,7 +49,7 @@ function chargerTesseract() {
   return new Promise((resolve, reject) => {
     if (typeof Tesseract !== "undefined") { resolve(); return; }
     const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+    script.src = "/vendor/tesseract-5.1.1/tesseract.min.js";
     script.integrity = "sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F";
     script.crossOrigin = "anonymous";
     script.onload = () => resolve();

@@ -1,13 +1,46 @@
-# DEPENDENCIES : dépendances chargées depuis des CDN
+# DEPENDENCIES : bibliothèques auto-hébergées dans `vendor/`
 
 tchadiaPdf est un site 100% statique : aucune de ces librairies n'est
 installée via npm pour le site lui-même (le `package.json` du dépôt ne sert
-qu'à l'outillage de développement : tests Playwright, script de vérification
-de style). Chaque librairie ci-dessous est chargée directement dans le
-navigateur de l'utilisateur, soit via une balise `<script>`/`<link>` statique,
-soit paresseusement (lazy) depuis le JavaScript au moment où l'utilisateur
-déclenche une action qui en a besoin (pour ne pas alourdir le chargement
-initial des pages qui n'en ont pas besoin).
+qu'à l'outillage de développement : tests Playwright, scripts de vérification).
+
+Depuis la migration vers `vendor/` (vague 1 du plan de parité Acrobat), chaque
+librairie est **servie par tchadiapdf.com lui-même** depuis le dossier
+`vendor/`, plus jamais depuis un CDN tiers (cdnjs, jsdelivr). Conséquences :
+
+- aucune requête vers un domaine tiers pendant l'usage d'un outil, ce que le
+  test `tests/no-network-leak.spec.js` vérifie désormais strictement (la liste
+  des hôtes autorisés, construite depuis les balises `<script src>` du site,
+  est vide) ;
+- le site et sa suite de tests fonctionnent sans accès à Internet (CI,
+  réseaux d'entreprise filtrés, hors ligne via le service worker) ;
+- plus d'attribut `integrity` : la SRI protège contre un CDN compromis, elle
+  est sans objet sur la même origine, et l'incohérence jsdelivr constatée
+  sur `docx@8.5.0` disparaît ;
+- la version fait partie du nom de fichier (`pdf-lib-1.17.1.min.js`), ce qui
+  autorise un cache HTTP long et immuable (`_headers`, règle `/vendor/*`).
+
+Les fichiers de `vendor/` sont copiés tels quels depuis les paquets npm
+officiels (`npm pack <paquet>@<version>`), sans modification ; leurs licences
+sont dans `vendor/licenses/`. Le script `scripts/migrer-vers-vendor.js`
+documente la correspondance exacte URL CDN d'origine vers fichier local.
+Pour mettre à jour une librairie : télécharger la nouvelle version depuis
+npm, la déposer sous un nouveau nom versionné, mettre à jour les références
+(`grep -r "vendor/<lib>-" *.html js/`), relancer `npm test`.
+
+Cas particuliers :
+
+- **Tesseract.js** : le moteur (`tesseract.min.js`, `worker.min.js`), le
+  cœur WebAssembly (`core/tesseract-core-simd-lstm.wasm.js` et sa variante
+  sans SIMD) et les données de langue français et anglais
+  (`lang/fra.traineddata.gz`, `lang/eng.traineddata.gz`, variante
+  `best_int` du paquet `@tesseract.js-data`) sont tous locaux : l'OCR ne
+  fait plus aucune requête externe.
+- **qpdf** (`qpdf-0.3.0/qpdf.js` + `qpdf.wasm`) et **fontkit** sont chargés
+  paresseusement par `js/qpdf-engine.js` et `js/modifier-pdf.js`.
+- **Polices Liberation** (`vendor/fonts/liberation/*.ttf`, licence SIL OFL
+  1.1) : polices de substitution de l'éditeur, auparavant chargées depuis un
+  dépôt GitHub via jsdelivr.
 
 Convention : version exacte figée partout (jamais de `@latest`), pour que le
 comportement du site ne change jamais sans une mise à jour explicite et

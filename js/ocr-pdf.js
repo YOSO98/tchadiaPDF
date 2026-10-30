@@ -74,10 +74,9 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
     hideProgress();
 
     showMsg(
-      "L'OCR peut prendre plusieurs minutes selon la taille du document. Le premier lancement télécharge " +
-      "environ 15 à 20 Mo de données de langue (français et anglais) depuis un réseau de diffusion public : " +
-      "ce sont des données publiques, pas votre fichier, qui reste dans votre navigateur. Gardez cet onglet " +
-      "ouvert pendant tout le traitement."
+      "L'OCR peut prendre plusieurs minutes selon la taille du document. Le moteur et les données de langue " +
+      "(français et anglais, environ 4 Mo) sont servis par tchadiapdf.com lui-même : aucune requête vers un " +
+      "service tiers, votre fichier reste dans votre navigateur. Gardez cet onglet ouvert pendant tout le traitement."
     );
   } catch (e) {
     hideProgress();
@@ -143,6 +142,10 @@ ocrBtn.addEventListener("click", async () => {
   // 2. Création du worker Tesseract (français + anglais).
   try {
     worker = await Tesseract.createWorker(["fra", "eng"], 1, {
+      workerPath: "/vendor/tesseract-5.1.1/worker.min.js",
+      corePath: "/vendor/tesseract-5.1.1/core",
+      langPath: "/vendor/tesseract-5.1.1/lang",
+      gzip: true,
       logger: (m) => {
         if (!m || !m.status || typeof m.progress !== "number") return;
         const label = statusLabel(m.status);

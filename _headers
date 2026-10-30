@@ -1,10 +1,9 @@
 # Configuration Cloudflare Pages (fichier lu automatiquement au deploiement).
 # Voir DEPLOY.md pour la justification detaillee de chaque choix.
 #
-# IMPORTANT : la liste des hotes CDN autorises dans Content-Security-Policy
-# ci-dessous doit etre reverifiee une fois la Phase Conversions terminee
-# (elle ajoute encore de nouveaux outils qui pourraient utiliser d'autres
-# CDN). Voir DEPLOY.md, section "CSP a reverifier".
+# Depuis la migration vers /vendor/, toutes les bibliotheques JavaScript sont
+# auto-hebergees, donnees de langue OCR (fra, eng) comprises : script-src et
+# connect-src n'autorisent plus aucun CDN tiers.
 
 # En-tetes de securite appliques a toutes les URLs du site.
 #
@@ -55,7 +54,7 @@
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), payment=(), magnetometer=(), gyroscope=(), accelerometer=(), midi=()
   Cross-Origin-Opener-Policy: same-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://plausible.io https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://plausible.io https://ep1.adtrafficquality.google; frame-src https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://plausible.io https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' blob: data: https://plausible.io https://ep1.adtrafficquality.google; frame-src https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
 # Pages HTML : jamais de cache long, le site evolue frequemment (nouveaux
 # outils, corrections). "no-cache" autorise quand meme une revalidation
@@ -96,4 +95,9 @@
   Cache-Control: public, max-age=31536000, immutable
 
 /assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Bibliotheques auto-hebergees : la version fait partie du nom de fichier
+# (pdf-lib-1.17.1.min.js), donc le cache long est sans risque.
+/vendor/*
   Cache-Control: public, max-age=31536000, immutable

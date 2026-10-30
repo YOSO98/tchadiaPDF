@@ -28,7 +28,7 @@ const MAX_SIZE = 100 * 1024 * 1024; // 100 Mo
 const INK = { r: 0.12, g: 0.16, b: 0.22 };
 const BLUE = { r: 0.145, g: 0.388, b: 0.922 };
 
-const LIBERATION_BASE = "https://cdn.jsdelivr.net/gh/shantigilbert/liberation-fonts-ttf@master/";
+const LIBERATION_BASE = "/vendor/fonts/liberation/";
 const FONT_FILES = {
   sans: { regular: "LiberationSans-Regular.ttf", bold: "LiberationSans-Bold.ttf", italic: "LiberationSans-Italic.ttf", boldItalic: "LiberationSans-BoldItalic.ttf" },
   serif: { regular: "LiberationSerif-Regular.ttf", bold: "LiberationSerif-Bold.ttf", italic: "LiberationSerif-Italic.ttf", boldItalic: "LiberationSerif-BoldItalic.ttf" },
@@ -2166,7 +2166,7 @@ function loadTesseract() {
   if (tesseractPromise) return tesseractPromise;
   tesseractPromise = new Promise((resolve, reject) => {
     const s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+    s.src = "/vendor/tesseract-5.1.1/tesseract.min.js";
     s.integrity = "sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F";
     s.crossOrigin = "anonymous";
     s.onload = () => resolve(window.Tesseract);
@@ -2184,6 +2184,10 @@ document.getElementById("ocrBannerBtn").addEventListener("click", async () => {
     setProgress(5, "Chargement du moteur de reconnaissance de texte…");
     const Tesseract = await loadTesseract();
     const worker = await Tesseract.createWorker(["fra", "eng"], 1, {
+      workerPath: "/vendor/tesseract-5.1.1/worker.min.js",
+      corePath: "/vendor/tesseract-5.1.1/core",
+      langPath: "/vendor/tesseract-5.1.1/lang",
+      gzip: true,
       logger: (m) => {
         if (m.status && typeof m.progress === "number") setProgress(Math.round(m.progress * 100), "Reconnaissance du texte de la page " + (currentPageIndex + 1) + "…");
       },
@@ -2320,7 +2324,7 @@ function loadFontkit() {
   if (fontkitPromise) return fontkitPromise;
   fontkitPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js";
+    script.src = "/vendor/fontkit-1.1.1.umd.min.js";
     script.integrity = "sha384-2p6U+1mmqF10USehFeRiyG2ESG9FwIqN+jxULn5w9jjQIihSn9Pt13dVCn/Hawjn";
     script.crossOrigin = "anonymous";
     script.onload = () => resolve(window.fontkit);

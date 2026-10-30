@@ -111,7 +111,7 @@ tchadiaPdf est un site 100% statique : HTML, CSS et JavaScript sans framework ni
 - [Tesseract.js](https://github.com/naptha/tesseract.js) : reconnaissance de texte (OCR) pour les PDF scannés
 - [qpdf](https://qpdf.readthedocs.io/) compilé en WebAssembly ([qpdf-wasm](https://github.com/neslinesli93/qpdf-wasm)) : chiffrement AES-256 et réparation de PDF corrompus
 
-D'autres bibliothèques ciblées (mammoth.js, SheetJS, docx, pptxgenjs, html2canvas, marked, epub.js, UTIF.js, heic2any, JSZip) prennent en charge les outils de conversion, chargées uniquement quand l'outil correspondant en a besoin. Deux traitements sont déportés dans un Web Worker pour ne pas bloquer l'interface : la recompression d'images de Compresser PDF (`js/compresser-pdf.worker.js`) et l'analyse DOCX de Word en PDF.
+D'autres bibliothèques ciblées (mammoth.js, SheetJS, docx, pptxgenjs, html2canvas, marked, epub.js, UTIF.js, heic2any, JSZip) prennent en charge les outils de conversion, chargées uniquement quand l'outil correspondant en a besoin. Toutes ces bibliothèques sont auto-hébergées dans le dossier `vendor/` et servies par tchadiapdf.com : aucune requête vers un CDN tiers, le site fonctionne entièrement hors ligne et sans aucun domaine externe (vérifié par `tests/no-network-leak.spec.js`). Deux traitements sont déportés dans un Web Worker pour ne pas bloquer l'interface : la recompression d'images de Compresser PDF (`js/compresser-pdf.worker.js`) et l'analyse DOCX de Word en PDF.
 
 ## Lancer en local
 

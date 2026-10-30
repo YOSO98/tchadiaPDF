@@ -4,7 +4,7 @@
    entre deux fichiers, donc le traitement par lots peut réutiliser la même
    instance sans risque. */
 
-importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js");
+importScripts("/vendor/pdf-lib-1.17.1.min.js");
 
 // Plafond du plus grand côté d'une image, en pixels, pour aider la compression
 const MAX_DIMENSION = 2000;

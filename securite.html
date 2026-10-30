@@ -68,8 +68,7 @@
   <h2>Les seules requêtes réseau : charger le code, pas vos fichiers</h2>
   <p>Les outils utilisent des librairies JavaScript spécialisées (lecture et écriture de PDF, d'images, de documents Word ou Excel...) pour effectuer les conversions. Pour rester rapide et léger, le site charge ces librairies depuis des CDN (réseaux de diffusion de contenu) publics et largement utilisés par l'industrie, plutôt que de les héberger lui-même. Ces requêtes ne transportent que du code (les librairies elles-mêmes), jamais vos fichiers. Les CDN utilisés par tchadiaPdf sont :</p>
   <ul>
-    <li><strong>cdnjs.cloudflare.com</strong> : librairies de manipulation de PDF (pdf-lib, pdf.js) et de compression (JSZip).</li>
-    <li><strong>cdn.jsdelivr.net</strong> : librairies de conversion de documents (docx, mammoth, xlsx, pptxgenjs, marked, epub.js), d'images (heic2any, UTIF, html2canvas) et de reconnaissance de texte (Tesseract.js).</li>
+    <li><strong>Aucun CDN de bibliothèques</strong> : depuis la migration vers le dossier <code>/vendor/</code>, toutes les bibliothèques (pdf-lib, pdf.js, JSZip, qpdf, Tesseract.js et ses données de langue, mammoth, SheetJS, etc.) sont servies par tchadiapdf.com lui-même. Votre navigateur ne contacte plus cdnjs ni jsdelivr.</li>
   </ul>
   <p>Ces librairies ne sont chargées qu'une fois par visite (le navigateur les met ensuite en cache), et certaines ne sont chargées qu'au moment précis où elles deviennent nécessaires (par exemple, le moteur de reconnaissance de texte ne se charge que si vous utilisez l'OCR). La police de caractères de l'interface (Inter) est hébergée directement par le site lui-même (<code>assets/fonts/</code>) : elle ne déclenche plus aucune requête vers un service externe.</p>
 
