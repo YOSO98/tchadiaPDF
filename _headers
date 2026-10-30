@@ -110,3 +110,36 @@
 # (pdf-lib-1.17.1.min.js), donc le cache long est sans risque.
 /vendor/*
   Cache-Control: public, max-age=31536000, immutable
+
+# SEO : les fichiers techniques deployes avec le site (bibliotheques,
+# documentation Markdown, tests, scripts, registre) ne doivent pas apparaitre
+# dans les resultats de recherche. X-Robots-Tag: noindex est prefere a un
+# Disallow dans robots.txt pour /vendor/ et /docs/ : les robots doivent
+# pouvoir charger les bibliotheques pour rendre les pages, et les images
+# docs/og/ servent d'apercu Open Graph. Cloudflare fusionne ces en-tetes
+# avec ceux des regles de cache ci-dessus (voir DEPLOY.md).
+/vendor/*
+  X-Robots-Tag: noindex
+
+/docs/*
+  X-Robots-Tag: noindex
+
+/tests/*
+  X-Robots-Tag: noindex
+
+/scripts/*
+  X-Robots-Tag: noindex
+
+/data/*
+  X-Robots-Tag: noindex
+
+/*.md
+  X-Robots-Tag: noindex
+
+# Fichiers destines aux assistants IA (format llms.txt) : UTF-8 explicite
+# pour que les accents s'affichent correctement dans un navigateur.
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8

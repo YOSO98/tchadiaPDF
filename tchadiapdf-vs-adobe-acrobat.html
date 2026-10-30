@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tchadiaPdf ou Adobe Acrobat : comparatif honnête, outil par outil</title>
+  <link rel="canonical" href="https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat">
+  <meta name="description" content="tchadiaPdf (gratuit, open source, traitement dans le navigateur) face à Adobe Acrobat : ce que chacun fait, les limites de tchadiaPdf, lequel choisir.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="tchadiaPdf ou Adobe Acrobat : comparatif honnête, fonction par fonction">
+  <meta property="og:description" content="tchadiaPdf (gratuit, open source, traitement dans le navigateur) face à Adobe Acrobat : ce que chacun fait, les limites de tchadiaPdf, lequel choisir.">
+  <meta property="og:url" content="https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat">
+  <meta property="og:image" content="https://tchadiapdf.com/docs/og/defaut.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="tchadiaPdf">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="tchadiaPdf ou Adobe Acrobat : comparatif honnête, fonction par fonction">
+  <meta name="twitter:description" content="tchadiaPdf (gratuit, open source, traitement dans le navigateur) face à Adobe Acrobat : ce que chacun fait, les limites de tchadiaPdf, lequel choisir.">
+  <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/defaut.png">
+  <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=7e6a7e44">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563EB">
+  <style>
+    /* Tableau comparatif : uniquement des variables du design system */
+    .compare-wrap { overflow-x: auto; margin: 16px 0 24px; }
+    .compare { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .compare th, .compare td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; color: var(--ink); }
+    .compare th { background: var(--blue-50); font-weight: 700; }
+    .compare td:first-child { font-weight: 600; white-space: nowrap; }
+    .compare caption { text-align: left; color: var(--slate); font-size: 0.85rem; padding: 0 0 8px; caption-side: top; }
+    .content-page ul { margin: 6px 0 12px 20px; color: var(--slate); }
+    .content-page li { margin-bottom: 6px; }
+  </style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat#article",
+      "headline": "tchadiaPdf ou Adobe Acrobat : comparatif honnête, fonction par fonction",
+      "description": "tchadiaPdf (gratuit, open source, traitement dans le navigateur) face à Adobe Acrobat : ce que chacun fait, les limites de tchadiaPdf, lequel choisir.",
+      "url": "https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat",
+      "inLanguage": "fr",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "author": { "@id": "https://tchadiapdf.com/#organization" },
+      "publisher": { "@id": "https://tchadiapdf.com/#organization" },
+      "isPartOf": { "@id": "https://tchadiapdf.com/#website" },
+      "about": [
+        { "@type": "SoftwareApplication", "name": "tchadiaPdf", "url": "https://tchadiapdf.com/" },
+        { "@type": "SoftwareApplication", "name": "Adobe Acrobat", "url": "https://www.adobe.com/fr/acrobat.html" }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://tchadiapdf.com/" },
+        { "@type": "ListItem", "position": 2, "name": "tchadiaPdf ou Adobe Acrobat", "item": "https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "tchadiaPdf remplace-t-il Adobe Acrobat ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Pour les tâches courantes (fusionner, diviser, compresser, convertir, signer à la main, protéger, caviarder, corriger un texte), oui, gratuitement et sans envoyer le fichier sur un serveur. Pour la signature électronique certifiée, la création de formulaires, l'export PDF/A, le balisage d'accessibilité ou une OCR multilingue de haute précision, Acrobat reste nécessaire." }
+        },
+        {
+          "@type": "Question",
+          "name": "Mes fichiers sont-ils envoyés sur un serveur avec tchadiaPdf ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Non. tchadiaPdf est un site statique sans serveur applicatif : le traitement s'exécute dans l'onglet du navigateur. Un test automatisé public (tests/no-network-leak.spec.js) le vérifie à chaque modification du code. Les outils Acrobat en ligne, eux, traitent les fichiers sur les serveurs d'Adobe ; l'application Acrobat de bureau travaille en local." }
+        },
+        {
+          "@type": "Question",
+          "name": "La signature de tchadiaPdf a-t-elle la même valeur qu'une signature Acrobat Sign ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Non. Signer PDF appose une signature manuscrite dessinée, sous forme d'image, sans certificat ni piste d'audit. Acrobat Sign fournit une signature électronique avec identification du signataire et journal de preuve. Pour un document où la preuve de signature compte juridiquement, utilisez un service de signature électronique." }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="logo">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools"><a href="/#outils">Tous les outils</a></nav>
+  </div>
+</header>
+<main class="content-page">
+  <h1>tchadiaPdf ou Adobe Acrobat : comparatif honnête</h1>
+  <p class="guide-updated">Dernière mise à jour : 30 octobre 2026. Les informations sur Acrobat correspondent à l'offre publique d'Adobe telle que nous la comprenons à cette date ; vérifiez les détails et les tarifs sur le site d'Adobe, ils évoluent.</p>
+
+  <p>Adobe Acrobat est la référence historique du PDF : c'est Adobe qui a créé le format, et Acrobat Pro reste l'outil le plus complet du marché. tchadiaPdf ne prétend pas faire tout ce qu'Acrobat fait. Cette page compare les deux, fonction par fonction, pour vous aider à choisir : quand tchadiaPdf suffit (gratuitement, sans compte et sans envoyer votre fichier), et quand Acrobat reste le bon choix.</p>
+
+  <h2>Les trois différences de fond</h2>
+  <ul>
+    <li><strong>Où le fichier est traité.</strong> tchadiaPdf traite tout dans votre navigateur : il n'existe pas de serveur à qui envoyer le document, et un <a href="/confiance">test automatisé public</a> le vérifie. Les outils Acrobat « en ligne » envoient le fichier sur les serveurs d'Adobe (Document Cloud) ; l'application Acrobat installée sur un ordinateur travaille, elle, en local.</li>
+    <li><strong>Le prix et le compte.</strong> tchadiaPdf est gratuit, sans compte, sans limite de fichiers par jour (voir <a href="/pourquoi-gratuit">pourquoi et comment</a>). Acrobat Reader est gratuit pour lire et commenter ; les fonctions d'édition, de conversion et de protection relèvent d'un abonnement Acrobat Standard ou Pro, avec quelques outils en ligne gratuits soumis à des limites d'usage.</li>
+    <li><strong>Le code.</strong> tchadiaPdf est open source sous licence MIT : n'importe qui peut lire le code, le vérifier et le réutiliser. Acrobat est un logiciel propriétaire.</li>
+  </ul>
+
+  <h2>Fonction par fonction</h2>
+  <div class="compare-wrap">
+    <table class="compare">
+      <caption>« Oui » signifie que la fonction existe et a été vérifiée dans le code et les tests de tchadiaPdf ; les limites citées sont celles documentées dans BENCHMARK.md du dépôt.</caption>
+      <thead>
+        <tr><th>Fonction</th><th>tchadiaPdf</th><th>Adobe Acrobat</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="/fusionner">Fusionner</a>, <a href="/diviser">diviser</a>, <a href="/organiser-pdf">organiser</a>, <a href="/pivoter">pivoter</a></td><td>Oui, gratuit, aperçu des pages</td><td>Oui (abonnement, ou outil en ligne gratuit limité)</td></tr>
+        <tr><td><a href="/compresser-pdf">Compresser</a></td><td>Oui : recompression JPEG à 3 niveaux. Pas de ré-échantillonnage DPI ni de suppression des objets inutilisés : gain faible sur un PDF composé surtout de texte</td><td>Oui, avec réglages fins (DPI, polices, objets) et profils de réduction</td></tr>
+        <tr><td><a href="/word-en-pdf">Word</a>, <a href="/excel-en-pdf">Excel</a>, <a href="/powerpoint-en-pdf">PowerPoint</a> vers PDF</td><td>Oui, mais rendu visuel paginé : le texte du PDF produit n'est pas sélectionnable (sauf <a href="/texte-en-pdf">Texte en PDF</a>). Seul le .docx moderne est pris en charge, pas le .doc</td><td>Oui, PDF natif avec texte sélectionnable, polices et liens conservés</td></tr>
+        <tr><td><a href="/pdf-en-word">PDF vers Word</a>, <a href="/pdf-en-excel">Excel</a>, <a href="/pdf-en-powerpoint">PowerPoint</a></td><td>Oui, par détection heuristique (titres, listes, tableaux simples). Mises en page complexes aplaties en paragraphes ; diapositives sous forme d'image avec texte en note</td><td>Oui, reconstruction de mise en page nettement plus fidèle</td></tr>
+        <tr><td><a href="/pdf-en-jpg">PDF vers images</a>, <a href="/jpg-en-pdf">images vers PDF</a></td><td>Oui : JPG, PNG, TIFF multi-page, WebP, 72 à 600 ppp ; HEIC, WebP, TIFF, BMP, SVG en entrée</td><td>Oui</td></tr>
+        <tr><td><a href="/modifier-pdf">Modifier le texte existant</a></td><td>Oui, gratuit : correction mot par mot, ajout de texte, d'images, de formes. Police d'origine remplacée par une police de substitution (Liberation) ; pas de réagencement complet des paragraphes</td><td>Oui, moteur de correspondance de polices et de remise en page bien plus avancé</td></tr>
+        <tr><td><a href="/signer-pdf">Signer</a></td><td>Signature manuscrite dessinée et placée sur la page (image). Aucun certificat, aucune piste d'audit</td><td>Signature manuscrite et, avec Acrobat Sign, signature électronique avec identification du signataire et journal de preuve</td></tr>
+        <tr><td><a href="/proteger-pdf">Protéger par mot de passe</a></td><td>Oui : AES-256, mot de passe d'ouverture, mot de passe propriétaire, droits d'impression, de copie et de modification</td><td>Oui, équivalent, plus les certificats et les stratégies de sécurité</td></tr>
+        <tr><td><a href="/deverrouiller-pdf">Déverrouiller</a></td><td>Oui, si vous connaissez le mot de passe</td><td>Oui, si vous connaissez le mot de passe</td></tr>
+        <tr><td><a href="/caviarder-pdf">Caviarder</a></td><td>Oui : chaque page caviardée est convertie en image, le texte et les objets en dessous n'existent plus dans le fichier (cette page n'est donc plus sélectionnable). Recherche par motif (IBAN, e-mail, numéro) incluse</td><td>Oui (Acrobat Pro), avec recherche de motifs et suppression des informations cachées</td></tr>
+        <tr><td><a href="/ocr-pdf">OCR</a></td><td>Oui, Tesseract en local : français et anglais, plus lent et moins précis qu'un moteur cloud sur un scan de mauvaise qualité</td><td>Oui, moteur plus précis, nombreuses langues</td></tr>
+        <tr><td><a href="/formulaires-pdf">Formulaires</a></td><td>Remplir un formulaire AcroForm existant et l'<a href="/aplatir-pdf">aplatir</a>. Pas de création de formulaire, pas de XFA</td><td>Remplir, créer et distribuer des formulaires, XFA pris en charge</td></tr>
+        <tr><td><a href="/comparer-pdf">Comparer deux versions</a></td><td>Oui, différences visuelles page par page</td><td>Oui (Acrobat Pro), comparaison visuelle et textuelle détaillée</td></tr>
+        <tr><td><a href="/metadonnees-pdf">Métadonnées</a>, <a href="/signets-pdf">signets</a>, pièces jointes</td><td>Oui : dictionnaire Info et XMP synchronisés, signets éditables ou générés depuis les titres ; gestion des pièces jointes en cours de livraison</td><td>Oui</td></tr>
+        <tr><td><a href="/numeros-de-pages">Numéros de page, Bates, en-têtes</a>, <a href="/filigrane">filigrane</a>, <a href="/livret-pdf">livret</a></td><td>Oui, numérotation Bates incluse</td><td>Oui (Bates dans Acrobat Pro)</td></tr>
+        <tr><td><a href="/scanner-pdf">Scanner avec le téléphone</a></td><td>Oui, dans le navigateur : redressement manuel par 4 coins, pas de détection automatique des bords</td><td>Application Adobe Scan dédiée, détection automatique des bords</td></tr>
+        <tr><td><a href="/reparer-pdf">Réparer un PDF endommagé</a></td><td>Oui (qpdf en WebAssembly) : reconstruction de la table de références croisées</td><td>Réparation à l'ouverture, variable selon le dommage</td></tr>
+        <tr><td>Export PDF/A, prépresse, balisage d'accessibilité</td><td>Non</td><td>Oui (Acrobat Pro)</td></tr>
+        <tr><td>Traitement par lots</td><td>Oui, 20 à 50 fichiers par lot selon l'outil, export ZIP, sans limite de lots successifs</td><td>Oui (actions, Acrobat Pro)</td></tr>
+        <tr><td>Hors ligne</td><td>Partiellement : site installable (PWA), les pages déjà visitées fonctionnent sans connexion</td><td>Oui pour l'application de bureau ; non pour les outils en ligne</td></tr>
+        <tr><td>Confidentialité des fichiers</td><td>Le fichier ne quitte jamais l'appareil (vérifiable : <a href="/securite">détail technique</a>)</td><td>Application de bureau : local. Outils en ligne : fichier envoyé sur les serveurs d'Adobe, soumis à leurs conditions</td></tr>
+        <tr><td>Prix, compte</td><td>Gratuit, sans compte. Publicité uniquement après consentement, dons volontaires</td><td>Reader gratuit ; édition et conversion par abonnement ; outils en ligne gratuits limités, compte Adobe requis pour enregistrer</td></tr>
+        <tr><td>Licence</td><td>Open source (MIT), code public sur GitHub</td><td>Propriétaire</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Ce que tchadiaPdf ne fait pas (et ne prétend pas faire)</h2>
+  <ul>
+    <li>Pas de signature électronique certifiée ni de parcours de signature à plusieurs : seulement une signature dessinée.</li>
+    <li>Pas de création de formulaires, pas de formulaires XFA, pas d'export PDF/A, pas de balisage d'accessibilité, pas de contrôle en amont pour l'impression.</li>
+    <li>Les conversions Office vers PDF produisent une image paginée fidèle, pas un PDF à texte sélectionnable ; les conversions PDF vers Office reposent sur des heuristiques et peuvent aplatir une mise en page complexe.</li>
+    <li>L'OCR est limité au français et à l'anglais et reste plus lent qu'un service distant, par choix : le document ne quitte pas l'appareil.</li>
+    <li>La compression ne ré-échantillonne pas les images et ne nettoie pas les objets inutilisés : un PDF de texte pur ne maigrira presque pas.</li>
+    <li>Les fichiers volumineux dépendent de la mémoire de votre appareil : un PDF de plusieurs centaines de mégaoctets peut dépasser les capacités d'un téléphone d'entrée de gamme.</li>
+  </ul>
+
+  <h2>Quand choisir l'un ou l'autre</h2>
+  <p><strong>tchadiaPdf suffit</strong> quand vous devez fusionner, diviser, compresser, pivoter, convertir rapidement, remplir et signer à la main un formulaire, protéger ou déverrouiller un fichier, caviarder une pièce sensible ou corriger un mot : les tâches du quotidien, surtout sur des documents que vous préférez ne pas téléverser (pièce d'identité, bulletin de salaire, contrat).</p>
+  <p><strong>Acrobat reste le bon choix</strong> pour un flux professionnel de signature électronique, la création de formulaires, l'archivage PDF/A, l'accessibilité, une OCR multilingue de précision ou une conversion PDF vers Office qui doit rester fidèle au millimètre. Les deux ne s'excluent pas : beaucoup d'utilisateurs gardent Acrobat Reader pour lire et utilisent tchadiaPdf pour les manipulations courantes.</p>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>tchadiaPdf remplace-t-il Adobe Acrobat ?</summary>
+      <p>Pour les tâches courantes (fusionner, diviser, compresser, convertir, signer à la main, protéger, caviarder, corriger un texte), oui, gratuitement et sans envoyer le fichier sur un serveur. Pour la signature électronique certifiée, la création de formulaires, l'export PDF/A, le balisage d'accessibilité ou une OCR multilingue de haute précision, Acrobat reste nécessaire.</p>
+    </details>
+    <details>
+      <summary>Mes fichiers sont-ils envoyés sur un serveur avec tchadiaPdf ?</summary>
+      <p>Non. tchadiaPdf est un site statique sans serveur applicatif : le traitement s'exécute dans l'onglet du navigateur. Un test automatisé public (<code>tests/no-network-leak.spec.js</code>) le vérifie à chaque modification du code. Les outils Acrobat en ligne, eux, traitent les fichiers sur les serveurs d'Adobe ; l'application Acrobat de bureau travaille en local.</p>
+    </details>
+    <details>
+      <summary>La signature de tchadiaPdf a-t-elle la même valeur qu'une signature Acrobat Sign ?</summary>
+      <p>Non. Signer PDF appose une signature manuscrite dessinée, sous forme d'image, sans certificat ni piste d'audit. Acrobat Sign fournit une signature électronique avec identification du signataire et journal de preuve. Pour un document où la preuve de signature compte juridiquement, utilisez un service de signature électronique.</p>
+    </details>
+  </section>
+
+  <div class="guide-cta">
+    <p>Essayez sur un vrai fichier : il ne quittera pas votre appareil.</p>
+    <a class="btn-primary" href="/#outils">Voir tous les outils</a>
+  </div>
+  <p>Voir aussi : <a href="/pourquoi-gratuit">pourquoi tchadiaPdf est gratuit</a>, <a href="/a-propos">à propos du projet</a>, <a href="https://github.com/YOSO98/tchadiaPDF/blob/main/BENCHMARK.md" target="_blank" rel="noopener noreferrer">BENCHMARK.md, la comparaison technique détaillée avec les limites connues</a>.</p>
+</main>
+<footer class="site-footer">
+  <nav>
+    <a href="/a-propos">À propos</a>
+    <a href="/soutenir" class="support-link"><svg width="24" height="24" class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Soutenir le projet</a>
+    <a href="/confidentialite">Confidentialité</a>
+    <a href="/mentions-legales">Mentions légales</a>
+  </nav>
+  <button type="button" class="consent-banner-reopen-link">Gérer les publicités</button>
+  © 2026 tchadiaPdf
+</footer>
+<script src="js/analytics.js?v=ced09caa" defer></script>
+<script src="js/ads.js?v=744cd80e" defer></script>
+<script src="js/consent-banner.js?v=1c4f5cf9" defer></script>
+<script src="js/support-fab.js?v=09b1a127" defer></script>
+</body>
+</html>

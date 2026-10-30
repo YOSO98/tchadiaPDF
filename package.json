@@ -8,8 +8,10 @@
     "test:ui": "playwright test --ui",
     "check-style": "node scripts/check-style-rules.js",
     "check-versions": "node scripts/check-asset-version-consistency.js",
+    "seo": "node scripts/seo-appliquer.js && node scripts/generer-sitemap.js && node scripts/verifier-seo.js",
+    "check-seo": "node scripts/verifier-seo.js",
     "version-assets": "node scripts/version-assets.js",
-    "deploy-prep": "npm run version-assets && npm run check-style && npm test",
+    "deploy-prep": "npm run version-assets && npm run check-style && npm run seo && npm test",
     "generer-icones": "node scripts/generer-icones.js"
   },
   "devDependencies": {
