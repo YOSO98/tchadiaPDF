@@ -576,6 +576,42 @@ raisons de coût serveur).
   une de ces pages, le service worker ne s'enregistre pas à cette
   occasion (il s'enregistrera dès la première visite d'un outil).
 
+## Parité Acrobat Pro, vague 1 (octobre 2026) : 10 chantiers, 3 nouveaux outils
+
+Objectif : offrir gratuitement les fonctions qu'Adobe Acrobat Pro réserve à
+son abonnement, en restant 100 % local. Chaque chantier a été livré avec des
+tests Playwright qui rouvrent le PDF produit (pdf-lib ou pdf.js), jamais un
+simple contrôle d'interface. Suite complète verte sans accès à Internet.
+
+### Fondation : plus aucune bibliothèque chargée depuis un CDN
+
+Toutes les bibliothèques (pdf-lib, pdf.js, JSZip, qpdf, Tesseract.js et ses
+données de langue français et anglais, mammoth, SheetJS, docx, pptxgenjs,
+html2canvas, marked, epub.js, UTIF, heic2any, fontkit, polices Liberation)
+sont désormais servies depuis `vendor/` par tchadiapdf.com. Conséquences
+vérifiées : zéro requête vers cdnjs ou jsdelivr (le test
+`tests/no-network-leak.spec.js` n'autorise plus aucun domaine tiers), OCR
+hors ligne pour le français et l'anglais, site et tests utilisables sans
+Internet, CSP sans aucun hôte CDN dans `script-src`. Seule exception,
+explicite et déclenchée par l'utilisateur : les données d'une langue OCR
+non vendorisée sont téléchargées depuis cdn.jsdelivr.net après un message
+d'avertissement (`connect-src` l'autorise pour cela, jamais pour du code).
+
+### Outil par outil : ce qui est acquis, ce qui ne l'est pas
+
+| Outil | Ce qui est maintenant au niveau d'Acrobat Pro | Limites honnêtes |
+|---|---|---|
+| Protéger PDF | Mot de passe d'ouverture et mot de passe propriétaire distincts ; droits fins : impression (interdite, basse, haute), modification (4 niveaux), copie, lecteurs d'écran ; mode « restreindre sans mot de passe d'ouverture » ; résumé de la protection avant téléchargement ; vérifié avec qpdf natif et pypdf (P = -3392 pour tout interdit sauf accessibilité) | Les droits /P sont une consigne respectée par les lecteurs honnêtes, pas une barrière cryptographique (même limite qu'Acrobat) ; repli RC4 128 bits si qpdf ne charge pas ; pas d'option « ne pas chiffrer les métadonnées » ni de chiffrement des seules pièces jointes |
+| OCR PDF | 129 langues (fra et eng hors ligne, autres à la demande après accord), redressement automatique jusqu'à 5° (angle mesuré par page), pages déjà cherchables conservées en vectoriel, calque texte au mode de rendu invisible réel (`3 Tr`), export .txt | Calque texte en Helvetica WinAnsi : les caractères hors Latin-1 (arabe, cyrillique, CJK) ne sont présents que dans le .txt, pas dans le calque PDF ; pas de dé-courbure ni de détection 90°/180° ; une langue non vendorisée fait télécharger toutes les langues du traitement depuis le CDN |
+| PDF en JPG, PNG, TIFF ou WebP | PNG sans perte, WebP, TIFF multipage en un seul fichier (bandes Deflate, ppp inscrits), 72 à 600 ppp, niveaux de gris, plage de pages, aperçu avec taille estimée, lot de 50 PDF | Rendu sur le fil principal ; TIFF Deflate seulement (pas de LZW, CCITT, BigTIFF) ; pas de ppp inscrits dans PNG/JPG ; pas de CMJN ni de profil ICC ; images conservées en mémoire jusqu'au ZIP (600 ppp sur un long document peut échouer sur mobile, avertissement affiché) |
+| Numéros de page, Bates, en-tête et pied de page | Numérotation Bates continue sur un lot (préfixe, suffixe, chiffres fixes, fichiers renommés avec leur plage), 6 zones d'en-tête et pied avec variables {page}, {pages}, {fichier}, {date}, {titre}, Helvetica/Times/Courier, aperçu, texte réel sélectionnable | Pages avec /Rotate : texte dessiné dans le repère non pivoté ; 14 polices standard seulement (caractères hors WinAnsi remplacés par « ? ») ; pas d'alternance recto/verso |
+| Métadonnées PDF | Dictionnaire Info et paquet XMP lus, comparés (divergences signalées) et réécrits ensemble ; dates PDF et ISO 8601 ; langue (/Lang), mode d'ouverture, mise en page ; effacement complet réel (flux /Metadata supprimé du fichier, vérifié dans les octets) ; déclaration PDF/A affichée et conservée | Déclaration PDF/A jamais validée (modifier les métadonnées d'un PDF/A peut rompre sa conformité) ; un seul auteur et une seule langue de titre ; XMP mal formé remplacé par un paquet propre |
+| Caviarder PDF | « Rechercher et caviarder » : texte libre (mot entier, casse) et motifs validés (e-mail, téléphone, IBAN avec mod 97 et clé RIB, NIR avec clé, carte bancaire Luhn, dates calendaires, IPv4/IPv6), liste des occurrences avec aperçu, marge de 1,5 pt, puis le pipeline existant (page rasterisée : texte réellement absent) | Texte extractible seulement (scans : OCR d'abord) ; texte tourné, valeur coupée sur deux lignes ou deux colonnes non retrouvés ; motifs volontairement stricts (une clé fausse dans le document n'est pas signalée) ; pages caviardées rasterisées |
+| Compresser PDF | Profils Web (96 ppp), Impression (150), Archivage (300), Personnalisé ; résolution effective calculée depuis les flux de contenu ; ré-échantillonnage JPEG, conversion des photos sans perte, passe qpdf (flux d'objets, Flate 9, ressources inutilisées, linéarisation), rapport détaillé ; mesuré : photo 3000×2000 de 4,27 Mo à 5 Ko (Web) et 349 Ko (Archivage à 300 ppp) ; jamais de fichier plus gros | Images utilisées seulement dans des annotations, motifs ou polices Type3 : hypothèse pleine page ; JPEG réencodés en RGB (ICC perdu) ; indexé, CMJN, 16 bits, JPX, CCITT, JBIG2 non traités (comptés) ; pas de sous-ensemble de polices ; passe qpdf synchrone (annulation entre deux étapes) |
+| Signets PDF (nouveau) | Lecture de l'arbre existant, édition complète au clavier (ajout, renommage, déplacement, indentation), génération automatique depuis les titres (taille de police, motifs numérotés, en-têtes répétés filtrés), écriture /Outlines avec titres Unicode, panneau ouvert à l'ouverture, import/export texte | Génération inopérante sans couche texte et approximative quand les titres ont la taille du corps ; 500 pages analysées au maximum ; destinations en haut de page ; 6 niveaux ; styles de signets non conservés |
+| Pièces jointes PDF (nouveau) | Liste (arbre /EmbeddedFiles et annotations), extraction unitaire ou ZIP, ajout avec type détecté par octets magiques et description, suppression chirurgicale vérifiée (le fichier produit est relu ; repli par reconstruction si un flux subsiste) | Repli de reconstruction : perte des signets, champs et XMP ; PDF chiffrés refusés ; PDF/A-3 et Factur-X non préservés ; sortie sans flux d'objets (un peu plus grosse, mais vérifiable) |
+| Assainir PDF (nouveau) | Analyse par catégorie (métadonnées, XMP, JavaScript, pièces jointes, annotations, champs, calques, signets, actions, liens, PieceInfo, recadrage, texte invisible) puis reconstruction du document sans les éléments cochés, vérification des octets produits, rapport | Ne caviarde pas le contenu visible ; texte masqué détecté par `3 Tr` seulement, signalé non supprimé ; structure logique d'accessibilité, signatures et chiffrement non recopiés ; vérification par marqueurs structurels, pas preuve d'absence de toute chaîne |
+
 ## Où concentrer les efforts futurs (priorisé)
 
 1. Audit Lighthouse réel une fois le site déployé en production.

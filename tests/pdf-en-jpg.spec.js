@@ -58,8 +58,15 @@ async function choose(page, segId, attr, value) {
 
 /** Lance la conversion et renvoie { buffer, filename } du fichier produit. */
 async function convertAndFetch(page) {
+  // Une conversion precedente peut avoir laisse un resultat affiche : on
+  // memorise son lien pour attendre que le nouveau blob le remplace, sinon
+  // la lecture peut porter sur l'ancien fichier (course observee en CI).
+  const previousHref = await page.locator("#result a.btn-primary").getAttribute("href");
   await page.locator("#convertBtn").click();
   await expect(page.locator("#result")).toHaveClass(/visible/, { timeout: 30000 });
+  await expect
+    .poll(() => page.locator("#result a.btn-primary").getAttribute("href"), { timeout: 30000 })
+    .not.toBe(previousHref);
   const out = await page.evaluate(async () => {
     const a = document.querySelector("#result a.btn-primary");
     const buf = await (await fetch(a.href)).arrayBuffer();

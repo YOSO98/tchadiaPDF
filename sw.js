@@ -33,7 +33,7 @@
 // qui declenche activate() ci-dessous et purge integralement l'ancien
 // cache (voir DEPLOY.md, section "Mettre a jour css/style.css ou un
 // fichier js/*.js").
-const CACHE_NAME = "tchadiapdf-shell-v4a08cbdd";
+const CACHE_NAME = "tchadiapdf-shell-vf1a61805";
 
 const APP_SHELL = [
   "/",
@@ -60,7 +60,7 @@ const APP_SHELL = [
   "/fusionner",
   "/js/fusionner.js?v=eeffb607",
   "/compresser-pdf",
-  "/js/compresser-pdf.js?v=9dac478a",
+  "/js/compresser-pdf.js?v=41f78c10",
   "/js/compresser-pdf.worker.js", // instancie via new Worker(...) dans js/compresser-pdf.js, jamais via une balise <script> : pas de suffixe ?v= a faire correspondre
   "/modifier-pdf",
   "/js/modifier-pdf.js?v=cbba30b1",

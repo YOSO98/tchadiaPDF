@@ -8,6 +8,39 @@ sont organisées par phase de développement, telles que suivies dans
 [TODO.md](TODO.md). Le détail technique de chaque affirmation ci-dessous
 (limites, choix assumés) se trouve dans [BENCHMARK.md](BENCHMARK.md).
 
+## [Non publié] : Phase Parité Acrobat Pro, vague 1 (octobre 2026)
+
+### Ajouté
+
+- Trois nouveaux outils : Signets PDF (table des matières éditable et
+  génération automatique), Pièces jointes PDF (lister, extraire, ajouter,
+  supprimer), Assainir PDF (suppression des informations masquées avec
+  rapport).
+- Protéger PDF : mot de passe propriétaire distinct, droits fins
+  (impression, modification, copie, lecteurs d'écran), mode « restreindre
+  sans mot de passe d'ouverture ».
+- OCR PDF : 129 langues, redressement automatique des pages inclinées,
+  export du texte brut, pages déjà cherchables conservées.
+- PDF en JPG devient PDF en JPG, PNG, TIFF ou WebP : 72 à 600 ppp, TIFF
+  multipage, niveaux de gris, plage de pages.
+- Numéros de page : numérotation Bates continue sur un lot, en-têtes et
+  pieds de page à six zones avec variables.
+- Métadonnées PDF : paquet XMP lu, comparé et réécrit avec Info ; langue,
+  mode d'ouverture, mise en page ; effacement complet.
+- Caviarder PDF : recherche par motifs validés (e-mail, téléphone, IBAN,
+  NIR, carte bancaire, dates, adresses IP) et texte libre.
+- Compresser PDF : profils Web / Impression / Archivage / Personnalisé,
+  ré-échantillonnage à la résolution cible, conversion des photos sans
+  perte, passe qpdf, rapport détaillé.
+
+### Modifié
+
+- Toutes les bibliothèques tierces sont auto-hébergées dans `vendor/` :
+  plus aucune requête vers un CDN, CSP sans hôte tiers, site et tests
+  utilisables hors ligne.
+- Suite Playwright : port configurable (`TCHADIA_TEST_PORT`), Playwright
+  1.61.
+
 ## [Non publié] : Phase Conversions et Phase 6 (en cours)
 
 Cette section décrit un travail en cours au moment de la rédaction. Le
