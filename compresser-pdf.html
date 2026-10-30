@@ -65,7 +65,54 @@
     #progress {
       margin-top: 16px;
     }
+    .compress-options { flex-direction: column; align-items: stretch; gap: 14px; }
+    .compress-options .opt-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      align-items: center;
+    }
+    .compress-options .opt-row[hidden] { display: none; }
+    .compress-options .quality-hint { margin-top: 0; }
+    .compress-options input[type="number"] {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      color: var(--ink);
+      background: var(--white);
+      width: 6em;
+    }
+    .compress-options input[type="range"] {
+      accent-color: var(--blue);
+      min-width: 160px;
+      flex: 1;
+    }
+    .compress-options input[type="range"]:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .opt-checks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .opt-checks label {
+      font-weight: 500;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .opt-checks input[type="checkbox"] { accent-color: var(--blue); margin-top: 3px; }
+    .result .images-report {
+      font-size: 0.9rem;
+      color: var(--slate);
+      margin-bottom: 18px;
+    }
     @media (max-width: 480px) {
+      .compress-options .seg { display: flex; flex-wrap: wrap; }
+      .compress-options .seg button { flex: 1 1 45%; border-left: none; border-top: 1px solid var(--border); }
+      .compress-options .seg button:nth-child(even) { border-left: 1px solid var(--border); }
+      .compress-options .seg button:nth-child(-n+2) { border-top: none; }
       .file-item { flex-wrap: wrap; }
       .file-item .f-name { flex-basis: 100%; white-space: normal; }
     }
@@ -98,7 +145,7 @@
 
 <main class="tool-page">
   <h1>Compresser PDF</h1>
-  <p class="tool-sub">Réduisez le poids de vos PDF en recompressant leurs images, directement dans votre navigateur.</p>
+  <p class="tool-sub">Réduisez le poids de vos PDF comme avec « Optimiser le PDF » d'Acrobat : ré-échantillonnage des images à la résolution cible, recompression JPEG, nettoyage de la structure, directement dans votre navigateur.</p>
 
   <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir des fichiers PDF">
     <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -109,14 +156,31 @@
 
   <div class="file-list" id="fileList"></div>
 
-  <div class="options" id="qualityOptions" style="display:none">
-    <label>Niveau de compression :</label>
-    <div class="seg" id="qualitySeg">
-      <button type="button" data-quality="0.35">Forte</button>
-      <button type="button" data-quality="0.6" class="active">Moyenne</button>
-      <button type="button" data-quality="0.8">Légère</button>
+  <div class="options compress-options" id="qualityOptions" style="display:none">
+    <div class="opt-row">
+      <label id="profileLabel">Profil d'optimisation :</label>
+      <div class="seg" id="profileSeg" role="group" aria-labelledby="profileLabel">
+        <button type="button" data-profile="web" class="active" aria-pressed="true">Web et e-mail</button>
+        <button type="button" data-profile="print" aria-pressed="false">Impression</button>
+        <button type="button" data-profile="archive" aria-pressed="false">Archivage</button>
+        <button type="button" data-profile="custom" aria-pressed="false">Personnalisé</button>
+      </div>
     </div>
-    <span class="quality-hint">Plus la compression est forte, plus les fichiers sont légers, mais la qualité des images diminue. Ce niveau s'applique à tous les fichiers du lot.</span>
+    <span class="quality-hint" id="profileHint"></span>
+
+    <div class="opt-row custom-row" id="customOptions" hidden>
+      <label for="dpiInput">Résolution cible (ppp)</label>
+      <input type="number" id="dpiInput" min="72" max="600" step="1" value="150" inputmode="numeric">
+      <label for="qualityInput">Qualité JPEG <span id="qualityValue">70 %</span></label>
+      <input type="range" id="qualityInput" min="0.3" max="0.95" step="0.05" value="0.7">
+    </div>
+
+    <div class="opt-checks">
+      <label><input type="checkbox" id="convertLossless" checked> Convertir les photos sans perte en JPEG</label>
+      <label><input type="checkbox" id="removeJunk"> Supprimer les données inutiles (XMP, vignettes, PieceInfo)</label>
+      <label><input type="checkbox" id="linearize" checked> Optimisé pour le web (linéarisation)</label>
+    </div>
+    <span class="quality-hint">Le profil s'applique à tous les fichiers du lot. Les images avec masque de transparence, en couleurs indexées ou dans un format non pris en charge sont toujours laissées intactes.</span>
   </div>
 
   <div class="msg" id="msg"></div>
@@ -145,6 +209,7 @@
     <p class="size-line" id="sizeAfter"></p>
     <p class="size-line" id="sizeReduction"></p>
     <p class="size-line" id="batchSummary" style="display:none"></p>
+    <p class="images-report" id="imagesReport"></p>
     <a class="btn-primary" href="#">Télécharger le PDF</a>
   </div>
 
@@ -156,7 +221,11 @@
     </details>
     <details>
       <summary>La compression dégrade-t-elle la lisibilité du texte ?</summary>
-      <p>Le texte lui-même reste net : la compression agit surtout sur les images intégrées au document. Pour un PDF essentiellement composé de photos scannées, une compression forte peut affecter leur qualité visuelle, à ajuster selon vos besoins.</p>
+      <p>Le texte lui-même reste net : la compression agit surtout sur les images intégrées au document. Pour un PDF essentiellement composé de photos scannées, le profil Web (96 ppp) peut affecter leur qualité visuelle : choisissez alors Impression (150 ppp) ou Archivage (300 ppp).</p>
+    </details>
+    <details>
+      <summary>Que signifient les profils Web, Impression et Archivage ?</summary>
+      <p>Chaque profil fixe une résolution cible : les images affichées à une résolution supérieure sont ré-échantillonnées (96 ppp pour l'écran et l'e-mail, 150 ppp pour l'impression de bureau, 300 ppp pour l'archivage), puis réencodées en JPEG à la qualité correspondante. Le profil Personnalisé laisse régler chaque paramètre. Dans tous les cas, si le résultat n'est pas plus léger, l'original est livré tel quel.</p>
     </details>
     <details>
       <summary>Mon fichier est-il envoyé sur un serveur ?</summary>
@@ -181,6 +250,7 @@
 
 <script src="/vendor/jszip-3.10.1.min.js"></script>
 <script src="js/common.js?v=718db2ae"></script>
+<script src="js/qpdf-engine.js?v=54fb3d1d"></script>
 <script src="js/compresser-pdf.js?v=9dac478a"></script>
 <script src="js/analytics.js?v=ced09caa" defer></script>
 <script src="js/ads.js?v=744cd80e" defer></script>
