@@ -14,7 +14,7 @@
   <link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/">
   <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../css/style.css?v=7e6a7e44">
+  <link rel="stylesheet" href="../css/style.css?v=50d263c9">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
@@ -22,24 +22,16 @@
   <link rel="manifest" href="../manifest.json">
   <meta name="theme-color" content="#2563EB">
   <style>
-    .tool-card.featured { grid-column: span 2; background: var(--blue-50); border-color: var(--blue); }
-    .tool-card.featured .tool-icon { width: 48px; height: 48px; }
-    .tool-card.featured h2 { font-size: 1.2rem; }
-    @media (max-width: 560px) { .tool-card.featured { grid-column: span 1; } }
-    .lang-switch { position: relative; margin-left: 16px; }
-    .lang-switch select {
-      font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--blue);
-      border: 1px solid var(--border); border-radius: var(--radius-btn); padding: 6px 10px; background: var(--white);
-    }
-    .lang-note { text-align: center; color: var(--slate); font-size: 0.85rem; margin-top: -8px; margin-bottom: 24px; }
+    .lang-note { text-align: center; color: var(--slate); font-size: var(--fs-sm); margin: 0 auto; max-width: 680px; padding: 0 var(--space-5); }
   </style>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Saltar para o conteúdo</a>
 
 <header class="site-header">
   <div class="container">
-    <a href="/pt/" class="logo">tchadia<span>Pdf</span></a>
-    <nav class="nav-tools" style="display:flex; align-items:center;">
+    <a href="/pt/" class="logo" aria-label="tchadiaPdf, início">tchadia<span>Pdf</span></a>
+    <nav class="nav-tools" aria-label="Navegação principal">
       <a href="#outils">Todas as ferramentas</a>
       <span class="lang-switch">
         <select id="langSwitch" aria-label="Escolher idioma">
@@ -50,177 +42,472 @@
           <option value="/ar/">العربية</option>
         </select>
       </span>
+      <a class="github-link" href="https://github.com/YOSO98/tchadiaPDF" rel="noopener" aria-label="Código-fonte no GitHub" title="Código-fonte no GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3C5.37.3 0 5.67 0 12.3c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.04c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.41-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 22.1 24 17.6 24 12.3 24 5.67 18.63.3 12 .3z"/></svg></a>
     </nav>
   </div>
 </header>
 
-<section class="hero">
-  <h1>Todas as suas ferramentas PDF, <em>grátis</em> e ilimitadas</h1>
-  <p>Unir, dividir, girar, converter. Seus arquivos nunca saem do seu dispositivo: tudo é processado diretamente no seu navegador.</p>
-  <div class="badge-prive">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    100% privado, nenhum arquivo é enviado a um servidor
+<main id="contenu">
+
+  <section class="hero" aria-labelledby="heroTitre">
+    <h1 id="heroTitre">Todas as suas ferramentas PDF, <em>grátis</em> e ilimitadas</h1>
+    <p class="hero-lead">Unir, converter, modificar, assinar, comprimir: 47 ferramentas que funcionam no seu navegador. Os seus ficheiros nunca saem do seu dispositivo.</p>
+
+    <div class="hero-drop" id="heroDropzone" role="button" tabindex="0" aria-labelledby="heroDropTitre heroDropAide heroDropFormats">
+      <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <strong id="heroDropTitre">Largue um ficheiro, nós escolhemos a ferramenta</strong>
+      <span id="heroDropAide">PDF, Word, Excel, PowerPoint, imagem ou texto: arraste-o para aqui ou clique para procurar</span>
+      <div class="dz-formats" id="heroDropFormats"><span>PDF</span><span>DOCX</span><span>XLSX</span><span>PPTX</span><span>JPG</span><span>PNG</span><span>HEIC</span><span>EPUB</span></div>
+      <input type="file" id="heroFileInput" hidden>
+    </div>
+
+    <p class="hero-or" aria-hidden="true">ou pesquise uma ferramenta</p>
+
+    <div class="tool-search" id="toolSearchWrap" role="search">
+      <input type="search" id="toolSearch" role="combobox" placeholder="Pesquisar entre 47 ferramentas..." aria-label="Pesquisar uma ferramenta" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="toolSearchResults" aria-expanded="false" autocomplete="off" spellcheck="false">
+      <svg width="24" height="24" class="tool-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <kbd class="tool-search-kbd" aria-hidden="true">/</kbd>
+      <div class="tool-search-results" id="toolSearchResults" role="listbox" aria-label="Resultados da pesquisa" hidden></div>
+    </div>
+
+    <p class="badge-prive">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      0 bytes enviados: tudo é processado no seu navegador
+    </p>
+  </section>
+
+  <p class="lang-note">Esta página inicial está disponível em português. As próprias ferramentas estão disponíveis apenas em francês por enquanto.</p>
+
+  <div id="dropRouterOverlay" class="drop-router-overlay" aria-hidden="true">
+    <div class="drop-router-box">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p>Largue o seu ficheiro aqui<span>Encontramos a ferramenta certa para si, automaticamente</span></p>
+    </div>
   </div>
-</section>
 
-<p class="lang-note container">Esta página inicial está disponível em português. As próprias ferramentas estão disponíveis apenas em francês por enquanto.</p>
+  <section class="home-section container" id="outils" aria-labelledby="outilsTitre">
+    <div class="section-head">
+      <h2 id="outilsTitre">Todas as ferramentas</h2>
+      <a href="/conversions">Ver todas as conversões →</a>
+    </div>
 
-<div class="ad-slot container" aria-hidden="true">Espaço publicitário</div>
+    <div class="category-tabs" id="categoryTabs" role="group" aria-label="Filtrar ferramentas por categoria">
+      <button type="button" class="active" data-filter="populaires" aria-pressed="true">Populares</button>
+      <button type="button" data-filter="tous" aria-pressed="false">Todas</button>
+      <button type="button" data-filter="modifier" aria-pressed="false">Modificar</button>
+      <button type="button" data-filter="convertir" aria-pressed="false">Converter</button>
+      <button type="button" data-filter="organiser" aria-pressed="false">Organizar</button>
+      <button type="button" data-filter="securite" aria-pressed="false">Segurança</button>
+      <button type="button" data-filter="extraire" aria-pressed="false">Extrair</button>
+    </div>
 
-<main class="container" id="outils">
-  <div class="tools-grid">
+    <div class="tools-grid tools-grid-all" id="toolsCatalog">
 
-    <a class="tool-card featured" href="/modifier-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-      <h2>Editar PDF</h2>
-      <p>Edite o texto dos seus PDF, gratuitamente e sem limites: texto existente, imagens, formas, anotações.</p>
-    </a>
+      <a class="tool-card" href="/fusionner" data-category="organiser" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
+        <h3>Juntar PDF</h3>
+        <p>Combine vários arquivos PDF em um só, na ordem que quiser.</p>
+      </a>
 
-    <a class="tool-card" href="/fusionner">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
-      <h2>Juntar PDF</h2>
-      <p>Combine vários arquivos PDF em um só, na ordem que quiser.</p>
-    </a>
+      <a class="tool-card" href="/compresser-pdf" data-category="organiser" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        <h3>Comprimir PDF</h3>
+        <p>Reduza o tamanho dos seus arquivos PDF sem sacrificar a qualidade.</p>
+      </a>
 
-    <a class="tool-card" href="/compresser-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-      <h2>Comprimir PDF</h2>
-      <p>Reduza o tamanho dos seus arquivos PDF sem sacrificar a qualidade.</p>
-    </a>
+      <a class="tool-card" href="/modifier-pdf" data-category="modifier" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        <h3>Editar PDF</h3>
+        <p>Edite o texto dos seus PDF, gratuitamente e sem limites: texto existente, imagens, formas, anotações.</p>
+      </a>
 
-    <a class="tool-card" href="/diviser">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/><path d="M21 21l-7-7"/><path d="M3 21l7-7"/></svg>
-      <h2>Dividir PDF</h2>
-      <p>Extraia as páginas escolhidas para um novo documento PDF.</p>
-    </a>
+      <a class="tool-card" href="/word-en-pdf" data-category="convertir" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>Word em PDF</h3>
+        <p>Converta os seus documentos Word (.docx) em PDF, mantendo o layout, as tabelas e as imagens.</p>
+      </a>
 
-    <a class="tool-card" href="/jpg-en-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      <h2>JPG para PDF</h2>
-      <p>Converta suas imagens JPG ou PNG em um documento PDF.</p>
-    </a>
+      <a class="tool-card" href="/pdf-en-word" data-category="convertir" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF em Word</h3>
+        <p>Converta o seu PDF num ficheiro Word (.docx) editável: texto, títulos, listas, tabelas simples e imagens.</p>
+      </a>
 
-    <a class="tool-card" href="/pdf-en-jpg">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      <h2>PDF para JPG</h2>
-      <p>Exporte cada página do seu PDF como imagem JPG (arquivo ZIP).</p>
-    </a>
+      <a class="tool-card" href="/jpg-en-pdf" data-category="convertir" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>JPG para PDF</h3>
+        <p>Converta suas imagens JPG ou PNG em um documento PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/pivoter">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/><path d="M21 3l-4 4"/></svg>
-      <h2>Girar PDF</h2>
-      <p>Gire todas as páginas do seu PDF em 90, 180 ou 270 graus.</p>
-    </a>
+      <a class="tool-card" href="/signer-pdf" data-category="securite" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20c2-3 3-3 5 0s3 3 5 0 3-3 5 0"/><path d="M15 5l4 4L9 19H5v-4z"/></svg>
+        <h3>Assinar PDF</h3>
+        <p>Desenhe sua assinatura e posicione-a no seu documento.</p>
+      </a>
 
-    <a class="tool-card" href="/organiser-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg>
-      <h2>Organizar PDF</h2>
-      <p>Reordene, exclua ou duplique as páginas do seu documento.</p>
-    </a>
+      <a class="tool-card" href="/diviser" data-category="organiser" data-popular>
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/><path d="M21 21l-7-7"/><path d="M3 21l7-7"/></svg>
+        <h3>Dividir PDF</h3>
+        <p>Extraia as páginas escolhidas para um novo documento PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/numeros-de-pages">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/><line x1="15" y1="18" x2="17" y2="18"/></svg>
-      <h2>Números de página</h2>
-      <p>Adicione uma numeração personalizável em cada página.</p>
-    </a>
+      <a class="tool-card" href="/signets-pdf" data-category="modifier">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/><path d="M9 8h6"/><path d="M9 12h4"/></svg>
+        <h3>Marcadores PDF</h3>
+        <p>Consulte, modifique ou gere o índice (marcadores) do seu PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/filigrane">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 3.5 5 6.2 5 8.8a5 5 0 0 1-10 0C7 9.2 9 6.5 12 3z"/></svg>
-      <h2>Marca d'água</h2>
-      <p>Adicione uma marca d'água de texto ou imagem em todas as páginas.</p>
-    </a>
+      <a class="tool-card" href="/pivoter" data-category="organiser">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/><path d="M21 3l-4 4"/></svg>
+        <h3>Girar PDF</h3>
+        <p>Gire todas as páginas do seu PDF em 90, 180 ou 270 graus.</p>
+      </a>
 
-    <a class="tool-card" href="/rogner-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
-      <h2>Cortar PDF</h2>
-      <p>Recorte todas as páginas na área de sua escolha.</p>
-    </a>
+      <a class="tool-card" href="/organiser-pdf" data-category="organiser">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg>
+        <h3>Organizar PDF</h3>
+        <p>Reordene, exclua ou duplique as páginas do seu documento.</p>
+      </a>
 
-    <a class="tool-card" href="/proteger-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      <h2>Proteger PDF</h2>
-      <p>Adicione uma senha para criptografar seu documento.</p>
-    </a>
+      <a class="tool-card" href="/numeros-de-pages" data-category="modifier">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/><line x1="15" y1="18" x2="17" y2="18"/></svg>
+        <h3>Números de página</h3>
+        <p>Adicione uma numeração personalizável em cada página.</p>
+      </a>
 
-    <a class="tool-card" href="/reparer-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>
-      <h2>Reparar PDF</h2>
-      <p>Reconstrói a estrutura de um PDF danificado ou corrompido.</p>
-    </a>
+      <a class="tool-card" href="/filigrane" data-category="modifier">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 3.5 5 6.2 5 8.8a5 5 0 0 1-10 0C7 9.2 9 6.5 12 3z"/></svg>
+        <h3>Marca d'água</h3>
+        <p>Adicione uma marca d'água de texto ou imagem em todas as páginas.</p>
+      </a>
 
-    <a class="tool-card" href="/deverrouiller-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.2-2.4"/></svg>
-      <h2>Desbloquear PDF</h2>
-      <p>Remova a proteção por senha de um PDF.</p>
-    </a>
+      <a class="tool-card" href="/rogner-pdf" data-category="modifier">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+        <h3>Cortar PDF</h3>
+        <p>Recorte todas as páginas na área de sua escolha.</p>
+      </a>
 
-    <a class="tool-card" href="/signer-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20c2-3 3-3 5 0s3 3 5 0 3-3 5 0"/><path d="M15 5l4 4L9 19H5v-4z"/></svg>
-      <h2>Assinar PDF</h2>
-      <p>Desenhe sua assinatura e posicione-a no seu documento.</p>
-    </a>
+      <a class="tool-card" href="/livret-pdf" data-category="organiser">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v13"/><path d="M4 6a2 2 0 0 1 2-2h6v15H6a2 2 0 0 0-2 2z"/><path d="M20 6a2 2 0 0 0-2-2h-6v15h6a2 2 0 0 1 2 2z"/></svg>
+        <h3>Livreto PDF</h3>
+        <p>Reorganiza as páginas para impressão em livreto dobrado.</p>
+      </a>
 
-    <a class="tool-card" href="/ocr-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10"/><path d="M7 13h6"/><circle cx="17.5" cy="16.5" r="2.5"/></svg>
-      <h2>OCR PDF</h2>
-      <p>Torne um PDF digitalizado pesquisável (francês e inglês).</p>
-    </a>
+      <a class="tool-card" href="/reparer-pdf" data-category="organiser">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>
+        <h3>Reparar PDF</h3>
+        <p>Reconstrói a estrutura de um PDF danificado ou corrompido.</p>
+      </a>
 
-    <a class="tool-card" href="/formulaires-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><rect x="8" y="12" width="3" height="3"/><path d="M13 13.5h3"/></svg>
-      <h2>Formulários PDF</h2>
-      <p>Detecte e preencha os campos de um formulário PDF.</p>
-    </a>
+      <a class="tool-card" href="/excel-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>Excel em PDF</h3>
+        <p>Converta as suas folhas de cálculo Excel (.xlsx) ou ficheiros CSV em PDF, uma tabela por folha.</p>
+      </a>
 
-    <a class="tool-card" href="/comparer-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg>
-      <h2>Comparar PDF</h2>
-      <p>Compare dois arquivos PDF e identifique suas diferenças.</p>
-    </a>
+      <a class="tool-card" href="/powerpoint-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>PowerPoint em PDF</h3>
+        <p>Converta as suas apresentações PowerPoint (.pptx) em PDF, uma página por diapositivo.</p>
+      </a>
 
-    <a class="tool-card" href="/scanner-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2"/><path d="M4 16v2a2 2 0 0 0 2 2h2"/><path d="M20 8V6a2 2 0 0 0-2-2h-2"/><path d="M20 16v2a2 2 0 0 1-2 2h-2"/><circle cx="12" cy="12" r="3"/></svg>
-      <h2>Digitalizar um documento</h2>
-      <p>Transforme uma foto em PDF com correção de perspectiva.</p>
-    </a>
+      <a class="tool-card" href="/texte-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>Texto em PDF</h3>
+        <p>Converta os seus ficheiros .txt em PDF, com texto realmente selecionável e pesquisável.</p>
+      </a>
 
-    <a class="tool-card" href="/aplatir-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-      <h2>Achatar PDF</h2>
-      <p>Fixa os campos de formulário na página, não editáveis.</p>
-    </a>
+      <a class="tool-card" href="/heic-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>HEIC em PDF</h3>
+        <p>Converta as suas fotos HEIC (formato dos iPhone recentes) em documentos PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/metadonnees-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <h2>Metadados PDF</h2>
-      <p>Consulte e modifique título, autor e palavras-chave de um PDF.</p>
-    </a>
+      <a class="tool-card" href="/webp-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>WebP em PDF</h3>
+        <p>Converta as suas imagens WebP em documentos PDF, uma página por imagem.</p>
+      </a>
 
-    <a class="tool-card" href="/pdf-en-texte">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 11h2"/></svg>
-      <h2>PDF para texto</h2>
-      <p>Extrai o texto de um PDF, com OCR como alternativa se necessário.</p>
-    </a>
+      <a class="tool-card" href="/tiff-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>TIFF em PDF</h3>
+        <p>Converta as suas imagens TIFF, incluindo multipágina, num documento PDF.</p>
+      </a>
 
-    <a class="tool-card" href="/livret-pdf">
-      <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v13"/><path d="M4 6a2 2 0 0 1 2-2h6v15H6a2 2 0 0 0-2 2z"/><path d="M20 6a2 2 0 0 0-2-2h-6v15h6a2 2 0 0 1 2 2z"/></svg>
-      <h2>Livreto PDF</h2>
-      <p>Reorganiza as páginas para impressão em livreto dobrado.</p>
-    </a>
+      <a class="tool-card" href="/bmp-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>BMP em PDF</h3>
+        <p>Converta as suas imagens BMP em documentos PDF, uma página por imagem.</p>
+      </a>
 
-  </div>
+      <a class="tool-card" href="/svg-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>SVG em PDF</h3>
+        <p>Converta as suas imagens vetoriais SVG em documentos PDF, uma página por imagem.</p>
+      </a>
+
+      <a class="tool-card" href="/markdown-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>Markdown em PDF</h3>
+        <p>Cole texto Markdown ou importe um ficheiro .md: pré-visualização em direto, exportação em PDF paginado.</p>
+      </a>
+
+      <a class="tool-card" href="/html-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>HTML em PDF</h3>
+        <p>Converta um ficheiro HTML num documento PDF, página a página em formato A4.</p>
+      </a>
+
+      <a class="tool-card" href="/epub-en-pdf" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/></svg>
+        <h3>EPUB em PDF</h3>
+        <p>Converta um livro digital EPUB num documento PDF, um grupo de páginas por capítulo.</p>
+      </a>
+
+      <a class="tool-card" href="/pdf-en-jpg" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF para JPG</h3>
+        <p>Exporte cada página do seu PDF como imagem JPG (arquivo ZIP).</p>
+      </a>
+
+      <a class="tool-card" href="/pdf-en-excel" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF em Excel</h3>
+        <p>Detete as tabelas de um PDF e exporte-as para um ficheiro Excel (.xlsx), com pré-visualização antes de transferir.</p>
+      </a>
+
+      <a class="tool-card" href="/pdf-en-powerpoint" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF em PowerPoint</h3>
+        <p>Transforme cada página do seu PDF num diapositivo PowerPoint (.pptx), com o texto da página em notas.</p>
+      </a>
+
+      <a class="tool-card" href="/pdf-en-texte" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V10"/><path d="M9 13l3-3 3 3"/></svg>
+        <h3>PDF para texto</h3>
+        <p>Extrai o texto de um PDF, com OCR como alternativa se necessário.</p>
+      </a>
+
+      <a class="tool-card" href="/heic-en-jpg" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="13" rx="2"/><circle cx="6.5" cy="8.5" r="1.2"/><path d="M15 13l-3.5-3.5L5 17"/><path d="M17 7v13"/><path d="M14 17l3 3 3-3"/></svg>
+        <h3>HEIC em JPG</h3>
+        <p>Converta as suas fotos HEIC (formato dos iPhone recentes) em JPG, legíveis em todo o lado.</p>
+      </a>
+
+      <a class="tool-card" href="/png-en-jpg" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="13" rx="2"/><circle cx="6.5" cy="8.5" r="1.2"/><path d="M15 13l-3.5-3.5L5 17"/><path d="M17 7v13"/><path d="M14 17l3 3 3-3"/></svg>
+        <h3>PNG em JPG</h3>
+        <p>Converta as suas imagens PNG em JPG, gratuitamente e sem instalar nada.</p>
+      </a>
+
+      <a class="tool-card" href="/jpg-en-png" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="13" rx="2"/><circle cx="6.5" cy="8.5" r="1.2"/><path d="M15 13l-3.5-3.5L5 17"/><path d="M17 7v13"/><path d="M14 17l3 3 3-3"/></svg>
+        <h3>JPG em PNG</h3>
+        <p>Converta as suas imagens JPG em PNG, gratuitamente e sem instalar nada.</p>
+      </a>
+
+      <a class="tool-card" href="/svg-en-png" data-category="convertir">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="13" rx="2"/><circle cx="6.5" cy="8.5" r="1.2"/><path d="M15 13l-3.5-3.5L5 17"/><path d="M17 7v13"/><path d="M14 17l3 3 3-3"/></svg>
+        <h3>SVG em PNG</h3>
+        <p>Converta as suas imagens vetoriais SVG em PNG, na resolução que escolher.</p>
+      </a>
+
+      <a class="tool-card" href="/proteger-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <h3>Proteger PDF</h3>
+        <p>Adicione uma senha para criptografar seu documento.</p>
+      </a>
+
+      <a class="tool-card" href="/deverrouiller-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.2-2.4"/></svg>
+        <h3>Desbloquear PDF</h3>
+        <p>Remova a proteção por senha de um PDF.</p>
+      </a>
+
+      <a class="tool-card" href="/aplatir-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        <h3>Achatar PDF</h3>
+        <p>Fixa os campos de formulário na página, não editáveis.</p>
+      </a>
+
+      <a class="tool-card" href="/metadonnees-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <h3>Metadados PDF</h3>
+        <p>Consulte e modifique título, autor e palavras-chave de um PDF.</p>
+      </a>
+
+      <a class="tool-card" href="/assainir-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7z"/><path d="M9.5 9.5l5 5"/><path d="M14.5 9.5l-5 5"/></svg>
+        <h3>Sanear PDF</h3>
+        <p>Remova as informações ocultas: metadados, scripts, anexos, comentários, camadas.</p>
+      </a>
+
+      <a class="tool-card" href="/pieces-jointes-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <h3>Anexos PDF</h3>
+        <p>Liste, extraia, adicione ou remova os ficheiros incorporados num PDF.</p>
+      </a>
+
+      <a class="tool-card" href="/caviarder-pdf" data-category="securite">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="6" y="8" width="7" height="3" fill="currentColor" stroke="none"/><rect x="6" y="14" width="10" height="3" fill="currentColor" stroke="none"/></svg>
+        <h3>Censurar PDF</h3>
+        <p>Oculte e elimine realmente o texto sensível de um documento.</p>
+      </a>
+
+      <a class="tool-card" href="/ocr-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10"/><path d="M7 13h6"/><circle cx="17.5" cy="16.5" r="2.5"/></svg>
+        <h3>OCR PDF</h3>
+        <p>Torne um PDF digitalizado pesquisável (francês e inglês).</p>
+      </a>
+
+      <a class="tool-card" href="/scanner-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2"/><path d="M4 16v2a2 2 0 0 0 2 2h2"/><path d="M20 8V6a2 2 0 0 0-2-2h-2"/><path d="M20 16v2a2 2 0 0 1-2 2h-2"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>Digitalizar um documento</h3>
+        <p>Transforme uma foto em PDF com correção de perspectiva.</p>
+      </a>
+
+      <a class="tool-card" href="/formulaires-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><rect x="8" y="12" width="3" height="3"/><path d="M13 13.5h3"/></svg>
+        <h3>Formulários PDF</h3>
+        <p>Detecte e preencha os campos de um formulário PDF.</p>
+      </a>
+
+      <a class="tool-card" href="/comparer-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg>
+        <h3>Comparar PDF</h3>
+        <p>Compare dois arquivos PDF e identifique suas diferenças.</p>
+      </a>
+
+      <a class="tool-card" href="/extraire-images-pdf" data-category="extraire">
+        <svg width="24" height="24" class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+        <h3>Extrair imagens</h3>
+        <p>Recupere todas as imagens incorporadas num PDF (arquivo ZIP).</p>
+      </a>
+
+    </div>
+    <p class="visually-hidden" id="catalogStatus" role="status" aria-live="polite"></p>
+  </section>
+
+  <div class="ad-slot container" aria-hidden="true">Publicidade</div>
+
+  <section class="home-section container" aria-labelledby="confianceTitre">
+    <h2 class="section-title" id="confianceTitre">Porquê tchadiaPdf</h2>
+    <p class="section-lead">As mesmas ferramentas das suites pagas, sem conta, sem envio de ficheiros e sem limite de utilização. O código é público: qualquer pessoa pode verificar o que o site faz.</p>
+    <div class="trust-grid">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <div>
+          <h3>0 bytes enviados</h3>
+          <p>O processamento acontece no seu navegador. Nenhum ficheiro passa por um servidor, <a href="/confiance">e isso é verificável</a>.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+        <div>
+          <h3>Grátis, sem limites</h3>
+          <p>Sem conta, sem quota diária, sem marca de água adicionada. Todas as ferramentas, a toda a hora.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        <div>
+          <h3>Código aberto</h3>
+          <p>Código publicado sob licença MIT. <a href="https://github.com/YOSO98/tchadiaPDF" rel="noopener">Leia-o, melhore-o</a> ou aloje a sua própria cópia.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a7 7 0 0 1 14 0"/><path d="M8.5 15.5a3.5 3.5 0 0 1 7 0"/><path d="M12 19v.01"/><path d="M2 9a14 14 0 0 1 20 0"/></svg>
+        <div>
+          <h3>Funciona offline</h3>
+          <p>Depois de aberta, cada ferramenta continua a funcionar sem ligação: instale o site como uma aplicação.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section container" aria-labelledby="compareTitre">
+    <h2 class="section-title" id="compareTitre">O que o Acrobat cobra, aqui é grátis</h2>
+    <p class="section-lead">As funções abaixo são reservadas a assinantes ou limitadas sem conta no Adobe Acrobat online. Aqui estão incluídas, no seu navegador.</p>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th scope="col">Função</th>
+          <th scope="col">Acrobat online</th>
+          <th scope="col">tchadiaPdf</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="/modifier-pdf">Modificar o texto existente de um PDF</a></td>
+          <td class="muted" data-label="Acrobat online">Assinatura ou utilização limitada</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Grátis, sem conta</span></td>
+        </tr>
+        <tr>
+          <td><a href="/pdf-en-word">Exportar um PDF para Word, Excel ou PowerPoint</a></td>
+          <td class="muted" data-label="Acrobat online">Assinatura ou utilização limitada</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Grátis, sem conta</span></td>
+        </tr>
+        <tr>
+          <td><a href="/caviarder-pdf">Censurar (remover realmente) dados sensíveis</a></td>
+          <td class="muted" data-label="Acrobat online">Assinatura ou utilização limitada</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Grátis, sem conta</span></td>
+        </tr>
+        <tr>
+          <td><a href="/ocr-pdf">Reconhecimento de texto (OCR) num scan</a></td>
+          <td class="muted" data-label="Acrobat online">Assinatura ou utilização limitada</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Grátis, sem conta</span></td>
+        </tr>
+        <tr>
+          <td><a href="/comparer-pdf">Comparar duas versões de um PDF</a></td>
+          <td class="muted" data-label="Acrobat online">Assinatura ou utilização limitada</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Grátis, sem conta</span></td>
+        </tr>
+        <tr>
+          <td><a href="/numeros-de-pages">Numeração Bates, cabeçalhos e rodapés</a></td>
+          <td class="muted" data-label="Acrobat online">Assinatura ou utilização limitada</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Grátis, sem conta</span></td>
+        </tr>
+        <tr>
+          <td><a href="/proteger-pdf">Proteger, desbloquear, assinar</a></td>
+          <td class="muted" data-label="Acrobat online">Assinatura ou utilização limitada</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Grátis, sem conta</span></td>
+        </tr>
+        <tr>
+          <td><a href="/compresser-pdf">Processar lotes de ficheiros, sem limite diário</a></td>
+          <td class="muted" data-label="Acrobat online">Assinatura ou utilização limitada</td>
+          <td data-label="tchadiaPdf"><span class="yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Grátis, sem conta</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="compare-note">Comparação baseada nas ofertas públicas no momento da redação; podem mudar. Adobe e Acrobat são marcas do seu proprietário.</p>
+  </section>
+
+
+  <!-- outils-associes -->
+  <!-- /outils-associes -->
 </main>
 
 <footer class="site-footer">
-  <nav>
-    <a href="/a-propos">Sobre</a>
-    <a href="/pt/soutenir" class="support-link"><svg width="24" height="24" class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Apoiar o projeto</a>
-    <a href="/confidentialite">Privacidade</a>
-  </nav>
-  © 2026 tchadiaPdf. Ferramentas PDF gratuitas, processamento 100% local.
+  <div class="container footer-inner">
+    <p class="footer-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span><strong>Privacidade: 0 bytes enviados.</strong>Os seus ficheiros são processados no seu navegador e nunca saem dele. Sem conta, sem limites.</span></p>
+    <nav aria-label="Rodapé">
+      <a href="/a-propos">Sobre</a>
+      <a href="/confiance">Confiança e segurança</a>
+      <a href="/pt/soutenir" class="support-link"><svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>Apoiar o projeto</a>
+      <a href="/confidentialite">Privacidade</a>
+      <a href="/mentions-legales">Aviso legal</a>
+      <a href="https://github.com/YOSO98/tchadiaPDF" rel="noopener">GitHub</a>
+    </nav>
+    <p class="footer-legal">
+    <span>© 2026 tchadiaPdf. Ferramentas PDF gratuitas, de código aberto, processamento 100% local.</span>
+    </p>
+  </div>
 </footer>
 
-<script src="../js/index-page.js?v=46af2584"></script>
+<script src="../js/common.js?v=f60d9a45"></script>
+<script src="../js/security-utils.js?v=df7bd91a"></script>
+<script src="../js/index-page.js?v=cfa4ba6e"></script>
 <script src="../js/support-fab.js?v=09b1a127" defer></script>
 </body>
 </html>

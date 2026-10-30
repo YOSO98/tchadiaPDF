@@ -1,0 +1,1 @@
+ISC License (voir https://github.com/neslinesli93/qpdf-wasm) ; qpdf lui-meme est sous licence Apache 2.0.

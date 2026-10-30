@@ -9,8 +9,8 @@
  * cache pour le reste de la session.
  */
 
-const QPDF_JS_URL = "https://cdn.jsdelivr.net/npm/@neslinesli93/qpdf-wasm@0.3.0/dist/qpdf.js";
-const QPDF_WASM_URL = "https://cdn.jsdelivr.net/npm/@neslinesli93/qpdf-wasm@0.3.0/dist/qpdf.wasm";
+const QPDF_JS_URL = "/vendor/qpdf-0.3.0/qpdf.js";
+const QPDF_WASM_URL = "/vendor/qpdf-0.3.0/qpdf.wasm";
 
 let qpdfInstancePromise = null;
 let lastStderr = "";

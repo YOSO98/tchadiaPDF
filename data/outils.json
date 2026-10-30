@@ -1,0 +1,1513 @@
+{
+  "$commentaire": "Source de vérité SEO des outils tchadiaPdf. Consommé par scripts/seo-appliquer.js, scripts/generer-sitemap.js et scripts/verifier-seo.js. Les FAQ listées ici sont informatives (questions présentes dans la page) : le JSON-LD FAQPage est construit à partir du HTML de chaque page.",
+  "site": "https://tchadiapdf.com",
+  "categories": {
+    "organiser": {
+      "nom": "Organiser et optimiser",
+      "ancre": "/#outils"
+    },
+    "modifier": {
+      "nom": "Modifier",
+      "ancre": "/#outils"
+    },
+    "convertir": {
+      "nom": "Convertir",
+      "ancre": "/conversions"
+    },
+    "securite": {
+      "nom": "Sécurité et confidentialité",
+      "ancre": "/#outils"
+    },
+    "extraire": {
+      "nom": "Extraire et reconnaître",
+      "ancre": "/#outils"
+    }
+  },
+  "outils": [
+    {
+      "slug": "fusionner",
+      "url": "https://tchadiapdf.com/fusionner",
+      "fichier": "fusionner.html",
+      "titre_court": "Fusionner PDF",
+      "titre_seo": "Fusionner PDF gratuit en ligne, 100% local : tchadiaPdf",
+      "description": "Fusionnez plusieurs fichiers PDF en un seul, gratuitement et sans envoyer vos fichiers sur un serveur. Réordonnez-les avant d'assembler.",
+      "accroche": "combiner plusieurs PDF en un seul document",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "fusionner pdf",
+        "fusionner pdf gratuit",
+        "combiner pdf",
+        "regrouper plusieurs pdf en un seul",
+        "assembler pdf en ligne"
+      ],
+      "intention": "Transactionnel : assembler plusieurs PDF en un seul fichier, souvent pour un dossier administratif ou une candidature.",
+      "outils_associes": [
+        "compresser-pdf",
+        "organiser-pdf",
+        "diviser",
+        "numeros-de-pages",
+        "proteger-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Puis-je fusionner des documents pour un dossier administratif (visa, CAF, candidature) ?",
+        "Puis-je réordonner les fichiers avant de fusionner ?",
+        "Mes fichiers sont-ils envoyés sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "diviser",
+      "url": "https://tchadiapdf.com/diviser",
+      "fichier": "diviser.html",
+      "titre_court": "Diviser PDF",
+      "titre_seo": "Diviser PDF gratuit en ligne, extraire des pages : tchadiaPdf",
+      "description": "Divisez un PDF gratuitement : sélectionnez les pages à extraire dans un nouveau document. Traitement 100% dans votre navigateur, sans envoi de fichier.",
+      "accroche": "extraire certaines pages dans un nouveau PDF",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "diviser pdf",
+        "séparer pdf",
+        "extraire pages pdf",
+        "découper pdf",
+        "scinder un pdf"
+      ],
+      "intention": "Transactionnel : isoler une ou plusieurs pages d'un PDF (une pièce d'un dossier, un chapitre).",
+      "outils_associes": [
+        "fusionner",
+        "organiser-pdf",
+        "rogner-pdf",
+        "pdf-en-jpg",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "compresser-pdf",
+      "url": "https://tchadiapdf.com/compresser-pdf",
+      "fichier": "compresser-pdf.html",
+      "titre_court": "Compresser PDF",
+      "titre_seo": "Compresser PDF gratuit en ligne, réduire la taille : tchadiaPdf",
+      "description": "Réduisez la taille d'un PDF en recompressant ses images, gratuitement et sans envoi sur un serveur. Jusqu'à 50 fichiers à la fois, 100% dans votre navigateur.",
+      "accroche": "réduire le poids du fichier avant de l'envoyer",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "compresser pdf",
+        "compresser pdf gratuit",
+        "réduire taille pdf",
+        "alléger un pdf",
+        "pdf trop lourd"
+      ],
+      "intention": "Transactionnel : passer sous une limite de taille (formulaire administratif, pièce jointe e-mail).",
+      "outils_associes": [
+        "fusionner",
+        "pdf-en-jpg",
+        "diviser",
+        "organiser-pdf",
+        "rogner-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment respecter une limite de taille imposée par un formulaire administratif ?",
+        "La compression dégrade-t-elle la lisibilité du texte ?",
+        "Mon fichier est-il envoyé sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "pivoter",
+      "url": "https://tchadiapdf.com/pivoter",
+      "fichier": "pivoter.html",
+      "titre_court": "Faire pivoter PDF",
+      "titre_seo": "Faire pivoter un PDF gratuit en ligne : tchadiaPdf",
+      "description": "Faites pivoter toutes les pages de votre PDF de 90, 180 ou 270 degrés, gratuitement et sans envoi sur un serveur. Aperçu avant téléchargement.",
+      "accroche": "redresser des pages à l'envers ou en paysage",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "pivoter pdf",
+        "tourner pdf",
+        "rotation pdf",
+        "pdf à l'envers",
+        "retourner un pdf"
+      ],
+      "intention": "Transactionnel : corriger l'orientation d'un scan ou d'un document.",
+      "outils_associes": [
+        "organiser-pdf",
+        "rogner-pdf",
+        "scanner-pdf",
+        "fusionner",
+        "diviser"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "organiser-pdf",
+      "url": "https://tchadiapdf.com/organiser-pdf",
+      "fichier": "organiser-pdf.html",
+      "titre_court": "Organiser PDF",
+      "titre_seo": "Organiser les pages d'un PDF gratuit en ligne : tchadiaPdf",
+      "description": "Organisez un PDF gratuitement : réordonnez, dupliquez ou supprimez les pages par glisser-déposer ou au clavier. Traitement 100% dans votre navigateur.",
+      "accroche": "réordonner, dupliquer ou supprimer des pages",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "organiser pdf",
+        "réorganiser pages pdf",
+        "supprimer page pdf",
+        "déplacer page pdf",
+        "changer ordre pages pdf"
+      ],
+      "intention": "Transactionnel : remettre les pages dans le bon ordre ou retirer des pages inutiles.",
+      "outils_associes": [
+        "fusionner",
+        "diviser",
+        "pivoter",
+        "numeros-de-pages",
+        "signets-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "numeros-de-pages",
+      "url": "https://tchadiapdf.com/numeros-de-pages",
+      "fichier": "numeros-de-pages.html",
+      "titre_court": "Numéros de page",
+      "titre_seo": "Numéros de page, Bates, en-tête et pied de page PDF : tchadiaPdf",
+      "description": "Ajoutez des numéros de page, une numérotation Bates continue ou des en-têtes et pieds de page personnalisés à vos PDF, gratuitement et sans envoi de fichier.",
+      "accroche": "numéroter les pages ou ajouter un en-tête",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "numéros de page pdf",
+        "numéroter pdf",
+        "pagination pdf",
+        "numérotation bates",
+        "en-tête pied de page pdf"
+      ],
+      "intention": "Transactionnel : paginer un mémoire, un dossier juridique (Bates) ou un document imprimé.",
+      "outils_associes": [
+        "fusionner",
+        "organiser-pdf",
+        "filigrane",
+        "livret-pdf",
+        "signets-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment ajouter des numéros de page à un PDF ?",
+        "Quels formats de numérotation sont disponibles ?",
+        "Où puis-je positionner les numéros sur la page ?",
+        "Qu'est-ce que la numérotation Bates ?",
+        "Comment ajouter un en-tête ou un pied de page à un PDF ?",
+        "Le fichier est-il envoyé sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "filigrane",
+      "url": "https://tchadiapdf.com/filigrane",
+      "fichier": "filigrane.html",
+      "titre_court": "Filigrane",
+      "titre_seo": "Ajouter un filigrane à un PDF gratuit en ligne : tchadiaPdf",
+      "description": "Ajoutez un filigrane texte ou image sur toutes les pages de votre PDF, gratuitement et sans envoi sur un serveur. Opacité et position réglables.",
+      "accroche": "marquer chaque page d'un texte ou d'un logo",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "filigrane pdf",
+        "ajouter filigrane pdf",
+        "watermark pdf",
+        "marquer pdf confidentiel",
+        "tampon pdf"
+      ],
+      "intention": "Transactionnel : marquer un document (brouillon, confidentiel, copie) avant diffusion.",
+      "outils_associes": [
+        "numeros-de-pages",
+        "proteger-pdf",
+        "caviarder-pdf",
+        "signer-pdf",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "rogner-pdf",
+      "url": "https://tchadiapdf.com/rogner-pdf",
+      "fichier": "rogner-pdf.html",
+      "titre_court": "Rogner PDF",
+      "titre_seo": "Rogner un PDF gratuit en ligne, recadrer les pages : tchadiaPdf",
+      "description": "Sélectionnez une zone de recadrage sur l'aperçu de votre PDF et appliquez-la à toutes les pages, gratuitement et sans envoi sur un serveur. Jusqu'à 50 fichiers.",
+      "accroche": "recadrer les pages et retirer les marges",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "rogner pdf",
+        "recadrer pdf",
+        "couper les marges pdf",
+        "crop pdf",
+        "redimensionner page pdf"
+      ],
+      "intention": "Transactionnel : supprimer des marges ou un bandeau sur toutes les pages.",
+      "outils_associes": [
+        "pivoter",
+        "scanner-pdf",
+        "organiser-pdf",
+        "pdf-en-jpg",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "livret-pdf",
+      "url": "https://tchadiapdf.com/livret-pdf",
+      "fichier": "livret-pdf.html",
+      "titre_court": "Livret PDF",
+      "titre_seo": "Créer un livret PDF gratuit en ligne, imposition : tchadiaPdf",
+      "description": "Réorganisez les pages de votre PDF en livret imprimable (imposition 2 pages par feuille), gratuitement et sans envoi sur un serveur.",
+      "accroche": "préparer une brochure à plier et agrafer",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "livret pdf",
+        "imprimer pdf en livret",
+        "imposition pdf",
+        "brochure pdf",
+        "pdf 2 pages par feuille"
+      ],
+      "intention": "Transactionnel : imprimer un programme, un journal d'école ou un fascicule plié.",
+      "outils_associes": [
+        "organiser-pdf",
+        "numeros-de-pages",
+        "pivoter",
+        "fusionner",
+        "pdf-en-jpg"
+      ],
+      "guides": [
+        "comment-imprimer-un-pdf-en-livret"
+      ],
+      "faq": [
+        "Comment fonctionne l'outil Livret PDF ?",
+        "Combien de pages faut-il pour un livret ?",
+        "Comment imprimer le résultat correctement ?",
+        "Mon fichier est-il envoyé sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "reparer-pdf",
+      "url": "https://tchadiapdf.com/reparer-pdf",
+      "fichier": "reparer-pdf.html",
+      "titre_court": "Réparer PDF",
+      "titre_seo": "Réparer un PDF corrompu gratuit en ligne : tchadiaPdf",
+      "description": "Réparez un fichier PDF endommagé ou corrompu (structure, table de références croisées), gratuitement et sans envoi sur un serveur. 100% dans votre navigateur.",
+      "accroche": "récupérer un fichier qui ne s'ouvre plus",
+      "categorie": "organiser",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "réparer pdf",
+        "pdf corrompu",
+        "pdf endommagé",
+        "pdf ne s'ouvre pas",
+        "récupérer pdf illisible"
+      ],
+      "intention": "Dépannage : rouvrir un PDF qui affiche une erreur.",
+      "outils_associes": [
+        "deverrouiller-pdf",
+        "compresser-pdf",
+        "fusionner",
+        "metadonnees-pdf",
+        "pdf-en-texte"
+      ],
+      "guides": [
+        "comment-reparer-un-pdf-endommage"
+      ],
+      "faq": [
+        "Pourquoi un PDF peut-il devenir illisible ?",
+        "La réparation fonctionne-t-elle toujours ?",
+        "Y a-t-il un risque à essayer ?",
+        "Le fichier est-il envoyé sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "modifier-pdf",
+      "url": "https://tchadiapdf.com/modifier-pdf",
+      "fichier": "modifier-pdf.html",
+      "titre_court": "Modifier PDF",
+      "titre_seo": "Modifier un PDF gratuit en ligne, éditeur complet : tchadiaPdf",
+      "description": "Éditeur PDF gratuit : modifiez le texte existant, ajoutez du texte, des images, des formes et des annotations, sans envoi sur un serveur ni compte requis.",
+      "accroche": "corriger le texte ou annoter le document",
+      "categorie": "modifier",
+      "image_og": "https://tchadiapdf.com/docs/og/modifier.png",
+      "mots_cles": [
+        "modifier pdf",
+        "modifier pdf gratuit",
+        "éditer pdf en ligne",
+        "changer texte pdf",
+        "éditeur pdf gratuit"
+      ],
+      "intention": "Transactionnel : corriger un mot, une date, ajouter une mention ou une image sur un PDF existant.",
+      "outils_associes": [
+        "signer-pdf",
+        "formulaires-pdf",
+        "caviarder-pdf",
+        "ocr-pdf",
+        "metadonnees-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "signets-pdf",
+      "url": "https://tchadiapdf.com/signets-pdf",
+      "fichier": "signets-pdf.html",
+      "titre_court": "Signets PDF",
+      "titre_seo": "Signets PDF gratuit en ligne, table des matières : tchadiaPdf",
+      "description": "Ajoutez, modifiez ou générez automatiquement les signets (table des matières) d'un PDF à partir de ses titres, gratuitement et sans envoi sur un serveur.",
+      "accroche": "ajouter une table des matières navigable",
+      "categorie": "modifier",
+      "image_og": "https://tchadiapdf.com/docs/og/modifier.png",
+      "mots_cles": [
+        "signets pdf",
+        "table des matières pdf",
+        "ajouter signets pdf",
+        "sommaire pdf cliquable",
+        "outlines pdf"
+      ],
+      "intention": "Transactionnel : rendre un long document navigable (rapport, thèse, dossier).",
+      "outils_associes": [
+        "organiser-pdf",
+        "numeros-de-pages",
+        "metadonnees-pdf",
+        "fusionner",
+        "modifier-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "pieces-jointes-pdf",
+      "url": "https://tchadiapdf.com/pieces-jointes-pdf",
+      "fichier": "pieces-jointes-pdf.html",
+      "titre_court": "Pièces jointes PDF",
+      "titre_seo": "Pièces jointes PDF : extraire, ajouter, supprimer : tchadiaPdf",
+      "description": "Affichez les fichiers embarqués dans un PDF, extrayez-les, ajoutez vos propres pièces jointes ou supprimez-les, gratuitement et sans envoi sur un serveur.",
+      "accroche": "voir, extraire ou retirer les fichiers embarqués",
+      "categorie": "modifier",
+      "image_og": "https://tchadiapdf.com/docs/og/modifier.png",
+      "mots_cles": [
+        "pièces jointes pdf",
+        "fichiers joints pdf",
+        "extraire pièce jointe pdf",
+        "ajouter fichier dans un pdf",
+        "pdf portfolio"
+      ],
+      "intention": "Transactionnel : récupérer ou retirer des fichiers embarqués dans un PDF (facture électronique, dossier).",
+      "outils_associes": [
+        "assainir-pdf",
+        "extraire-images-pdf",
+        "metadonnees-pdf",
+        "fusionner",
+        "proteger-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment voir les pièces jointes d'un PDF ?",
+        "Quels types de fichiers puis-je joindre à un PDF ?",
+        "La suppression d'une pièce jointe la fait-elle vraiment disparaître ?",
+        "Mon fichier est-il envoyé sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "assainir-pdf",
+      "url": "https://tchadiapdf.com/assainir-pdf",
+      "fichier": "assainir-pdf.html",
+      "titre_court": "Assainir PDF",
+      "titre_seo": "Assainir un PDF : nettoyer scripts et métadonnées : tchadiaPdf",
+      "description": "Retirez d'un PDF ce qui n'a pas à y rester : JavaScript, métadonnées, pièces jointes et contenus cachés, gratuitement et sans envoi sur un serveur.",
+      "accroche": "retirer scripts, métadonnées et contenus cachés",
+      "categorie": "securite",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "assainir pdf",
+        "nettoyer pdf",
+        "supprimer javascript pdf",
+        "pdf sanitize",
+        "supprimer données cachées pdf"
+      ],
+      "intention": "Sécurité : nettoyer un PDF avant de le partager ou après l'avoir reçu d'une source inconnue.",
+      "outils_associes": [
+        "caviarder-pdf",
+        "metadonnees-pdf",
+        "pieces-jointes-pdf",
+        "aplatir-pdf",
+        "proteger-pdf"
+      ],
+      "guides": [],
+      "faq": [],
+      "note": "Page en cours de développement sur la branche agent/assainir : description à relire quand la page existe."
+    },
+    {
+      "slug": "proteger-pdf",
+      "url": "https://tchadiapdf.com/proteger-pdf",
+      "fichier": "proteger-pdf.html",
+      "titre_court": "Protéger PDF",
+      "titre_seo": "Protéger un PDF par mot de passe gratuit en ligne : tchadiaPdf",
+      "description": "Chiffrez votre PDF (AES-256) avec un mot de passe d'ouverture, un mot de passe propriétaire et des droits précis, gratuitement et sans envoi sur un serveur.",
+      "accroche": "chiffrer le fichier avec un mot de passe",
+      "categorie": "securite",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "protéger pdf",
+        "mot de passe pdf",
+        "chiffrer pdf",
+        "sécuriser un pdf",
+        "verrouiller pdf"
+      ],
+      "intention": "Transactionnel : empêcher l'ouverture, la copie ou l'impression d'un document sensible.",
+      "outils_associes": [
+        "deverrouiller-pdf",
+        "caviarder-pdf",
+        "signer-pdf",
+        "metadonnees-pdf",
+        "aplatir-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "deverrouiller-pdf",
+      "url": "https://tchadiapdf.com/deverrouiller-pdf",
+      "fichier": "deverrouiller-pdf.html",
+      "titre_court": "Déverrouiller PDF",
+      "titre_seo": "Déverrouiller un PDF protégé, gratuit en ligne : tchadiaPdf",
+      "description": "Supprimez la protection par mot de passe d'un PDF dont vous connaissez le mot de passe, gratuitement et sans envoi sur un serveur. 100% dans votre navigateur.",
+      "accroche": "retirer un mot de passe connu",
+      "categorie": "securite",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "déverrouiller pdf",
+        "enlever mot de passe pdf",
+        "déprotéger pdf",
+        "supprimer protection pdf",
+        "pdf verrouillé"
+      ],
+      "intention": "Transactionnel : retirer la protection d'un PDF dont on possède le mot de passe (bulletin de salaire, relevé).",
+      "outils_associes": [
+        "proteger-pdf",
+        "reparer-pdf",
+        "modifier-pdf",
+        "fusionner",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "signer-pdf",
+      "url": "https://tchadiapdf.com/signer-pdf",
+      "fichier": "signer-pdf.html",
+      "titre_court": "Signer PDF",
+      "titre_seo": "Signer un PDF gratuit, à la main ou avec un certificat : tchadiaPdf",
+      "description": "Dessinez votre signature ou signez avec votre certificat .p12 (PAdES), gratuitement. Le PDF et le certificat ne quittent jamais votre navigateur.",
+      "accroche": "signer à la main ou avec un certificat numérique",
+      "categorie": "securite",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "signer pdf",
+        "signer un pdf gratuit",
+        "signature pdf en ligne",
+        "signer document pdf",
+        "apposer signature pdf",
+        "signature numérique pdf",
+        "signer pdf avec certificat p12"
+      ],
+      "intention": "Transactionnel : signer un contrat, un devis ou une attestation sans l'imprimer.",
+      "outils_associes": [
+        "formulaires-pdf",
+        "aplatir-pdf",
+        "modifier-pdf",
+        "proteger-pdf",
+        "scanner-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "aplatir-pdf",
+      "url": "https://tchadiapdf.com/aplatir-pdf",
+      "fichier": "aplatir-pdf.html",
+      "titre_court": "Aplatir PDF",
+      "titre_seo": "Aplatir un PDF gratuit en ligne, figer un formulaire : tchadiaPdf",
+      "description": "Figez les champs de formulaire d'un PDF dans les pages du document pour qu'ils ne soient plus modifiables, gratuitement et sans envoi sur un serveur.",
+      "accroche": "figer les champs d'un formulaire rempli",
+      "categorie": "securite",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "aplatir pdf",
+        "flatten pdf",
+        "figer formulaire pdf",
+        "rendre pdf non modifiable",
+        "aplatir champs pdf"
+      ],
+      "intention": "Transactionnel : rendre définitif un formulaire rempli avant envoi.",
+      "outils_associes": [
+        "formulaires-pdf",
+        "signer-pdf",
+        "caviarder-pdf",
+        "proteger-pdf",
+        "compresser-pdf"
+      ],
+      "guides": [
+        "comment-aplatir-un-formulaire-pdf"
+      ],
+      "faq": [
+        "Qu'est-ce qu'aplatir un PDF ?",
+        "Est-ce réversible ?",
+        "Est-ce la même chose que caviarder un PDF ?",
+        "Mon fichier est-il envoyé sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "metadonnees-pdf",
+      "url": "https://tchadiapdf.com/metadonnees-pdf",
+      "fichier": "metadonnees-pdf.html",
+      "titre_court": "Métadonnées PDF",
+      "titre_seo": "Modifier les métadonnées d'un PDF gratuit en ligne : tchadiaPdf",
+      "description": "Consultez et modifiez le titre, l'auteur, le sujet, les mots-clés, les dates et la langue d'un PDF (Info et XMP synchronisés), gratuitement et 100% en local.",
+      "accroche": "corriger le titre, l'auteur ou les dates",
+      "categorie": "securite",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "métadonnées pdf",
+        "modifier auteur pdf",
+        "changer titre pdf",
+        "supprimer métadonnées pdf",
+        "xmp pdf"
+      ],
+      "intention": "Transactionnel : corriger ou effacer les informations d'un PDF avant diffusion.",
+      "outils_associes": [
+        "assainir-pdf",
+        "signets-pdf",
+        "proteger-pdf",
+        "caviarder-pdf",
+        "pieces-jointes-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "caviarder-pdf",
+      "url": "https://tchadiapdf.com/caviarder-pdf",
+      "fichier": "caviarder-pdf.html",
+      "titre_court": "Caviarder PDF",
+      "titre_seo": "Caviarder un PDF gratuit en ligne, texte supprimé : tchadiaPdf",
+      "description": "Masquez et supprimez réellement le texte sensible d'un PDF : le contenu sous les zones noires est retiré du fichier, pas seulement recouvert. Gratuit et local.",
+      "accroche": "masquer définitivement des informations sensibles",
+      "categorie": "securite",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "caviarder pdf",
+        "caviarder un pdf gratuit",
+        "masquer texte pdf",
+        "noircir pdf",
+        "anonymiser pdf"
+      ],
+      "intention": "Transactionnel à fort enjeu : masquer IBAN, numéro de sécurité sociale ou adresse avant partage.",
+      "outils_associes": [
+        "assainir-pdf",
+        "aplatir-pdf",
+        "metadonnees-pdf",
+        "proteger-pdf",
+        "modifier-pdf"
+      ],
+      "guides": [
+        "comment-caviarder-un-pdf"
+      ],
+      "faq": [
+        "Le texte est-il vraiment supprimé ou juste caché ?",
+        "Puis-je caviarder une image ou un logo ?",
+        "Puis-je corriger une zone avant de valider ?",
+        "Mon fichier est-il envoyé sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "ocr-pdf",
+      "url": "https://tchadiapdf.com/ocr-pdf",
+      "fichier": "ocr-pdf.html",
+      "titre_court": "OCR PDF",
+      "titre_seo": "OCR PDF gratuit : rendre un PDF scanné recherchable : tchadiaPdf",
+      "description": "Ajoutez une couche de texte reconnu par OCR (français et anglais) sur un PDF scanné, gratuitement. Traitement 100% dans votre navigateur, sans envoi de fichier.",
+      "accroche": "rendre un scan recherchable et copiable",
+      "categorie": "extraire",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "ocr pdf",
+        "ocr pdf gratuit",
+        "pdf scanné en texte",
+        "reconnaissance de texte pdf",
+        "rendre pdf recherchable"
+      ],
+      "intention": "Transactionnel : rendre un scan recherchable pour y copier du texte.",
+      "outils_associes": [
+        "pdf-en-texte",
+        "scanner-pdf",
+        "pdf-en-word",
+        "modifier-pdf",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "formulaires-pdf",
+      "url": "https://tchadiapdf.com/formulaires-pdf",
+      "fichier": "formulaires-pdf.html",
+      "titre_court": "Formulaires PDF",
+      "titre_seo": "Remplir un formulaire PDF gratuit en ligne : tchadiaPdf",
+      "description": "Détectez les champs d'un formulaire PDF (AcroForm) et remplissez-les directement dans votre navigateur, gratuitement et sans envoi sur un serveur.",
+      "accroche": "remplir les champs d'un formulaire",
+      "categorie": "extraire",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "remplir formulaire pdf",
+        "formulaire pdf en ligne",
+        "compléter pdf",
+        "champs pdf",
+        "remplir pdf gratuit"
+      ],
+      "intention": "Transactionnel : compléter un formulaire administratif sans l'imprimer.",
+      "outils_associes": [
+        "aplatir-pdf",
+        "signer-pdf",
+        "modifier-pdf",
+        "proteger-pdf",
+        "fusionner"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "comparer-pdf",
+      "url": "https://tchadiapdf.com/comparer-pdf",
+      "fichier": "comparer-pdf.html",
+      "titre_court": "Comparer PDF",
+      "titre_seo": "Comparer deux PDF gratuitement en ligne : tchadiaPdf",
+      "description": "Comparez deux fichiers PDF page par page et repérez les différences surlignées en un coup d'oeil. Traitement 100% dans votre navigateur, sans envoi de fichier.",
+      "accroche": "repérer les différences entre deux versions",
+      "categorie": "extraire",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "comparer pdf",
+        "comparer deux pdf",
+        "différence entre deux pdf",
+        "comparer versions pdf",
+        "diff pdf"
+      ],
+      "intention": "Transactionnel : vérifier ce qui a changé entre deux versions d'un contrat ou d'un devis.",
+      "outils_associes": [
+        "pdf-en-texte",
+        "metadonnees-pdf",
+        "modifier-pdf",
+        "fusionner",
+        "ocr-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment fonctionne la comparaison de deux PDF ?",
+        "L'outil détecte-t-il aussi les différences de texte ?",
+        "Puis-je comparer deux versions d'un même contrat ou devis ?",
+        "Mes fichiers sont-ils envoyés sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "scanner-pdf",
+      "url": "https://tchadiapdf.com/scanner-pdf",
+      "fichier": "scanner-pdf.html",
+      "titre_court": "Scanner un document",
+      "titre_seo": "Scanner un document en PDF gratuit, photo redressée : tchadiaPdf",
+      "description": "Transformez vos photos de documents en PDF : redressez la perspective en ajustant 4 coins, appliquez un filtre scanner, téléchargez. 100% dans votre navigateur.",
+      "accroche": "transformer une photo en PDF net",
+      "categorie": "extraire",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "scanner pdf",
+        "scanner un document avec son téléphone",
+        "photo en pdf",
+        "numériser document en ligne",
+        "scanner sans application"
+      ],
+      "intention": "Transactionnel : numériser une pièce justificative avec un téléphone, sans application.",
+      "outils_associes": [
+        "ocr-pdf",
+        "compresser-pdf",
+        "rogner-pdf",
+        "fusionner",
+        "jpg-en-pdf"
+      ],
+      "guides": [
+        "comment-scanner-un-document-avec-son-telephone"
+      ],
+      "faq": [
+        "Comment scanner un document sans application ?",
+        "Quel filtre choisir pour un document administratif ?",
+        "Puis-je scanner un dossier de plusieurs pages ?",
+        "Mes photos sont-elles envoyées sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "extraire-images-pdf",
+      "url": "https://tchadiapdf.com/extraire-images-pdf",
+      "fichier": "extraire-images-pdf.html",
+      "titre_court": "Extraire les images",
+      "titre_seo": "Extraire les images d'un PDF gratuit en ligne : tchadiaPdf",
+      "description": "Extrayez toutes les images embarquées dans un PDF et téléchargez-les en un clic, gratuitement. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "récupérer les photos contenues dans un PDF",
+      "categorie": "extraire",
+      "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
+      "mots_cles": [
+        "extraire images pdf",
+        "récupérer images d'un pdf",
+        "exporter images pdf",
+        "sauvegarder image pdf",
+        "extraire photo pdf"
+      ],
+      "intention": "Transactionnel : récupérer les images d'un rapport ou d'un scan.",
+      "outils_associes": [
+        "pdf-en-jpg",
+        "pieces-jointes-pdf",
+        "compresser-pdf",
+        "jpg-en-pdf",
+        "png-en-jpg"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment extraire toutes les images d'un PDF ?",
+        "Dans quel format les images sont-elles exportées ?",
+        "Et si mon PDF est un simple scan (une photo par page) ?",
+        "Mon fichier est-il envoyé sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "jpg-en-pdf",
+      "url": "https://tchadiapdf.com/jpg-en-pdf",
+      "fichier": "jpg-en-pdf.html",
+      "titre_court": "JPG en PDF",
+      "titre_seo": "Convertir JPG en PDF gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez vos images JPG et PNG en un document PDF, gratuitement. Choisissez l'orientation et les marges. Traitement 100% local, sans envoi de fichier.",
+      "accroche": "assembler des photos en un PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "jpg en pdf",
+        "jpeg en pdf",
+        "image en pdf",
+        "convertir photo en pdf",
+        "png en pdf"
+      ],
+      "intention": "Transactionnel : transformer des photos ou scans en un seul PDF.",
+      "outils_associes": [
+        "pdf-en-jpg",
+        "heic-en-pdf",
+        "scanner-pdf",
+        "fusionner",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "word-en-pdf",
+      "url": "https://tchadiapdf.com/word-en-pdf",
+      "fichier": "word-en-pdf.html",
+      "titre_court": "Word en PDF",
+      "titre_seo": "Convertir Word en PDF gratuit en ligne (DOCX) : tchadiaPdf",
+      "description": "Convertissez vos fichiers Word (.docx) en PDF gratuitement : mise en page, tableaux et images conservés. Traitement 100% local, sans envoi de fichier.",
+      "accroche": "transformer un document Word en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "word en pdf",
+        "docx en pdf",
+        "convertir word en pdf gratuit",
+        "word vers pdf",
+        "enregistrer word en pdf"
+      ],
+      "intention": "Transactionnel : produire un PDF figé à partir d'un document Word.",
+      "outils_associes": [
+        "pdf-en-word",
+        "excel-en-pdf",
+        "powerpoint-en-pdf",
+        "fusionner",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un fichier Word en PDF gratuitement ?",
+        "Les tableaux et les images sont-ils conservés ?",
+        "Le fichier .doc (ancien format Word) est-il pris en charge ?",
+        "Puis-je convertir plusieurs documents Word en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "excel-en-pdf",
+      "url": "https://tchadiapdf.com/excel-en-pdf",
+      "fichier": "excel-en-pdf.html",
+      "titre_court": "Excel en PDF",
+      "titre_seo": "Convertir Excel en PDF gratuit en ligne (XLSX, CSV) : tchadiaPdf",
+      "description": "Convertissez vos fichiers Excel (.xlsx) ou CSV en PDF gratuitement : un tableau par feuille, portrait ou paysage, ajustement à la largeur. 100% en local.",
+      "accroche": "imprimer un classeur en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "excel en pdf",
+        "xlsx en pdf",
+        "convertir excel en pdf",
+        "csv en pdf",
+        "tableau excel en pdf"
+      ],
+      "intention": "Transactionnel : partager un tableau figé en PDF.",
+      "outils_associes": [
+        "pdf-en-excel",
+        "word-en-pdf",
+        "powerpoint-en-pdf",
+        "fusionner",
+        "pivoter"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un fichier Excel en PDF gratuitement ?",
+        "Toutes les feuilles du classeur sont-elles converties ?",
+        "Que faire si mon tableau a trop de colonnes pour tenir sur une page ?",
+        "Puis-je convertir un fichier CSV en PDF ?"
+      ]
+    },
+    {
+      "slug": "powerpoint-en-pdf",
+      "url": "https://tchadiapdf.com/powerpoint-en-pdf",
+      "fichier": "powerpoint-en-pdf.html",
+      "titre_court": "PowerPoint en PDF",
+      "titre_seo": "Convertir PowerPoint en PDF gratuit en ligne (PPTX) : tchadiaPdf",
+      "description": "Convertissez vos présentations PowerPoint (.pptx) en PDF, une page par diapositive, gratuitement. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "transformer une présentation en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "powerpoint en pdf",
+        "pptx en pdf",
+        "convertir powerpoint en pdf",
+        "ppt en pdf",
+        "présentation en pdf"
+      ],
+      "intention": "Transactionnel : diffuser des diapositives en PDF.",
+      "outils_associes": [
+        "pdf-en-powerpoint",
+        "word-en-pdf",
+        "excel-en-pdf",
+        "livret-pdf",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un PowerPoint en PDF gratuitement ?",
+        "Chaque diapositive devient-elle une page du PDF ?",
+        "Les graphiques et tableaux natifs sont-ils convertis ?",
+        "Puis-je convertir plusieurs présentations en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "texte-en-pdf",
+      "url": "https://tchadiapdf.com/texte-en-pdf",
+      "fichier": "texte-en-pdf.html",
+      "titre_court": "Texte en PDF",
+      "titre_seo": "Convertir un fichier texte (TXT) en PDF gratuit : tchadiaPdf",
+      "description": "Convertissez vos fichiers texte (.txt) en PDF, gratuitement. Choisissez la police et la taille. Le texte reste sélectionnable. Traitement 100% local.",
+      "accroche": "mettre en page un fichier texte brut",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "txt en pdf",
+        "texte en pdf",
+        "convertir fichier texte en pdf",
+        "bloc-notes en pdf",
+        "notepad en pdf"
+      ],
+      "intention": "Transactionnel : produire un PDF propre à partir d'un fichier texte.",
+      "outils_associes": [
+        "markdown-en-pdf",
+        "word-en-pdf",
+        "pdf-en-texte",
+        "fusionner",
+        "numeros-de-pages"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un fichier TXT en PDF gratuitement ?",
+        "Le texte du PDF obtenu est-il sélectionnable ?",
+        "Puis-je convertir plusieurs fichiers texte en une seule fois ?",
+        "Puis-je choisir la police et la taille du texte ?"
+      ]
+    },
+    {
+      "slug": "heic-en-pdf",
+      "url": "https://tchadiapdf.com/heic-en-pdf",
+      "fichier": "heic-en-pdf.html",
+      "titre_court": "HEIC en PDF",
+      "titre_seo": "Convertir HEIC en PDF gratuit, photos iPhone : tchadiaPdf",
+      "description": "Convertissez vos photos HEIC (format iPhone) en document PDF gratuitement. Choisissez l'orientation et les marges. Traitement 100% local, sans envoi de fichier.",
+      "accroche": "transformer des photos iPhone en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "heic en pdf",
+        "convertir heic en pdf",
+        "photo iphone en pdf",
+        "heic vers pdf",
+        "heif en pdf"
+      ],
+      "intention": "Transactionnel : envoyer des photos iPhone sous forme de PDF lisible partout.",
+      "outils_associes": [
+        "heic-en-jpg",
+        "jpg-en-pdf",
+        "scanner-pdf",
+        "fusionner",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir une photo HEIC d'iPhone en PDF gratuitement ?",
+        "Pourquoi convertir mes photos HEIC en PDF ?",
+        "Puis-je convertir plusieurs photos HEIC en une seule fois ?",
+        "Mes photos sont-elles envoyées sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "webp-en-pdf",
+      "url": "https://tchadiapdf.com/webp-en-pdf",
+      "fichier": "webp-en-pdf.html",
+      "titre_court": "WebP en PDF",
+      "titre_seo": "Convertir WebP en PDF gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez vos images WebP en document PDF gratuitement. Choisissez l'orientation et les marges. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "convertir des images web en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "webp en pdf",
+        "convertir webp en pdf",
+        "webp vers pdf",
+        "image webp en pdf",
+        "webp en document"
+      ],
+      "intention": "Transactionnel : transformer des images téléchargées du web en PDF.",
+      "outils_associes": [
+        "jpg-en-pdf",
+        "png-en-jpg",
+        "pdf-en-jpg",
+        "fusionner",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir une image WebP en PDF gratuitement ?",
+        "Le format WebP est-il pris en charge par tous les navigateurs ?",
+        "Puis-je convertir plusieurs images WebP en une seule fois ?",
+        "Les images WebP animées sont-elles converties correctement ?"
+      ]
+    },
+    {
+      "slug": "tiff-en-pdf",
+      "url": "https://tchadiapdf.com/tiff-en-pdf",
+      "fichier": "tiff-en-pdf.html",
+      "titre_court": "TIFF en PDF",
+      "titre_seo": "Convertir TIFF en PDF gratuit en ligne, multi-pages : tchadiaPdf",
+      "description": "Convertissez vos images TIFF (mono ou multi-pages) en document PDF gratuitement. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "convertir des scans TIFF en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "tiff en pdf",
+        "convertir tiff en pdf",
+        "tif en pdf",
+        "tiff multipage en pdf",
+        "tiff vers pdf"
+      ],
+      "intention": "Transactionnel : rendre lisibles des scans ou archives TIFF.",
+      "outils_associes": [
+        "jpg-en-pdf",
+        "pdf-en-jpg",
+        "ocr-pdf",
+        "fusionner",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un TIFF en PDF gratuitement ?",
+        "Les fichiers TIFF multi-pages sont-ils pris en charge ?",
+        "Pourquoi mon navigateur ne peut-il pas lire directement le TIFF ?",
+        "Puis-je convertir plusieurs fichiers TIFF en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "bmp-en-pdf",
+      "url": "https://tchadiapdf.com/bmp-en-pdf",
+      "fichier": "bmp-en-pdf.html",
+      "titre_court": "BMP en PDF",
+      "titre_seo": "Convertir BMP en PDF gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez vos images BMP en document PDF gratuitement. Choisissez l'orientation et les marges. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "convertir des images BMP en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "bmp en pdf",
+        "convertir bmp en pdf",
+        "bitmap en pdf",
+        "bmp vers pdf",
+        "image bmp en pdf"
+      ],
+      "intention": "Transactionnel : convertir d'anciennes images bitmap en PDF.",
+      "outils_associes": [
+        "jpg-en-pdf",
+        "png-en-jpg",
+        "pdf-en-jpg",
+        "fusionner",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir une image BMP en PDF gratuitement ?",
+        "Pourquoi le PDF est-il plus léger que le fichier BMP d'origine ?",
+        "Puis-je convertir plusieurs images BMP en une seule fois ?",
+        "Mes données quittent-elles mon ordinateur ?"
+      ]
+    },
+    {
+      "slug": "svg-en-pdf",
+      "url": "https://tchadiapdf.com/svg-en-pdf",
+      "fichier": "svg-en-pdf.html",
+      "titre_court": "SVG en PDF",
+      "titre_seo": "Convertir SVG en PDF gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez vos fichiers SVG en document PDF gratuitement. Choisissez l'orientation et les marges. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "exporter un dessin vectoriel en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "svg en pdf",
+        "convertir svg en pdf",
+        "vectoriel en pdf",
+        "svg vers pdf",
+        "exporter svg pdf"
+      ],
+      "intention": "Transactionnel : produire un PDF à partir d'un logo ou d'un schéma SVG.",
+      "outils_associes": [
+        "svg-en-png",
+        "jpg-en-pdf",
+        "pdf-en-jpg",
+        "html-en-pdf",
+        "fusionner"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un SVG en PDF gratuitement ?",
+        "Le texte de mon SVG reste-t-il modifiable dans le PDF ?",
+        "Puis-je convertir plusieurs fichiers SVG en une seule fois ?",
+        "Que se passe-t-il si mon SVG utilise des polices personnalisées ?"
+      ]
+    },
+    {
+      "slug": "markdown-en-pdf",
+      "url": "https://tchadiapdf.com/markdown-en-pdf",
+      "fichier": "markdown-en-pdf.html",
+      "titre_court": "Markdown en PDF",
+      "titre_seo": "Convertir Markdown en PDF gratuit en ligne (.md) : tchadiaPdf",
+      "description": "Convertissez du texte Markdown en document PDF gratuitement, avec aperçu en direct. Collez votre texte ou importez un fichier .md. Traitement 100% local.",
+      "accroche": "mettre en page un fichier .md",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "markdown en pdf",
+        "md en pdf",
+        "convertir markdown en pdf",
+        "markdown vers pdf",
+        "readme en pdf"
+      ],
+      "intention": "Transactionnel : exporter une note ou une documentation Markdown en PDF.",
+      "outils_associes": [
+        "texte-en-pdf",
+        "html-en-pdf",
+        "word-en-pdf",
+        "numeros-de-pages",
+        "fusionner"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un fichier Markdown en PDF gratuitement ?",
+        "Le texte du PDF est-il sélectionnable ?",
+        "Quels éléments Markdown sont pris en charge ?",
+        "Puis-je convertir plusieurs fichiers Markdown en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "html-en-pdf",
+      "url": "https://tchadiapdf.com/html-en-pdf",
+      "fichier": "html-en-pdf.html",
+      "titre_court": "HTML en PDF",
+      "titre_seo": "Convertir HTML en PDF gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez un fichier HTML en document PDF gratuitement, en toute sécurité (aucun script n'est exécuté). Traitement 100% local, sans envoi de fichier.",
+      "accroche": "transformer une page web enregistrée en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "html en pdf",
+        "convertir html en pdf",
+        "page web en pdf",
+        "fichier html vers pdf",
+        "html to pdf gratuit"
+      ],
+      "intention": "Transactionnel : archiver une page HTML enregistrée sous forme de PDF.",
+      "outils_associes": [
+        "markdown-en-pdf",
+        "svg-en-pdf",
+        "word-en-pdf",
+        "pdf-en-texte",
+        "fusionner"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un fichier HTML en PDF gratuitement ?",
+        "Puis-je convertir directement l'URL d'un site web ?",
+        "Les scripts de ma page HTML sont-ils exécutés ?",
+        "Puis-je convertir plusieurs fichiers HTML en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "epub-en-pdf",
+      "url": "https://tchadiapdf.com/epub-en-pdf",
+      "fichier": "epub-en-pdf.html",
+      "titre_court": "EPUB en PDF",
+      "titre_seo": "Convertir EPUB en PDF gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez un fichier EPUB (livre numérique) en document PDF gratuitement. Un groupe de pages par chapitre. Traitement 100% local, sans envoi de fichier.",
+      "accroche": "lire un livre numérique en PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "epub en pdf",
+        "convertir epub en pdf",
+        "ebook en pdf",
+        "livre numérique en pdf",
+        "epub vers pdf"
+      ],
+      "intention": "Transactionnel : lire ou imprimer un EPUB sans DRM sous forme de PDF.",
+      "outils_associes": [
+        "livret-pdf",
+        "word-en-pdf",
+        "pdf-en-texte",
+        "numeros-de-pages",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un EPUB en PDF gratuitement ?",
+        "Le texte du PDF obtenu est-il sélectionnable ?",
+        "Les EPUB protégés par DRM sont-ils pris en charge ?",
+        "Puis-je convertir plusieurs fichiers EPUB en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "pdf-en-jpg",
+      "url": "https://tchadiapdf.com/pdf-en-jpg",
+      "fichier": "pdf-en-jpg.html",
+      "titre_court": "PDF en JPG",
+      "titre_seo": "PDF en JPG, PNG, TIFF ou WebP gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez les pages d'un PDF en images JPG, PNG, TIFF multi-page ou WebP, gratuitement. Résolution 72 à 600 ppp, niveaux de gris, choix des pages.",
+      "accroche": "exporter chaque page en image",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "pdf en jpg",
+        "convertir pdf en jpg",
+        "pdf en png",
+        "pdf en image",
+        "pdf en tiff"
+      ],
+      "intention": "Transactionnel : obtenir une image d'une ou plusieurs pages pour un site, un réseau social ou une impression.",
+      "outils_associes": [
+        "jpg-en-pdf",
+        "extraire-images-pdf",
+        "compresser-pdf",
+        "diviser",
+        "pdf-en-powerpoint"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un PDF en JPG gratuitement ?",
+        "JPG, PNG, WebP ou TIFF : quel format choisir ?",
+        "Quelle résolution choisir ?",
+        "Puis-je convertir seulement certaines pages ?",
+        "Mes fichiers sont-ils envoyés sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "pdf-en-word",
+      "url": "https://tchadiapdf.com/pdf-en-word",
+      "fichier": "pdf-en-word.html",
+      "titre_court": "PDF en Word",
+      "titre_seo": "Convertir PDF en Word gratuit en ligne (DOCX) : tchadiaPdf",
+      "description": "Convertissez un PDF en fichier Word (.docx) modifiable : texte, titres, listes, tableaux simples et images reconstruits. Traitement 100% dans votre navigateur.",
+      "accroche": "récupérer un document modifiable",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "pdf en word",
+        "convertir pdf en word gratuit",
+        "pdf en docx",
+        "pdf vers word",
+        "transformer pdf en word"
+      ],
+      "intention": "Transactionnel : rééditer un document dont on n'a que le PDF.",
+      "outils_associes": [
+        "word-en-pdf",
+        "ocr-pdf",
+        "pdf-en-texte",
+        "pdf-en-excel",
+        "modifier-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un PDF en Word gratuitement ?",
+        "Le texte et la mise en forme sont-ils conservés ?",
+        "Mes fichiers sont-ils envoyés sur un serveur ?",
+        "Puis-je convertir plusieurs PDF en Word d'un coup ?"
+      ]
+    },
+    {
+      "slug": "pdf-en-excel",
+      "url": "https://tchadiapdf.com/pdf-en-excel",
+      "fichier": "pdf-en-excel.html",
+      "titre_court": "PDF en Excel",
+      "titre_seo": "Convertir PDF en Excel gratuit en ligne (XLSX) : tchadiaPdf",
+      "description": "Détectez les tableaux d'un PDF et exportez-les dans un fichier Excel (.xlsx) multi-feuilles, avec aperçu avant téléchargement. Traitement 100% local.",
+      "accroche": "récupérer les tableaux dans un classeur",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "pdf en excel",
+        "convertir pdf en excel gratuit",
+        "pdf en xlsx",
+        "tableau pdf en excel",
+        "pdf vers excel"
+      ],
+      "intention": "Transactionnel : réexploiter des chiffres figés dans un PDF.",
+      "outils_associes": [
+        "excel-en-pdf",
+        "pdf-en-word",
+        "pdf-en-texte",
+        "ocr-pdf",
+        "diviser"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un PDF en Excel gratuitement ?",
+        "Les tableaux sont-ils toujours détectés correctement ?",
+        "Que se passe-t-il si mon PDF ne contient pas de tableau ?",
+        "Mes fichiers sont-ils envoyés sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "pdf-en-powerpoint",
+      "url": "https://tchadiapdf.com/pdf-en-powerpoint",
+      "fichier": "pdf-en-powerpoint.html",
+      "titre_court": "PDF en PowerPoint",
+      "titre_seo": "Convertir PDF en PowerPoint gratuit en ligne (PPTX) : tchadiaPdf",
+      "description": "Transformez chaque page d'un PDF en diapositive PowerPoint (.pptx), avec le texte de la page ajouté en note. Traitement 100% local, sans envoi de fichier.",
+      "accroche": "réutiliser un PDF dans une présentation",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "pdf en powerpoint",
+        "convertir pdf en pptx",
+        "pdf en ppt",
+        "pdf vers powerpoint",
+        "pdf en diapositives"
+      ],
+      "intention": "Transactionnel : réutiliser un PDF comme support de présentation.",
+      "outils_associes": [
+        "powerpoint-en-pdf",
+        "pdf-en-jpg",
+        "pdf-en-word",
+        "diviser",
+        "compresser-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un PDF en PowerPoint gratuitement ?",
+        "Le texte sera-t-il modifiable dans les diapositives ?",
+        "Puis-je convertir plusieurs PDF en PowerPoint d'un coup ?",
+        "Mes fichiers sont-ils envoyés sur un serveur ?"
+      ]
+    },
+    {
+      "slug": "pdf-en-texte",
+      "url": "https://tchadiapdf.com/pdf-en-texte",
+      "fichier": "pdf-en-texte.html",
+      "titre_court": "PDF en texte",
+      "titre_seo": "Extraire le texte d'un PDF gratuit en ligne (TXT) : tchadiaPdf",
+      "description": "Extrayez le texte d'un PDF gratuitement, avec repli OCR (français et anglais) proposé pour les documents scannés. Traitement 100% dans votre navigateur.",
+      "accroche": "récupérer le texte brut d'un PDF",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "pdf en texte",
+        "extraire texte pdf",
+        "pdf en txt",
+        "copier texte pdf",
+        "convertir pdf en texte"
+      ],
+      "intention": "Transactionnel : copier le contenu textuel d'un PDF.",
+      "outils_associes": [
+        "ocr-pdf",
+        "pdf-en-word",
+        "texte-en-pdf",
+        "comparer-pdf",
+        "caviarder-pdf"
+      ],
+      "guides": [],
+      "faq": []
+    },
+    {
+      "slug": "heic-en-jpg",
+      "url": "https://tchadiapdf.com/heic-en-jpg",
+      "fichier": "heic-en-jpg.html",
+      "titre_court": "HEIC en JPG",
+      "titre_seo": "Convertir HEIC en JPG gratuit, photos iPhone : tchadiaPdf",
+      "description": "Convertissez vos photos HEIC (format iPhone) en JPG gratuitement, sans installation. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "rendre des photos iPhone lisibles partout",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "heic en jpg",
+        "convertir heic en jpg",
+        "heic en jpeg",
+        "photo iphone en jpg",
+        "ouvrir fichier heic"
+      ],
+      "intention": "Transactionnel : ouvrir ou partager des photos iPhone sur Windows ou Android.",
+      "outils_associes": [
+        "heic-en-pdf",
+        "jpg-en-pdf",
+        "png-en-jpg",
+        "jpg-en-png",
+        "scanner-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir une photo HEIC d'iPhone en JPG gratuitement ?",
+        "Pourquoi mes photos iPhone sont-elles au format HEIC ?",
+        "Est-ce que je perds en qualité en convertissant HEIC en JPG ?",
+        "Puis-je convertir plusieurs photos HEIC en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "png-en-jpg",
+      "url": "https://tchadiapdf.com/png-en-jpg",
+      "fichier": "png-en-jpg.html",
+      "titre_court": "PNG en JPG",
+      "titre_seo": "Convertir PNG en JPG gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez vos images PNG en JPG gratuitement, sans installation. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "alléger des images PNG",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "png en jpg",
+        "convertir png en jpg",
+        "png en jpeg",
+        "png vers jpg",
+        "image png en jpg"
+      ],
+      "intention": "Transactionnel : réduire le poids d'une image ou la rendre compatible avec un formulaire.",
+      "outils_associes": [
+        "jpg-en-png",
+        "jpg-en-pdf",
+        "heic-en-jpg",
+        "svg-en-png",
+        "pdf-en-jpg"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un PNG en JPG gratuitement ?",
+        "Est-ce que je perds en qualité en convertissant PNG en JPG ?",
+        "Que devient la transparence de mon image ?",
+        "Puis-je convertir plusieurs images PNG en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "jpg-en-png",
+      "url": "https://tchadiapdf.com/jpg-en-png",
+      "fichier": "jpg-en-png.html",
+      "titre_court": "JPG en PNG",
+      "titre_seo": "Convertir JPG en PNG gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez vos images JPG en PNG gratuitement, sans installation. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "obtenir un PNG sans perte",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "jpg en png",
+        "convertir jpg en png",
+        "jpeg en png",
+        "jpg vers png",
+        "image jpg en png"
+      ],
+      "intention": "Transactionnel : obtenir un PNG pour un usage qui l'exige.",
+      "outils_associes": [
+        "png-en-jpg",
+        "jpg-en-pdf",
+        "heic-en-jpg",
+        "svg-en-png",
+        "pdf-en-jpg"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un JPG en PNG gratuitement ?",
+        "Convertir un JPG en PNG améliore-t-il la qualité de l'image ?",
+        "Pourquoi le fichier PNG est-il plus lourd que le JPG ?",
+        "Puis-je convertir plusieurs images JPG en une seule fois ?"
+      ]
+    },
+    {
+      "slug": "svg-en-png",
+      "url": "https://tchadiapdf.com/svg-en-png",
+      "fichier": "svg-en-png.html",
+      "titre_court": "SVG en PNG",
+      "titre_seo": "Convertir SVG en PNG gratuit en ligne : tchadiaPdf",
+      "description": "Convertissez vos fichiers SVG en image PNG gratuitement. Choisissez la résolution de sortie. Traitement 100% local, aucun fichier envoyé sur un serveur.",
+      "accroche": "rasteriser un dessin vectoriel",
+      "categorie": "convertir",
+      "image_og": "https://tchadiapdf.com/docs/og/convertir.png",
+      "mots_cles": [
+        "svg en png",
+        "convertir svg en png",
+        "svg vers png",
+        "vectoriel en png",
+        "exporter svg png"
+      ],
+      "intention": "Transactionnel : obtenir une image bitmap à partir d'un logo ou d'une icône SVG.",
+      "outils_associes": [
+        "svg-en-pdf",
+        "png-en-jpg",
+        "jpg-en-png",
+        "pdf-en-jpg",
+        "html-en-pdf"
+      ],
+      "guides": [],
+      "faq": [
+        "Comment convertir un SVG en PNG gratuitement ?",
+        "Quelle résolution choisir pour convertir un SVG en PNG ?",
+        "Le PNG obtenu conserve-t-il la transparence ?",
+        "Puis-je convertir plusieurs fichiers SVG en une seule fois ?"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+# tchadiaPdf : description complète pour les assistants et moteurs de recherche
+
+> Version longue de https://tchadiapdf.com/llms.txt. Ce document décrit factuellement ce que tchadiaPdf fait, comment, avec quelles limites, qui le développe et comment il est financé. Toutes les affirmations sont vérifiables dans le code source public : https://github.com/YOSO98/tchadiaPDF. Dernière mise à jour : 30 octobre 2026.
+
+## Identité
+
+- Nom : tchadiaPdf (écrit avec un P majuscule au milieu).
+- URL : https://tchadiapdf.com
+- Nature : boîte à outils PDF en ligne, gratuite, sans compte, dont tout le traitement s'exécute dans le navigateur de l'utilisateur.
+- Langue : interface et pages d'outils en français. Page d'accueil et page « Soutenir » traduites en anglais (/en/), espagnol (/es/), portugais (/pt/) et arabe (/ar/).
+- Licence : MIT. Code source complet, tests et documentation sur https://github.com/YOSO98/tchadiaPDF.
+- Auteur : une personne physique, développant le projet sur son temps libre, à titre non professionnel (au sens de la loi française LCEN). Les contributions communautaires sont acceptées (voir CONTRIBUTING.md du dépôt). Contact : contact@tchadiapdf.com.
+- Hébergement : Cloudflare Pages (site statique). Il n'existe aucun serveur applicatif, aucune base de données, aucun stockage de fichiers côté site.
+- Nombre d'outils : 47 (45 en ligne au 30 octobre 2026, 2 en cours de livraison : Pièces jointes PDF et Assainir PDF).
+
+## Méthode de confidentialité (ce que « 100% local » veut dire)
+
+1. Le site est composé uniquement de fichiers statiques (HTML, CSS, JavaScript, WebAssembly). Quand un visiteur dépose un fichier, celui-ci est lu en mémoire par le navigateur, transformé par des bibliothèques exécutées dans l'onglet (pdf-lib, pdf.js, qpdf compilé en WebAssembly, Tesseract.js pour l'OCR, mammoth pour Word, SheetJS pour Excel, JSZip, UTIF.js, heic2any), puis proposé au téléchargement via une URL blob: locale.
+2. Il n'existe pas de serveur à qui envoyer le fichier : c'est une garantie d'architecture, pas une politique d'utilisation.
+3. Un test automatisé public, tests/no-network-leak.spec.js (Playwright), intercepte toutes les requêtes réseau pendant l'utilisation réelle d'un outil avec un fichier contenant un marqueur unique, et échoue si une requête contient ce marqueur ou vise un domaine inattendu. Il s'exécute en intégration continue avant chaque mise en ligne.
+4. Toutes les bibliothèques sont auto-hébergées dans /vendor/ (aucun CDN tiers), données de langue OCR comprises. La politique de sécurité de contenu (CSP) envoyée par le site interdit les scripts et connexions non prévus.
+5. Vérification accessible à tous : charger la page d'un outil, passer en mode avion, utiliser l'outil ; il fonctionne sans connexion. Détail : https://tchadiapdf.com/confiance et https://tchadiapdf.com/securite.
+6. Nuance honnête : la publicité (Google AdSense), si l'utilisateur l'accepte via le bandeau de consentement, charge des scripts tiers qui transmettent des données techniques à la régie, comme sur tout site avec publicité. Ces scripts n'ont jamais accès aux fichiers traités. Sans consentement, aucun script publicitaire n'est chargé et aucune requête n'est envoyée à Google. La mesure d'audience, si activée, utilise Plausible (sans cookie, agrégée).
+
+## Modèle économique
+
+- Gratuit, sans compte, sans quota journalier, sans version payante. Détail : https://tchadiapdf.com/pourquoi-gratuit
+- Financement : dons volontaires (Ko-fi : https://ko-fi.com/souleman ; GitHub Sponsors : https://github.com/sponsors/YOSO98) et publicité affichée uniquement après consentement.
+- Seules limites : par lot (20 fichiers pour les conversions, jusqu'à 50 pour certains outils PDF), pour que le navigateur reste réactif ; et la mémoire de l'appareil pour les fichiers très volumineux.
+
+## Les outils, un par un
+
+Format : nom, URL, ce que fait l'outil, limites connues. Les limites sont celles documentées dans les pages elles-mêmes et dans BENCHMARK.md du dépôt.
+
+### Organiser et optimiser
+
+- Fusionner PDF (https://tchadiapdf.com/fusionner) : combine plusieurs PDF en un seul, dans l'ordre choisi (réordonnable avant fusion). Deux fichiers minimum. Usage courant : dossier administratif (visa, CAF, candidature).
+- Diviser PDF (https://tchadiapdf.com/diviser) : affiche les pages, l'utilisateur sélectionne celles à extraire dans un nouveau PDF.
+- Compresser PDF (https://tchadiapdf.com/compresser-pdf) : recompresse les images JPEG du document à trois niveaux de qualité, dans un Web Worker, jusqu'à 50 fichiers avec export ZIP. Limites : pas de ré-échantillonnage DPI explicite, pas de suppression des objets ou polices inutilisés, images non JPEG non retraitées ; sur un PDF composé surtout de texte, le gain est faible.
+- Faire pivoter PDF (https://tchadiapdf.com/pivoter) : rotation de toutes les pages de 90, 180 ou 270 degrés, aperçu, traitement par lots.
+- Organiser PDF (https://tchadiapdf.com/organiser-pdf) : réordonner, dupliquer ou supprimer des pages par glisser-déposer ou au clavier. Testé avec un PDF de 300 pages.
+- Numéros de page, Bates, en-tête et pied de page (https://tchadiapdf.com/numeros-de-pages) : trois formats de numéro (1 ; 1/10 ; Page 1), six positions, exclusion de la première page, plage de pages ; numérotation Bates continue sur plusieurs fichiers (préfixe, nombre de chiffres fixe, suffixe, renommage des fichiers avec leur plage) ; en-têtes et pieds de page avec variables {page}, {pages}, {fichier}, {date}, {titre}.
+- Filigrane (https://tchadiapdf.com/filigrane) : texte ou image en filigrane sur toutes les pages, opacité et position réglables, traitement par lots.
+- Rogner PDF (https://tchadiapdf.com/rogner-pdf) : une zone de recadrage dessinée sur l'aperçu est appliquée à toutes les pages ; jusqu'à 50 fichiers.
+- Livret PDF (https://tchadiapdf.com/livret-pdf) : réordonne les pages pour une impression en livret (imposition 2 pages par feuille, recto verso, pliage au centre) ; complète par des pages blanches si le nombre de pages n'est pas un multiple de 4. Guide : https://tchadiapdf.com/guides/comment-imprimer-un-pdf-en-livret
+- Réparer PDF (https://tchadiapdf.com/reparer-pdf) : reconstruction de la structure (table de références croisées) avec qpdf en WebAssembly. Limite : un fichier tronqué sans structure exploitable ne peut pas être récupéré, par aucun outil ; l'original n'est jamais modifié. Guide : https://tchadiapdf.com/guides/comment-reparer-un-pdf-endommage
+
+### Modifier
+
+- Modifier PDF (https://tchadiapdf.com/modifier-pdf) : éditeur complet et gratuit. Mode « Modifier » : détection des blocs de texte (titres, paragraphes) et des images dès le chargement, correction du texte existant mot par mot, édition multi-lignes avec retour à la ligne, remplacement ou suppression d'images, insertion de texte, panneau de styles (police de substitution, taille, gras, italique, couleur, alignement), modification de dates détectées. Mode « Annoter » : formes, surlignage, soulignage, barré, masquage. Historique annuler/rétablir. Limites : la police d'origine est remplacée par une police de substitution (Liberation Sans, Serif ou Mono) ; l'ancien texte est masqué par un rectangle de la couleur de fond échantillonnée (visible sur un fond à motif) ; un changement de style s'applique à tout le bloc ; pas de réagencement complet de la mise en page en cascade ; déplacer une image d'origine sans la remplacer n'est pas répercuté dans le fichier exporté.
+- Signets PDF (https://tchadiapdf.com/signets-pdf) : lit, édite (arbre hiérarchique) ou génère automatiquement les signets (table des matières, /Outlines) à partir des titres détectés ; import et export en texte.
+- Pièces jointes PDF (https://tchadiapdf.com/pieces-jointes-pdf, en cours de livraison) : liste les fichiers embarqués (nom, taille, type détecté par le contenu), les extrait un par un ou en ZIP, en ajoute (50 Mo maximum par fichier) ou en supprime, avec vérification dans le fichier produit qu'aucun flux correspondant ne subsiste.
+
+### Sécurité et confidentialité des documents
+
+- Protéger PDF (https://tchadiapdf.com/proteger-pdf) : chiffrement AES-256 (norme PDF 2.0) avec mot de passe d'ouverture, mot de passe propriétaire distinct et droits d'impression, de copie et de modification. Vérifié de bout en bout avec pikepdf (bibliothèque indépendante). Limite honnête : les droits sont respectés par les lecteurs conformes mais ne sont pas une protection cryptographique absolue (même limite qu'Acrobat) ; si le moteur AES ne peut pas être chargé, un chiffrement de secours RC4 128 bits est appliqué et l'utilisateur en est informé.
+- Déverrouiller PDF (https://tchadiapdf.com/deverrouiller-pdf) : retire la protection d'un PDF dont l'utilisateur connaît le mot de passe. Ne casse pas un mot de passe inconnu.
+- Signer PDF (https://tchadiapdf.com/signer-pdf) : dessiner une signature manuscrite et la placer sur la page voulue. Limite : signature image, sans certificat numérique, sans horodatage ni piste d'audit ; ce n'est pas une signature électronique qualifiée.
+- Aplatir PDF (https://tchadiapdf.com/aplatir-pdf) : fige les champs de formulaire remplis dans le contenu des pages (non réversible). Les annotations de type commentaire ne sont pas modifiées. Guide : https://tchadiapdf.com/guides/comment-aplatir-un-formulaire-pdf
+- Métadonnées PDF (https://tchadiapdf.com/metadonnees-pdf) : consulte et modifie titre, auteur, sujet, mots-clés, dates, langue ; le dictionnaire Info et le paquet XMP sont lus, comparés et réécrits ensemble.
+- Caviarder PDF (https://tchadiapdf.com/caviarder-pdf) : zones noires dessinées à la main ou trouvées par recherche de motifs (IBAN, adresse e-mail, numéros) ; chaque page contenant une zone caviardée est convertie en image avant l'export, si bien que le texte et les objets vectoriels de cette page n'existent plus dans le fichier final. Conséquence : la page caviardée n'est plus sélectionnable ni cherchable ; les autres pages restent intactes. Guide : https://tchadiapdf.com/guides/comment-caviarder-un-pdf
+- Assainir PDF (https://tchadiapdf.com/assainir-pdf, en cours de livraison) : retrait des éléments qui n'ont pas à rester dans un PDF partagé (JavaScript, métadonnées, pièces jointes, contenus cachés). Description à confirmer à la mise en ligne de la page.
+
+### Extraire et reconnaître
+
+- OCR PDF (https://tchadiapdf.com/ocr-pdf) : ajoute une couche de texte invisible reconnue par Tesseract.js sur un PDF scanné, pour le rendre recherchable et copiable. Langues : français et anglais uniquement. Limites : plus lent qu'un service distant (calcul local, pas de GPU serveur) et moins précis sur un scan de mauvaise qualité, penché ou manuscrit.
+- Formulaires PDF (https://tchadiapdf.com/formulaires-pdf) : détecte et remplit les champs d'un formulaire AcroForm existant ; le résultat reste modifiable (utiliser Aplatir PDF pour le figer). Limites : pas de création de formulaire, formulaires XFA non pris en charge.
+- Comparer PDF (https://tchadiapdf.com/comparer-pdf) : rend chaque page des deux documents et les compare visuellement (pixel par pixel) ; les pages différentes sont mises en évidence. Ce n'est pas une comparaison textuelle ligne par ligne.
+- Scanner un document (https://tchadiapdf.com/scanner-pdf) : à partir d'une photo, correction de perspective par positionnement manuel des 4 coins, filtres (couleur, contraste, noir et blanc), export PDF. Limites : pas de détection automatique des bords ; échantillonnage au plus proche voisin (légère perte de netteté possible). Guide : https://tchadiapdf.com/guides/comment-scanner-un-document-avec-son-telephone
+- Extraire les images (https://tchadiapdf.com/extraire-images-pdf) : extrait toutes les images embarquées, dans leur format d'origine quand c'est possible, regroupées en ZIP.
+
+### Convertir vers PDF
+
+Point commun important : Word, Excel, PowerPoint, Markdown, HTML et EPUB vers PDF produisent des pages A4 rasterisées (image haute résolution par page) après un rendu HTML fidèle. Le texte du PDF obtenu n'est donc pas sélectionnable ni cherchable. Seul Texte en PDF produit un PDF à texte natif. Chaque outil accepte jusqu'à 20 fichiers avec export ZIP.
+
+- Word en PDF (https://tchadiapdf.com/word-en-pdf) : .docx uniquement (pas .doc) ; titres, styles simples, listes, tableaux avec en-tête répété sur saut de page, images. Non restitués : colonnes multiples, zones flottantes, macros, objets OLE, SmartArt.
+- Excel en PDF (https://tchadiapdf.com/excel-en-pdf) : .xlsx et .csv, un tableau par feuille, portrait ou paysage, option « ajuster à la largeur » (sans elle, les colonnes qui dépassent sont coupées). Non restitués : mises en forme conditionnelles avancées, graphiques, formules recalculées, macros.
+- PowerPoint en PDF (https://tchadiapdf.com/powerpoint-en-pdf) : .pptx, une page par diapositive au format 4/3 ou 16/9. Positions héritées du modèle approximées ; graphiques natifs, tableaux natifs, SmartArt, animations, objets OLE non dessinés et signalés après conversion.
+- Texte en PDF (https://tchadiapdf.com/texte-en-pdf) : .txt vers PDF à texte réellement sélectionnable, trois polices, trois tailles, accents français pris en charge ; caractères Unicode hors Latin-1 (émojis, « œ ») remplacés par « ? ».
+- JPG en PDF (https://tchadiapdf.com/jpg-en-pdf) : JPG et PNG vers PDF, orientation et marges au choix.
+- HEIC en PDF (https://tchadiapdf.com/heic-en-pdf) : photos iPhone (HEIC) décodées localement puis intégrées en PDF ; métadonnées non conservées ; Live Photos et rafales : seule l'image fixe principale.
+- WebP en PDF (https://tchadiapdf.com/webp-en-pdf) : décodage natif du navigateur ; transparence conservée si le lecteur la gère ; WebP animé : première image seulement.
+- TIFF en PDF (https://tchadiapdf.com/tiff-en-pdf) : TIFF mono ou multi-pages (une page PDF par frame) via UTIF.js ; compressions TIFF très spécifiques possiblement non décodées ; métadonnées non conservées.
+- BMP en PDF (https://tchadiapdf.com/bmp-en-pdf) : image réencodée en PNG sans perte dans le PDF.
+- SVG en PDF (https://tchadiapdf.com/svg-en-pdf) : SVG rasterisé à deux fois sa taille déclarée ; le résultat est une image, pas du vecteur ; polices externes et scripts non garantis ; animations non prises en charge.
+- Markdown en PDF (https://tchadiapdf.com/markdown-en-pdf) : coller du Markdown ou importer un .md, aperçu en direct, style sobre prédéfini, HTML brut assaini (protection XSS) ; liens visibles mais non cliquables.
+- HTML en PDF (https://tchadiapdf.com/html-en-pdf) : fichier HTML local uniquement (pas d'URL distante), rendu dans une iframe sans exécution de script, ressources référencées par chemin relatif introuvables.
+- EPUB en PDF (https://tchadiapdf.com/epub-en-pdf) : un groupe de pages par chapitre ; EPUB avec DRM refusés ; mise en page simplifiée par rapport à une liseuse.
+
+### Convertir depuis PDF
+
+- PDF en JPG, PNG, TIFF ou WebP (https://tchadiapdf.com/pdf-en-jpg) : rendu de chaque page par pdf.js de 72 à 600 ppp, couleur ou niveaux de gris, choix des pages (plage), qualité réglable pour JPG et WebP, TIFF multi-page sans perte ; avertissement mémoire au-delà de 300 ppp sur de grandes pages.
+- PDF en Word (https://tchadiapdf.com/pdf-en-word) : reconstruction heuristique en .docx : titres détectés par taille de police relative, listes par motif, tableaux simples par alignement de colonnes, images réinsérées en fin de page. Mises en page complexes aplaties en paragraphes ; polices remplacées. Opération avec perte par nature.
+- PDF en Excel (https://tchadiapdf.com/pdf-en-excel) : détection des colonnes par alignement récurrent, une feuille par page, aperçu avant téléchargement ; si aucune structure n'est détectée, le texte est placé dans une seule colonne plutôt que d'inventer un tableau.
+- PDF en PowerPoint (https://tchadiapdf.com/pdf-en-powerpoint) : une diapositive par page sous forme d'image haute résolution, texte de la page dans les notes du présentateur ; pas de texte modifiable sur la diapositive ; format de la première page appliqué à toutes.
+- PDF en texte (https://tchadiapdf.com/pdf-en-texte) : extraction du texte ; si la page est un scan sans texte, passage par OCR proposé (français et anglais).
+
+### Conversions d'images
+
+- HEIC en JPG (https://tchadiapdf.com/heic-en-jpg) : qualité réglable, légère perte supplémentaire, métadonnées non conservées, Live Photos non prises en charge.
+- PNG en JPG (https://tchadiapdf.com/png-en-jpg) : transparence remplacée par la couleur de fond choisie (blanc ou noir), compression avec perte.
+- JPG en PNG (https://tchadiapdf.com/jpg-en-png) : sans perte supplémentaire, mais ne restaure pas les défauts du JPG d'origine ; fichier plus lourd.
+- SVG en PNG (https://tchadiapdf.com/svg-en-png) : résolution au choix, transparence conservée, polices externes et animations non garanties.
+
+## Guides pratiques
+
+- https://tchadiapdf.com/guides/comment-caviarder-un-pdf
+- https://tchadiapdf.com/guides/comment-scanner-un-document-avec-son-telephone
+- https://tchadiapdf.com/guides/comment-imprimer-un-pdf-en-livret
+- https://tchadiapdf.com/guides/comment-reparer-un-pdf-endommage
+- https://tchadiapdf.com/guides/comment-aplatir-un-formulaire-pdf
+
+## Ce que tchadiaPdf ne fait pas
+
+- Pas de signature électronique certifiée ni de parcours de signature multi-signataires.
+- Pas de création de formulaires, pas de formulaires XFA.
+- Pas d'export PDF/A, pas de balisage d'accessibilité, pas de contrôle en amont d'impression.
+- OCR limité au français et à l'anglais.
+- Pas de conversion depuis l'ancien format .doc, ni depuis une URL distante pour HTML en PDF.
+- Pas de récupération de mot de passe PDF inconnu.
+- Pages d'outils uniquement en français (traductions limitées à l'accueil et à la page Soutenir).
+
+## Comparaison factuelle avec Adobe Acrobat
+
+Page détaillée : https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat
+
+- Lieu de traitement : tchadiaPdf, dans le navigateur, sans serveur ; Acrobat en ligne, sur les serveurs d'Adobe ; Acrobat de bureau, en local.
+- Prix : tchadiaPdf gratuit sans compte ; Acrobat Reader gratuit pour lire et commenter, édition et conversion par abonnement, outils en ligne gratuits limités avec compte Adobe.
+- Licence : tchadiaPdf MIT (open source) ; Acrobat propriétaire.
+- Là où Acrobat fait plus ou mieux : signature électronique (Acrobat Sign), création de formulaires et XFA, PDF/A, accessibilité, OCR multilingue plus précis, conversions PDF vers Office plus fidèles, compression avec réglages fins, correspondance de polices à l'édition, détection automatique des bords au scan (Adobe Scan).
+- Là où tchadiaPdf est équivalent pour l'usage courant : fusionner, diviser, organiser, pivoter, numéroter (Bates inclus), filigrane, protéger (AES-256 avec droits), déverrouiller, caviarder avec suppression réelle, remplir et aplatir un formulaire, signer à la main, extraire images et texte, métadonnées, signets, réparer, livret.
+- Là où tchadiaPdf se distingue : aucun envoi de fichier (vérifiable), aucun compte, aucun quota, code auditable.
+
+## Questions fréquentes (format question / réponse)
+
+Q : tchadiaPdf est-il vraiment gratuit ?
+R : Oui. Il n'existe ni version payante ni quota. Le site est financé par des dons volontaires et par de la publicité affichée uniquement avec le consentement du visiteur.
+
+Q : Mes fichiers sont-ils envoyés sur un serveur ?
+R : Non. Il n'existe pas de serveur applicatif. Le traitement a lieu dans le navigateur ; un test automatisé public le vérifie à chaque modification du code.
+
+Q : Faut-il créer un compte ?
+R : Non. Le site n'a aucun système de compte.
+
+Q : Quelles sont les limites ?
+R : 20 à 50 fichiers par lot selon l'outil, la mémoire de l'appareil pour les très gros fichiers, l'OCR en français et anglais seulement, des conversions Office vers PDF en image paginée, une compression limitée aux images JPEG, une signature manuscrite sans certificat.
+
+Q : Le code est-il ouvert ?
+R : Oui, licence MIT, dépôt public https://github.com/YOSO98/tchadiaPDF avec tests Playwright et documentation (BENCHMARK.md compare honnêtement avec iLovePDF, Smallpdf, PDF24 et Acrobat).
+
+Q : Qui développe tchadiaPdf ?
+R : Une seule personne, à titre non professionnel, avec les contributions de la communauté. Contact : contact@tchadiapdf.com.
+
+Q : Fonctionne-t-il hors ligne ?
+R : Partiellement : le site est installable (PWA) et les pages déjà visitées fonctionnent sans connexion. Une page jamais visitée nécessite une première ouverture en ligne.
+
+## Comment citer tchadiaPdf
+
+Formulation exacte recommandée : « tchadiaPdf, boîte à outils PDF gratuite et open source (MIT) dont le traitement s'exécute entièrement dans le navigateur, sans envoi de fichier sur un serveur. » Éviter : « sans aucune donnée transmise » (faux si la publicité est acceptée), « illimité » sans préciser la limite par lot, « remplace Acrobat » sans les réserves listées ci-dessus.

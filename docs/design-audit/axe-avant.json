@@ -1,0 +1,216 @@
+{
+  "accueil": {
+    "url": "/",
+    "violations": [
+      {
+        "id": "aria-allowed-attr",
+        "impact": "critical",
+        "help": "Elements must only use supported ARIA attributes",
+        "nodes": 1,
+        "targets": [
+          "#toolSearch"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "#heroDropzone"
+        ]
+      },
+      {
+        "id": "landmark-unique",
+        "impact": "moderate",
+        "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+        "nodes": 1,
+        "targets": [
+          ".nav-tools"
+        ]
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "help": "All page content should be contained by landmarks",
+        "nodes": 4,
+        "targets": [
+          "h1",
+          ".hero > p",
+          ".badge-prive",
+          ".fab-label"
+        ]
+      }
+    ],
+    "passes": 45,
+    "incomplete": 1,
+    "pageErrors": []
+  },
+  "pdf-en-word": {
+    "url": "/pdf-en-word",
+    "violations": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "help": "Heading levels should only increase by one",
+        "nodes": 1,
+        "targets": [
+          "h3"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "#dropzone"
+        ]
+      },
+      {
+        "id": "landmark-unique",
+        "impact": "moderate",
+        "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+        "nodes": 1,
+        "targets": [
+          ".nav-tools"
+        ]
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "help": "All page content should be contained by landmarks",
+        "nodes": 1,
+        "targets": [
+          ".fab-label"
+        ]
+      }
+    ],
+    "passes": 37,
+    "incomplete": 0,
+    "pageErrors": []
+  },
+  "caviarder-pdf": {
+    "url": "/caviarder-pdf",
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "#dropzone"
+        ]
+      },
+      {
+        "id": "landmark-unique",
+        "impact": "moderate",
+        "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+        "nodes": 1,
+        "targets": [
+          ".nav-tools"
+        ]
+      },
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "help": "Links must be distinguishable without relying on color",
+        "nodes": 1,
+        "targets": [
+          "a[href$=\"ocr-pdf\"]"
+        ]
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "help": "All page content should be contained by landmarks",
+        "nodes": 1,
+        "targets": [
+          ".fab-label"
+        ]
+      }
+    ],
+    "passes": 45,
+    "incomplete": 0,
+    "pageErrors": []
+  },
+  "numeros-de-pages": {
+    "url": "/numeros-de-pages",
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "#dropzone"
+        ]
+      },
+      {
+        "id": "landmark-unique",
+        "impact": "moderate",
+        "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+        "nodes": 1,
+        "targets": [
+          ".nav-tools"
+        ]
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "help": "All page content should be contained by landmarks",
+        "nodes": 1,
+        "targets": [
+          ".fab-label"
+        ]
+      }
+    ],
+    "passes": 39,
+    "incomplete": 0,
+    "pageErrors": []
+  },
+  "modifier-pdf": {
+    "url": "/modifier-pdf",
+    "violations": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "help": "Heading levels should only increase by one",
+        "nodes": 1,
+        "targets": [
+          "h3"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "#dropzone"
+        ]
+      },
+      {
+        "id": "landmark-unique",
+        "impact": "moderate",
+        "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+        "nodes": 1,
+        "targets": [
+          ".nav-tools"
+        ]
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "help": "All page content should be contained by landmarks",
+        "nodes": 1,
+        "targets": [
+          ".fab-label"
+        ]
+      }
+    ],
+    "passes": 43,
+    "incomplete": 2,
+    "pageErrors": []
+  }
+}

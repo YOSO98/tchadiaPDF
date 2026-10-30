@@ -3,7 +3,7 @@
 // Configuration de pdf.js (rendu des miniatures)
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    "/vendor/pdf.worker-3.11.174.min.js";
 }
 
 // Support hors ligne (PWA) : enregistre le service worker une fois la page
@@ -57,6 +57,8 @@ function initDropzone(dzId, inputId, onFiles) {
   const dz = document.getElementById(dzId);
   const input = document.getElementById(inputId);
 
+  decorateDropzone(dz, input);
+
   dz.addEventListener("click", () => input.click());
   dz.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); }
@@ -83,6 +85,76 @@ function initDropzone(dzId, inputId, onFiles) {
   consumePendingFile().then((file) => {
     if (file) onFiles([file]);
   });
+}
+
+/* Libelles lisibles des types acceptes (attribut accept de l'input file),
+   affiches sous la dropzone : l'utilisateur sait avant de choisir ce que
+   l'outil attend. Un type inconnu est ignore plutot qu'affiche brut. */
+const ACCEPT_LABELS = {
+  "application/pdf": "PDF", ".pdf": "PDF",
+  "image/jpeg": "JPG", ".jpg": "JPG", ".jpeg": "JPG",
+  "image/png": "PNG", ".png": "PNG",
+  "image/webp": "WebP", ".webp": "WebP",
+  "image/tiff": "TIFF", ".tif": "TIFF", ".tiff": "TIFF",
+  "image/bmp": "BMP", ".bmp": "BMP",
+  "image/heic": "HEIC", "image/heif": "HEIC", ".heic": "HEIC", ".heif": "HEIC",
+  "image/svg+xml": "SVG", ".svg": "SVG",
+  "image/*": "Images",
+  ".docx": "DOCX", "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "DOCX",
+  ".xlsx": "XLSX", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
+  ".csv": "CSV", "text/csv": "CSV",
+  ".pptx": "PPTX", "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PPTX",
+  ".txt": "TXT", "text/plain": "TXT",
+  ".md": "Markdown", ".markdown": "Markdown", "text/markdown": "Markdown",
+  ".html": "HTML", ".htm": "HTML", "text/html": "HTML",
+  ".epub": "EPUB", "application/epub+zip": "EPUB",
+};
+
+/**
+ * Complete l'accessibilite et l'affordance d'une dropzone sans toucher au
+ * HTML des pages : nom accessible = texte visible (WCAG 2.5.3), description
+ * = texte secondaire, et liste des formats acceptes derivee de l'attribut
+ * accept de l'input (jamais dupliquee a la main dans 46 pages).
+ */
+function decorateDropzone(dz, input) {
+  if (!dz || dz.dataset.decorated === "1") return;
+  dz.dataset.decorated = "1";
+
+  // Nom accessible = tout le texte visible de la zone (WCAG 2.5.3), construit
+  // apres l'ajout eventuel des formats ci-dessous (voir fin de fonction).
+  const title = dz.querySelector("strong");
+  const hint = dz.querySelector("span");
+  if (title && !title.id) title.id = dz.id + "-titre";
+  if (hint && !hint.id) hint.id = dz.id + "-aide";
+
+  const accept = input && input.getAttribute("accept");
+  let list = dz.querySelector(".dz-formats");
+  if (accept && !list) {
+    const labels = [];
+    accept.split(",").forEach((raw) => {
+      const key = raw.trim().toLowerCase();
+      const label = ACCEPT_LABELS[key];
+      if (label && labels.indexOf(label) === -1) labels.push(label);
+    });
+    if (labels.length) {
+      list = document.createElement("div");
+      list.className = "dz-formats";
+      labels.forEach((label) => {
+        const chip = document.createElement("span");
+        chip.textContent = label;
+        list.appendChild(chip);
+      });
+      dz.appendChild(list);
+    }
+  }
+  if (list && !list.id) list.id = dz.id + "-formats";
+
+  const labelIds = [title, hint, list].filter(Boolean).map((el) => el.id);
+  if (labelIds.length) {
+    dz.setAttribute("aria-labelledby", labelIds.join(" "));
+    dz.removeAttribute("aria-label");
+    dz.removeAttribute("aria-describedby");
+  }
 }
 
 const PENDING_FILE_DB = "tchadiapdf-handoff";
@@ -131,23 +203,82 @@ function consumePendingFile() {
   });
 }
 
-/** Affiche la barre de progression (0 à 100) avec un texte. */
+/** Affiche la barre de progression (0 à 100) avec un texte et le pourcentage. */
 function setProgress(pct, label) {
   const wrap = document.getElementById("progress");
   wrap.classList.add("visible");
-  wrap.querySelector(".progress-bar > div").style.width = pct + "%";
-  if (label) wrap.querySelector(".progress-label").textContent = label;
+  const bar = wrap.querySelector(".progress-bar");
+  const fill = wrap.querySelector(".progress-bar > div");
+  const labelEl = wrap.querySelector(".progress-label");
+  const value = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
+  fill.style.width = value + "%";
+  if (bar) {
+    bar.setAttribute("role", "progressbar");
+    bar.setAttribute("aria-valuemin", "0");
+    bar.setAttribute("aria-valuemax", "100");
+    bar.setAttribute("aria-valuenow", String(value));
+  }
+  if (labelEl) {
+    if (!labelEl.id) labelEl.id = "progress-libelle";
+    if (bar) bar.setAttribute("aria-labelledby", labelEl.id);
+    labelEl.setAttribute("aria-live", "polite");
+    let pctEl = labelEl.querySelector(".progress-pct");
+    if (label) {
+      labelEl.textContent = label;
+      pctEl = null;
+    }
+    if (!pctEl) {
+      pctEl = document.createElement("span");
+      pctEl.className = "progress-pct";
+      labelEl.appendChild(pctEl);
+    }
+    pctEl.textContent = value + " %";
+  }
 }
 function hideProgress() {
   document.getElementById("progress").classList.remove("visible");
 }
 
-/** Affiche un message d'erreur ou d'information (texte simple). */
-function showMsg(text) {
+const MSG_ICONS = {
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8v.01"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 16.5H2.5z"/><path d="M12 10v4"/><path d="M12 17v.01"/></svg>',
+  error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/></svg>',
+};
+
+/** Prepare la zone #msg : icone (info / avertissement / erreur), corps,
+ * attributs ARIA. Retourne l'element de corps dans lequel ecrire. Jamais de
+ * couleur dediee : seuls l'icone, le texte et l'epaisseur du trait changent. */
+function prepareMsg(kind) {
   const el = document.getElementById("msg");
   el.innerHTML = "";
-  el.textContent = "ⓘ " + text;
+  el.classList.remove("msg-info", "msg-warn", "msg-error");
+  el.classList.add("msg-" + kind);
+  el.setAttribute("role", kind === "error" ? "alert" : "status");
+  el.setAttribute("aria-live", kind === "error" ? "assertive" : "polite");
+  const icon = document.createElement("span");
+  icon.className = "msg-icon";
+  icon.innerHTML = MSG_ICONS[kind] || MSG_ICONS.info; // SVG statique du site, jamais de contenu utilisateur
+  const body = document.createElement("div");
+  body.className = "msg-body";
+  el.appendChild(icon);
+  el.appendChild(body);
   el.classList.add("visible");
+  return body;
+}
+
+/** Affiche un message d'information (texte simple). */
+function showMsg(text) {
+  const body = prepareMsg("info");
+  const p = document.createElement("p");
+  p.textContent = text;
+  body.appendChild(p);
+}
+/** Affiche un avertissement (le traitement reste possible, mais attention). */
+function showWarning(text) {
+  const body = prepareMsg("warn");
+  const p = document.createElement("p");
+  p.textContent = text;
+  body.appendChild(p);
 }
 function hideMsg() {
   const el = document.getElementById("msg");
@@ -165,11 +296,10 @@ function hideMsg() {
  */
 function showError(text, options) {
   options = options || {};
-  const el = document.getElementById("msg");
-  el.innerHTML = "";
+  const el = prepareMsg("error");
 
   const p = document.createElement("p");
-  p.textContent = "⚠ " + text;
+  p.textContent = text;
   el.appendChild(p);
 
   if (options.retry || options.suggestionHref) {
@@ -192,8 +322,6 @@ function showError(text, options) {
     }
     el.appendChild(actions);
   }
-
-  el.classList.add("visible");
 }
 
 /** Propose le téléchargement d'un fichier généré. */
@@ -204,10 +332,43 @@ function offerDownload(bytes, filename, mime) {
   const link = result.querySelector("a.btn-primary");
   link.href = url;
   link.download = filename;
+  showResultSummary(result, link, filename, blob.size);
+  result.setAttribute("role", "status");
+  result.setAttribute("aria-live", "polite");
   result.classList.add("visible");
-  result.scrollIntoView({ behavior: "smooth", block: "center" });
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  result.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
   showFunLine(result);
   showSupportLine(result);
+  link.focus({ preventScroll: true });
+}
+
+/**
+ * Carte de resultat : resume (nom du fichier, taille) sous le titre, puis
+ * action secondaire "Traiter un autre fichier" sous le bouton de
+ * telechargement. Idempotent (mode lot : offerDownload appelee plusieurs
+ * fois met simplement le resume a jour).
+ */
+function showResultSummary(result, link, filename, size) {
+  let summary = result.querySelector(".result-summary");
+  if (!summary) {
+    summary = document.createElement("p");
+    summary.className = "result-summary";
+    link.parentNode.insertBefore(summary, link);
+  }
+  summary.textContent = filename + " · " + fmtSize(size);
+
+  if (!result.querySelector(".result-actions")) {
+    const actions = document.createElement("div");
+    actions.className = "result-actions";
+    const again = document.createElement("button");
+    again.type = "button";
+    again.className = "btn-ghost";
+    again.textContent = "Traiter un autre fichier";
+    again.addEventListener("click", () => window.location.reload());
+    actions.appendChild(again);
+    link.parentNode.insertBefore(actions, link.nextSibling);
+  }
 }
 
 const FUN_LINES = [

@@ -194,11 +194,23 @@
    * Chiffre un PDF (attendu : octets produits par pdf-lib avec
    * `useObjectStreams: false`, format xref classique) avec un mot de passe.
    * @param {Uint8Array} pdfBytes
-   * @param {string} password
+   * @param {string} password mot de passe d'ouverture (utilisateur) ; peut
+   *   etre vide si un mot de passe proprietaire est fourni (ouverture libre,
+   *   droits restreints)
+   * @param {{ownerPassword?: string, permissions?: number}} [options]
+   *   ownerPassword : mot de passe proprietaire (droits), par defaut le mot
+   *   de passe d'ouverture ; permissions : valeur /P (entier signe 32 bits,
+   *   norme PDF tableau 22), par defaut -4 (tous les droits accordes)
    * @returns {Uint8Array} le PDF chiffre
    */
-  function encryptPdfBytes(pdfBytes, password) {
-    if (!password) throw new Error("Le mot de passe ne peut pas etre vide.");
+  function encryptPdfBytes(pdfBytes, password, options) {
+    options = options || {};
+    const userPassword = password || "";
+    const ownerPassword = options.ownerPassword || userPassword;
+    if (!userPassword && !ownerPassword) {
+      throw new Error("Indiquez au moins un mot de passe (ouverture ou proprietaire).");
+    }
+    const P = typeof options.permissions === "number" ? (options.permissions | 0) : -4;
 
     const tailText = bytesToLatin1(pdfBytes, Math.max(0, pdfBytes.length - 4096));
     const startxrefIdx = tailText.lastIndexOf("startxref");
@@ -249,9 +261,8 @@
     const idBytes = new Uint8Array(16);
     crypto.getRandomValues(idBytes);
 
-    const O = computeO(password, password);
-    const P = -4; // toutes les permissions accordees (impression, modification, copie...)
-    const fileKey = computeFileKey(password, O, P, idBytes);
+    const O = computeO(userPassword, ownerPassword);
+    const fileKey = computeFileKey(userPassword, O, P, idBytes);
     const U = computeU(fileKey, idBytes);
 
     for (let objNum = 1; objNum < size; objNum++) {

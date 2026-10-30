@@ -1,13 +1,46 @@
-# DEPENDENCIES : dépendances chargées depuis des CDN
+# DEPENDENCIES : bibliothèques auto-hébergées dans `vendor/`
 
 tchadiaPdf est un site 100% statique : aucune de ces librairies n'est
 installée via npm pour le site lui-même (le `package.json` du dépôt ne sert
-qu'à l'outillage de développement : tests Playwright, script de vérification
-de style). Chaque librairie ci-dessous est chargée directement dans le
-navigateur de l'utilisateur, soit via une balise `<script>`/`<link>` statique,
-soit paresseusement (lazy) depuis le JavaScript au moment où l'utilisateur
-déclenche une action qui en a besoin (pour ne pas alourdir le chargement
-initial des pages qui n'en ont pas besoin).
+qu'à l'outillage de développement : tests Playwright, scripts de vérification).
+
+Depuis la migration vers `vendor/` (vague 1 du plan de parité Acrobat), chaque
+librairie est **servie par tchadiapdf.com lui-même** depuis le dossier
+`vendor/`, plus jamais depuis un CDN tiers (cdnjs, jsdelivr). Conséquences :
+
+- aucune requête vers un domaine tiers pendant l'usage d'un outil, ce que le
+  test `tests/no-network-leak.spec.js` vérifie désormais strictement (la liste
+  des hôtes autorisés, construite depuis les balises `<script src>` du site,
+  est vide) ;
+- le site et sa suite de tests fonctionnent sans accès à Internet (CI,
+  réseaux d'entreprise filtrés, hors ligne via le service worker) ;
+- plus d'attribut `integrity` : la SRI protège contre un CDN compromis, elle
+  est sans objet sur la même origine, et l'incohérence jsdelivr constatée
+  sur `docx@8.5.0` disparaît ;
+- la version fait partie du nom de fichier (`pdf-lib-1.17.1.min.js`), ce qui
+  autorise un cache HTTP long et immuable (`_headers`, règle `/vendor/*`).
+
+Les fichiers de `vendor/` sont copiés tels quels depuis les paquets npm
+officiels (`npm pack <paquet>@<version>`), sans modification ; leurs licences
+sont dans `vendor/licenses/`. Le script `scripts/migrer-vers-vendor.js`
+documente la correspondance exacte URL CDN d'origine vers fichier local.
+Pour mettre à jour une librairie : télécharger la nouvelle version depuis
+npm, la déposer sous un nouveau nom versionné, mettre à jour les références
+(`grep -r "vendor/<lib>-" *.html js/`), relancer `npm test`.
+
+Cas particuliers :
+
+- **Tesseract.js** : le moteur (`tesseract.min.js`, `worker.min.js`), le
+  cœur WebAssembly (`core/tesseract-core-simd-lstm.wasm.js` et sa variante
+  sans SIMD) et les données de langue français et anglais
+  (`lang/fra.traineddata.gz`, `lang/eng.traineddata.gz`, variante
+  `best_int` du paquet `@tesseract.js-data`) sont tous locaux : l'OCR ne
+  fait plus aucune requête externe.
+- **qpdf** (`qpdf-0.3.0/qpdf.js` + `qpdf.wasm`) et **fontkit** sont chargés
+  paresseusement par `js/qpdf-engine.js` et `js/modifier-pdf.js`.
+- **Polices Liberation** (`vendor/fonts/liberation/*.ttf`, licence SIL OFL
+  1.1) : polices de substitution de l'éditeur, auparavant chargées depuis un
+  dépôt GitHub via jsdelivr.
 
 Convention : version exacte figée partout (jamais de `@latest`), pour que le
 comportement du site ne change jamais sans une mise à jour explicite et
@@ -32,6 +65,33 @@ testée de ce dépôt.
 | Tesseract.js | 5.1.1 | Apache-2.0 | https://github.com/naptha/tesseract.js | OCR (ocr-pdf, repli OCR de pdf-en-texte et modifier-pdf) |
 | @pdf-lib/fontkit | 1.1.1 | MIT | https://github.com/Hopding/fontkit | Sous-ensemble et embarquement de polices dans le PDF (modifier-pdf) |
 | @neslinesli93/qpdf-wasm | 0.3.0 | ISC (wrapper) / Apache-2.0 (qpdf) | https://github.com/neslinesli93/qpdf-wasm | Chiffrement AES-256, réparation PDF (proteger/deverrouiller/reparer-pdf) |
+
+## Paquet de signature PAdES (généré, dans vendor/)
+
+Comme toutes les bibliothèques du site, celles de la signature numérique
+PAdES de `signer-pdf` sont servies depuis notre domaine. Elles forment un
+paquet unique
+`vendor/pades-libs.min.js`, chargé à la demande (option cochée) avec un
+attribut `integrity` SRI. Ce fichier est généré par
+`npm run vendor-pades` (`scripts/build-vendor-pades.js`, esbuild), qui met
+aussi à jour l'URL `?v=hash` et l'empreinte SRI dans `js/pades.js` et
+regroupe les licences dans `vendor/LICENSES-pades.txt`. Le site lui-même
+reste sans étape de build : ce script ne tourne qu'à la mise à jour
+volontaire de ces dépendances (versions figées dans `package.json`).
+
+| Librairie | Version figée | Licence | Source officielle | Usage |
+|---|---|---|---|---|
+| pkijs | 4.0.1 | BSD-3-Clause | https://github.com/PeculiarVentures/PKI.js | Lecture PKCS#12, construction et vérification CMS |
+| asn1js | 4.0.0 | BSD-3-Clause | https://github.com/PeculiarVentures/ASN1.js | Encodage/décodage ASN.1 DER |
+| @signpdf/signpdf | 4.0.0 | MIT | https://github.com/vbuch/node-signpdf | Calcul du `/ByteRange` et insertion de la signature |
+| @signpdf/placeholder-pdf-lib | 4.0.0 | MIT | https://github.com/vbuch/node-signpdf | Champ et dictionnaire de signature avec pdf-lib |
+| @signpdf/utils | 4.0.0 | MIT | https://github.com/vbuch/node-signpdf | Constantes et classe Signer |
+| buffer | 6.0.3 | MIT | https://github.com/feross/buffer | Équivalent navigateur de `Buffer` (utilisé par @signpdf) |
+
+Dépendances transitives embarquées : @noble/hashes, @peculiar/utils,
+bytestreamjs, base64-js, ieee754 (licences complètes dans
+`vendor/LICENSES-pades.txt`). pdf-lib n'est pas dupliqué : le paquet
+réutilise le `PDFLib` déjà chargé par la page.
 
 ## Polices
 

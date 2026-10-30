@@ -6,7 +6,7 @@ English | [Français](README.md)
 
 <p align="center">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/licence-MIT-2563EB"></a>
-  <a href="#the-43-available-tools"><img alt="43 tools" src="https://img.shields.io/badge/outils-43-2563EB"></a>
+  <a href="#the-47-available-tools"><img alt="47 tools" src="https://img.shields.io/badge/outils-47-2563EB"></a>
   <a href="https://tchadiapdf.com"><img alt="Site online" src="https://img.shields.io/website?url=https%3A%2F%2Ftchadiapdf.com"></a>
   <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-2563EB"></a>
   <a href="#contributing"><img alt="5 languages" src="https://img.shields.io/badge/langues-5-2563EB"></a>
@@ -30,7 +30,7 @@ English | [Français](README.md)
 - **100% private**: all processing happens in your browser tab, no file is ever sent to a server. This absence of network traffic is verified by an automated test that intercepts every request during a real conversion: [tests/no-network-leak.spec.js](tests/no-network-leak.spec.js).
 - **Open source**: auditable code under the MIT license, contributions welcome.
 
-## The 43 available tools
+## The 47 available tools
 
 ### Edit
 
@@ -99,6 +99,9 @@ English | [Français](README.md)
 | Scan a document | [tchadiapdf.com/scanner-pdf.html](https://tchadiapdf.com/scanner-pdf.html) |
 | Flatten PDF | [tchadiapdf.com/aplatir-pdf.html](https://tchadiapdf.com/aplatir-pdf.html) |
 | PDF metadata | [tchadiapdf.com/metadonnees-pdf.html](https://tchadiapdf.com/metadonnees-pdf.html) |
+| PDF bookmarks | [tchadiapdf.com/signets-pdf.html](https://tchadiapdf.com/signets-pdf.html) |
+| PDF attachments | [tchadiapdf.com/pieces-jointes-pdf.html](https://tchadiapdf.com/pieces-jointes-pdf.html) |
+| Sanitize PDF | [tchadiapdf.com/assainir-pdf.html](https://tchadiapdf.com/assainir-pdf.html) |
 | Extract images | [tchadiapdf.com/extraire-images-pdf.html](https://tchadiapdf.com/extraire-images-pdf.html) |
 | Booklet PDF | [tchadiapdf.com/livret-pdf.html](https://tchadiapdf.com/livret-pdf.html) |
 

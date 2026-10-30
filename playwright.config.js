@@ -4,6 +4,11 @@
 // de fichiers statiques (http-server) lance automatiquement avant les tests.
 const { defineConfig, devices } = require("@playwright/test");
 
+// Port configurable (TCHADIA_TEST_PORT) pour lancer plusieurs suites en
+// parallele depuis des copies de travail differentes (git worktree) sans
+// que les serveurs statiques se melangent.
+const PORT = process.env.TCHADIA_TEST_PORT || "8943";
+
 module.exports = defineConfig({
   testDir: "./tests",
   fullyParallel: true,
@@ -14,7 +19,7 @@ module.exports = defineConfig({
   timeout: 30000,
 
   use: {
-    baseURL: "http://127.0.0.1:8943",
+    baseURL: `http://127.0.0.1:${PORT}`,
     trace: "retain-on-failure",
   },
 
@@ -33,8 +38,8 @@ module.exports = defineConfig({
     // pas la redirection 308 elle-meme, seulement la resolution d'URL propre :
     // suffisant pour verifier que les liens internes (desormais sans .html)
     // resolvent correctement en local.
-    command: "npx http-server -p 8943 -a 127.0.0.1 -e html --silent .",
-    url: "http://127.0.0.1:8943/index.html",
+    command: `npx http-server -p ${PORT} -a 127.0.0.1 -e html --silent .`,
+    url: `http://127.0.0.1:${PORT}/index.html`,
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },

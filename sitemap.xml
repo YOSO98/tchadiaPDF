@@ -1,263 +1,343 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://tchadiapdf.com/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/"/>
+  </url>
   <url>
     <loc>https://tchadiapdf.com/a-propos</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://tchadiapdf.com/aplatir-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/bmp-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/caviarder-pdf</loc>
-    <lastmod>2026-07-11</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/comparer-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/compresser-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/confiance</loc>
-    <lastmod>2026-07-14</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/confidentialite</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/conversions</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/deverrouiller-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/diviser</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/epub-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/excel-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/extraire-images-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/filigrane</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/formulaires-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/fusionner</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/heic-en-jpg</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/heic-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/html-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/jpg-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/jpg-en-png</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/livret-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/markdown-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/mentions-legales</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/metadonnees-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/modifier-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/numeros-de-pages</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/ocr-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/organiser-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/pdf-en-excel</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/pdf-en-jpg</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/pdf-en-powerpoint</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/pdf-en-texte</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/pdf-en-word</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/pivoter</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/png-en-jpg</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/powerpoint-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/proteger-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/reparer-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/rogner-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/scanner-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/securite</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/signer-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/soutenir</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/svg-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/svg-en-png</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/texte-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/tiff-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/webp-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/word-en-pdf</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/en/</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/en/soutenir</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/es/</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/es/soutenir</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/pt/</loc>
-    <lastmod>2026-07-07</lastmod>
-  </url>
-  <url>
-    <loc>https://tchadiapdf.com/pt/soutenir</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://tchadiapdf.com/ar/</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/"/>
   </url>
   <url>
     <loc>https://tchadiapdf.com/ar/soutenir</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/soutenir"/>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/assainir-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/bmp-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/caviarder-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/comparer-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/compresser-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/confiance</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/confidentialite</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/conversions</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/deverrouiller-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/diviser</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/en/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/"/>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/en/soutenir</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/soutenir"/>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/epub-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/es/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/"/>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/es/soutenir</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/soutenir"/>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/excel-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/extraire-images-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/filigrane</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/formulaires-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/fusionner</loc>
+    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://tchadiapdf.com/guides/comment-aplatir-un-formulaire-pdf</loc>
-    <lastmod>2026-07-14</lastmod>
+    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://tchadiapdf.com/guides/comment-caviarder-un-pdf</loc>
-    <lastmod>2026-07-14</lastmod>
+    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://tchadiapdf.com/guides/comment-imprimer-un-pdf-en-livret</loc>
-    <lastmod>2026-07-14</lastmod>
+    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://tchadiapdf.com/guides/comment-reparer-un-pdf-endommage</loc>
-    <lastmod>2026-07-14</lastmod>
+    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://tchadiapdf.com/guides/comment-scanner-un-document-avec-son-telephone</loc>
-    <lastmod>2026-07-14</lastmod>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/heic-en-jpg</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/heic-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/html-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/jpg-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/jpg-en-png</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/livret-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/markdown-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/mentions-legales</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/metadonnees-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/modifier-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/numeros-de-pages</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/ocr-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/organiser-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pdf-en-excel</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pdf-en-jpg</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pdf-en-powerpoint</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pdf-en-texte</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pdf-en-word</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pieces-jointes-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pivoter</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/png-en-jpg</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pourquoi-gratuit</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/powerpoint-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/proteger-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pt/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/"/>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/pt/soutenir</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/soutenir"/>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/reparer-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/rogner-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/scanner-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/securite</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/signer-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/signets-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/soutenir</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tchadiapdf.com/en/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tchadiapdf.com/es/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://tchadiapdf.com/pt/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://tchadiapdf.com/ar/soutenir"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/soutenir"/>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/svg-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/svg-en-png</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/tchadiapdf-vs-adobe-acrobat</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/texte-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/tiff-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/webp-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://tchadiapdf.com/word-en-pdf</loc>
+    <lastmod>2026-10-30</lastmod>
   </url>
 </urlset>
