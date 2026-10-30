@@ -21,20 +21,24 @@
   var resultsEl = document.getElementById("toolSearchResults");
   var cards = Array.prototype.slice.call(document.querySelectorAll(".tool-card"));
 
+  var seenHrefs = {};
   var TOOLS = cards
     .map(function (card) {
-      var h2 = card.querySelector("h2");
+      var heading = card.querySelector("h2, h3");
       var p = card.querySelector("p");
       var svg = card.querySelector("svg");
       return {
         href: card.getAttribute("href"),
-        title: h2 ? h2.textContent.trim() : "",
+        title: heading ? heading.textContent.trim() : "",
         desc: p ? p.textContent.trim() : "",
         iconHTML: svg ? svg.outerHTML : "",
       };
     })
     .filter(function (t) {
-      return t.href && t.title;
+      // Un meme outil peut apparaitre dans plusieurs sections : une seule entree.
+      if (!t.href || !t.title || seenHrefs[t.href]) return false;
+      seenHrefs[t.href] = true;
+      return true;
     });
 
   var POPULAR = ["/fusionner", "/compresser-pdf", "/modifier-pdf", "/word-en-pdf"]
@@ -362,53 +366,64 @@
       el = document.createElement("div");
       el.id = "msg";
       el.className = "msg container";
-      el.style.marginTop = "16px";
       var hero = document.querySelector(".hero");
       if (hero) hero.insertAdjacentElement("afterend", el);
     }
-    el.textContent = "ⓘ " + text + " Voir la page Conversions.";
-    el.classList.add("visible");
+    var full = text + " Voir la page Conversions.";
+    if (typeof showMsg === "function") {
+      showMsg(full);
+    } else {
+      el.textContent = full;
+      el.classList.add("visible");
+    }
+    el.scrollIntoView({ block: "center" });
   }
 })();
 
-/* Le catalogue complet (43 outils) reste replie par defaut (hauteur limitee,
-   degrade visuel + bouton "Voir tous les outils") pour garder une page
-   d'accueil courte : tous les liens restent neanmoins presents dans le DOM
-   des le chargement (aucun impact sur le referencement). */
-(function () {
-  var catalog = document.getElementById("toolsCatalog");
-  var expandBtn = document.getElementById("catalogExpandBtn");
-  if (!catalog || !expandBtn) return;
-  expandBtn.addEventListener("click", function () {
-    catalog.classList.remove("collapsed");
-    expandBtn.classList.add("is-hidden");
-  });
-})();
-
-/* Filtre du catalogue d'outils par categorie (onglets), instantane, sans
-   rechargement. "Tous" reaffiche l'integralite du catalogue. */
+/* Filtre du catalogue d'outils par categorie (boutons a bascule), instantane,
+   sans rechargement. "Populaires" (par defaut) n'affiche que les cartes
+   marquees data-popular ; "Tous" reaffiche l'integralite du catalogue. Toutes
+   les cartes restent dans le DOM (referencement), seul l'affichage change. */
 (function () {
   var tabs = document.querySelectorAll(".category-tabs button");
   var catalog = document.getElementById("toolsCatalog");
   if (!tabs.length || !catalog) return;
   var cards = Array.prototype.slice.call(catalog.querySelectorAll(".tool-card"));
+  var status = document.getElementById("catalogStatus");
+  var lang = (document.documentElement.getAttribute("lang") || "fr").slice(0, 2);
+  var STATUS = {
+    fr: function (n) { return n + " outil" + (n > 1 ? "s" : "") + " affiché" + (n > 1 ? "s" : ""); },
+    en: function (n) { return n + " tool" + (n > 1 ? "s" : "") + " shown"; },
+    es: function (n) { return n + " herramienta" + (n > 1 ? "s" : "") + " mostrada" + (n > 1 ? "s" : ""); },
+    pt: function (n) { return n + " ferramenta" + (n > 1 ? "s" : "") + " apresentada" + (n > 1 ? "s" : ""); },
+    ar: function (n) { return n + " أداة معروضة"; },
+  };
 
   function applyFilter(filter) {
+    var shown = 0;
     cards.forEach(function (card) {
-      var match = filter === "tous" || card.dataset.category === filter;
+      var match =
+        filter === "tous" ||
+        (filter === "populaires" && card.hasAttribute("data-popular")) ||
+        card.dataset.category === filter;
       card.classList.toggle("tool-card-hidden", !match);
+      if (match) shown++;
     });
+    if (status) status.textContent = (STATUS[lang] || STATUS.fr)(shown);
   }
 
   tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
       tabs.forEach(function (t) {
         t.classList.remove("active");
-        t.setAttribute("aria-selected", "false");
+        t.setAttribute("aria-pressed", "false");
       });
       tab.classList.add("active");
-      tab.setAttribute("aria-selected", "true");
+      tab.setAttribute("aria-pressed", "true");
       applyFilter(tab.dataset.filter);
     });
   });
+
+  var initial = document.querySelector(".category-tabs button.active");
+  if (initial && initial.dataset.filter !== "tous") applyFilter(initial.dataset.filter);
 })();
