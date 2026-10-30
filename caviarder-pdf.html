@@ -76,8 +76,50 @@
       font-size: 0.85rem;
     }
     .cav-notice strong { display: block; margin-bottom: 4px; color: var(--blue-dark); }
+    .cav-notice ul { margin: 6px 0 0 18px; }
+    .cav-notice li { margin-bottom: 3px; }
+    /* Panneau « Rechercher et caviarder » : même habillage que .options, en pile verticale */
+    .cav-search {
+      margin-top: 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px;
+    }
+    .cav-search h2 { font-size: 1.05rem; margin: 0 0 6px; color: var(--ink); }
+    .cav-search .cav-search-sub { font-size: 0.85rem; color: var(--slate); margin-bottom: 14px; }
+    .cav-search-row { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 12px; }
+    .cav-search-row label { font-size: 0.9rem; font-weight: 600; }
+    .cav-search-row input[type="text"] {
+      flex: 1 1 220px;
+      min-width: 0;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      color: var(--ink);
+      background: var(--white);
+    }
+    .cav-search-row input:focus, .cav-search input[type="checkbox"]:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .cav-check { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 400; cursor: pointer; min-height: 32px; }
+    .cav-check input { width: 18px; height: 18px; accent-color: var(--blue); margin: 0; }
+    .cav-search fieldset { border: 0; padding: 0; margin: 0 0 12px; }
+    .cav-search legend { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; padding: 0; }
+    .cav-patterns { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+    .cav-search .btn-secondary { width: auto; margin-top: 0; }
+    .cav-search-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .cav-occ-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin: 16px 0 8px; font-size: 0.9rem; }
+    .cav-occ-list { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-btn); }
+    .cav-occ-list li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 0.9rem; }
+    .cav-occ-list li + li { border-top: 1px solid var(--border); }
+    .cav-occ-list .cav-check { flex: 1 1 auto; min-width: 0; }
+    .cav-occ-kind { color: var(--slate); font-size: 0.8rem; white-space: nowrap; }
+    .cav-search-status { color: var(--slate); font-size: 0.85rem; flex: 1 1 200px; min-width: 0; }
+    .cav-occ-text { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.85rem; overflow-wrap: anywhere; }
+    .cav-occ-list .btn-secondary { padding: 6px 10px; font-size: 0.8rem; min-height: 32px; white-space: nowrap; }
     @media (max-width: 480px) {
       .cav-pager { flex-wrap: wrap; }
+      .cav-occ-list li { flex-wrap: wrap; }
     }
   </style>
   <script type="application/ld+json">
@@ -141,6 +183,58 @@
     <button type="button" class="btn-secondary" id="clearPageBtn">Effacer les zones de cette page</button>
     <button type="button" class="btn-secondary" id="clearAllBtn">Tout effacer</button>
   </div>
+
+  <section class="cav-search" id="cavSearch" style="display:none" aria-labelledby="cavSearchTitle">
+    <h2 id="cavSearchTitle">Rechercher et caviarder</h2>
+    <p class="cav-search-sub">Trouvez automatiquement les données sensibles sur toutes les pages, vérifiez la liste, puis ajoutez-les aux zones à caviarder.</p>
+
+    <div class="cav-search-row">
+      <label for="searchText">Texte à rechercher</label>
+      <input type="text" id="searchText" placeholder="Ex. : Dupont" autocomplete="off">
+      <label class="cav-check"><input type="checkbox" id="searchWholeWord" checked> Mot entier</label>
+      <label class="cav-check"><input type="checkbox" id="searchCaseSensitive"> Respecter la casse</label>
+    </div>
+
+    <fieldset>
+      <legend>Motifs prédéfinis</legend>
+      <div class="cav-patterns">
+        <label class="cav-check"><input type="checkbox" class="cav-pattern" value="email"> Adresses e-mail</label>
+        <label class="cav-check"><input type="checkbox" class="cav-pattern" value="phone"> Numéros de téléphone</label>
+        <label class="cav-check"><input type="checkbox" class="cav-pattern" value="iban"> IBAN</label>
+        <label class="cav-check"><input type="checkbox" class="cav-pattern" value="nir"> Numéros de sécurité sociale (NIR)</label>
+        <label class="cav-check"><input type="checkbox" class="cav-pattern" value="card"> Cartes bancaires</label>
+        <label class="cav-check"><input type="checkbox" class="cav-pattern" value="date"> Dates</label>
+        <label class="cav-check"><input type="checkbox" class="cav-pattern" value="ip"> Adresses IP</label>
+      </div>
+    </fieldset>
+
+    <div class="cav-search-actions">
+      <button type="button" class="btn-secondary" id="searchBtn">Rechercher</button>
+      <span id="searchSummary" class="cav-search-status" role="status" aria-live="polite"></span>
+    </div>
+
+    <div id="occPanel" style="display:none">
+      <div class="cav-occ-head">
+        <label class="cav-check"><input type="checkbox" id="occSelectAll" checked> Tout sélectionner</label>
+        <span class="cav-search-status">Les occurrences cochées apparaissent en bleu sur l'aperçu de la page concernée.</span>
+      </div>
+      <ul class="cav-occ-list" id="occList" aria-label="Occurrences trouvées"></ul>
+      <div class="cav-search-actions" style="margin-top:12px">
+        <button type="button" class="btn-secondary" id="addOccBtn">Ajouter au caviardage</button>
+        <button type="button" class="btn-secondary" id="clearOccBtn">Vider la liste</button>
+      </div>
+    </div>
+
+    <div class="cav-notice">
+      <strong>À savoir avant d'appliquer</strong>
+      <ul>
+        <li>Relisez toujours le résultat : la détection automatique ne remplace pas une relecture.</li>
+        <li>Le texte contenu dans des images (scans, captures) n'est pas détecté : passez d'abord le document par la <a href="/ocr-pdf">reconnaissance de texte (OCR)</a>.</li>
+        <li>Les mises en page en colonnes, le texte tourné ou coupé en fin de ligne peuvent échapper à la recherche : complétez à la main si besoin.</li>
+        <li>La garantie reste la même qu'en mode manuel : chaque page contenant une zone est convertie en image, le texte en dessous est réellement supprimé.</li>
+      </ul>
+    </div>
+  </section>
 
   <div class="msg" id="msg"></div>
 
