@@ -66,11 +66,11 @@ testée de ce dépôt.
 | @pdf-lib/fontkit | 1.1.1 | MIT | https://github.com/Hopding/fontkit | Sous-ensemble et embarquement de polices dans le PDF (modifier-pdf) |
 | @neslinesli93/qpdf-wasm | 0.3.0 | ISC (wrapper) / Apache-2.0 (qpdf) | https://github.com/neslinesli93/qpdf-wasm | Chiffrement AES-256, réparation PDF (proteger/deverrouiller/reparer-pdf) |
 
-## Bibliothèques vendorisées (servies depuis notre domaine)
+## Paquet de signature PAdES (généré, dans vendor/)
 
-Exception au chargement par CDN : la signature numérique PAdES de
-`signer-pdf` manipule une clé privée. Ses bibliothèques sont donc servies
-depuis notre propre domaine, dans un seul fichier
+Comme toutes les bibliothèques du site, celles de la signature numérique
+PAdES de `signer-pdf` sont servies depuis notre domaine. Elles forment un
+paquet unique
 `vendor/pades-libs.min.js`, chargé à la demande (option cochée) avec un
 attribut `integrity` SRI. Ce fichier est généré par
 `npm run vendor-pades` (`scripts/build-vendor-pades.js`, esbuild), qui met

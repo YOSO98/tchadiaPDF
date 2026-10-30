@@ -512,9 +512,9 @@
       "url": "https://tchadiapdf.com/signer-pdf",
       "fichier": "signer-pdf.html",
       "titre_court": "Signer PDF",
-      "titre_seo": "Signer un PDF gratuit en ligne, signature manuscrite : tchadiaPdf",
-      "description": "Dessinez votre signature manuscrite, placez-la sur la page de votre choix et téléchargez votre PDF signé, gratuitement et sans envoi sur un serveur.",
-      "accroche": "apposer une signature manuscrite",
+      "titre_seo": "Signer un PDF gratuit, à la main ou avec un certificat : tchadiaPdf",
+      "description": "Dessinez votre signature ou signez avec votre certificat .p12 (PAdES), gratuitement. Le PDF et le certificat ne quittent jamais votre navigateur.",
+      "accroche": "signer à la main ou avec un certificat numérique",
       "categorie": "securite",
       "image_og": "https://tchadiapdf.com/docs/og/organiser.png",
       "mots_cles": [
@@ -522,7 +522,9 @@
         "signer un pdf gratuit",
         "signature pdf en ligne",
         "signer document pdf",
-        "apposer signature pdf"
+        "apposer signature pdf",
+        "signature numérique pdf",
+        "signer pdf avec certificat p12"
       ],
       "intention": "Transactionnel : signer un contrat, un devis ou une attestation sans l'imprimer.",
       "outils_associes": [
