@@ -21,6 +21,7 @@ const ROOT = path.resolve(__dirname, "..");
 // Dossiers ignores lors du parcours recursif.
 const IGNORED_DIRS = new Set([
   "node_modules",
+  "vendor", // code tiers genere (voir scripts/build-vendor-pades.js)
   ".git",
   "tests",
   ".github",

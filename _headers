@@ -92,6 +92,11 @@
 /js/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Bibliotheques vendorisees (signature PAdES) : servies depuis notre domaine,
+# chargees avec ?v=<hash> et integrity SRI (voir scripts/build-vendor-pades.js).
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /*.wasm
   Cache-Control: public, max-age=31536000, immutable
 
