@@ -27,6 +27,18 @@ const signPadSection = document.getElementById("signPadSection");
 const sigCanvas = document.getElementById("sigCanvas");
 const clearSigBtn = document.getElementById("clearSigBtn");
 const signBtn = document.getElementById("signBtn");
+const padesSection = document.getElementById("padesSection");
+const padesActive = document.getElementById("padesActive");
+const padesChamps = document.getElementById("padesChamps");
+const p12Input = document.getElementById("p12Input");
+const p12Password = document.getElementById("p12Password");
+const p12LoadBtn = document.getElementById("p12LoadBtn");
+const p12Info = document.getElementById("p12Info");
+const padesReason = document.getElementById("padesReason");
+const padesLocation = document.getElementById("padesLocation");
+
+let identitePades = null;     // certificat ouvert (clé privée non exportable + chaîne)
+let signaturesExistantes = 0; // champs de signature numérique déjà présents dans le PDF
 
 const sigCtx = sigCanvas.getContext("2d");
 sigCtx.strokeStyle = "#1E293B";
@@ -76,6 +88,7 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
     srcBytes = buffer;
     pdfDocJs = jsDoc;
     pageCount = doc.getPageCount();
+    signaturesExistantes = TchadiaPades.compterSignaturesExistantes(doc);
 
     fileName.textContent = file.name;
     fileMeta.textContent = fmtSize(file.size) + " · " + pageCount + " page" + (pageCount > 1 ? "s" : "");
@@ -94,10 +107,15 @@ initDropzone("dropzone", "fileInput", async (newFiles) => {
     pageOptions.style.display = "flex";
     previewSection.style.display = "block";
     signPadSection.style.display = "block";
+    padesSection.style.display = "flex";
 
     await renderSelectedPage(currentPageNum);
 
     hideProgress();
+    if (signaturesExistantes > 0) {
+      showMsg("Ce PDF contient déjà " + signaturesExistantes + " champ" + (signaturesExistantes > 1 ? "s" : "") +
+        " de signature numérique. Le signer ici réécrit le fichier : les signatures existantes ne seront plus valides.");
+    }
   } catch (e) {
     hideProgress();
     showMsg("Impossible de lire ce fichier. Réessayez avec un autre PDF.");
@@ -116,6 +134,8 @@ function resetOutil() {
   pageOptions.style.display = "none";
   previewSection.style.display = "none";
   signPadSection.style.display = "none";
+  padesSection.style.display = "none";
+  signaturesExistantes = 0;
 
   sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
   sigOverlay.style.display = "none";
@@ -124,13 +144,19 @@ function resetOutil() {
   signBtn.disabled = true;
 }
 
+/** Actif dès qu'il y a quelque chose à apposer : un dessin, un certificat ouvert, ou les deux. */
+function majBoutonSigner() {
+  const pret = hasSignature || (padesActive.checked && identitePades !== null);
+  signBtn.disabled = !srcBytes || !pret;
+}
+
 /* ---------- Aperçu de la page choisie ---------- */
 
 pageSelect.addEventListener("change", async () => {
   currentPageNum = parseInt(pageSelect.value, 10);
   signBtn.disabled = true;
   await renderSelectedPage(currentPageNum);
-  signBtn.disabled = !hasSignature;
+  majBoutonSigner();
 });
 
 /** Calcule une largeur d'aperçu adaptée à l'espace disponible. */
@@ -181,7 +207,7 @@ function terminerTrait(e) {
   try { sigCanvas.releasePointerCapture(e.pointerId); } catch (err) { /* ignoré */ }
   if (hasSignature) {
     mettreAJourApercuSignature();
-    signBtn.disabled = false;
+    majBoutonSigner();
   }
 }
 sigCanvas.addEventListener("pointerup", terminerTrait);
@@ -192,7 +218,7 @@ clearSigBtn.addEventListener("click", () => {
   sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
   hasSignature = false;
   sigOverlay.style.display = "none";
-  signBtn.disabled = true;
+  majBoutonSigner();
   hideMsg();
 });
 
@@ -271,6 +297,76 @@ function clampOverlay() {
   sigOverlay.style.top = top + "px";
 }
 
+/* ---------- Signature numérique : certificat .p12 ---------- */
+
+padesActive.addEventListener("change", () => {
+  padesChamps.hidden = !padesActive.checked;
+  // Préchargement des bibliothèques dès que l'option est cochée.
+  if (padesActive.checked) TchadiaPades.chargerBibliotheques().catch(() => {});
+  majBoutonSigner();
+});
+
+p12Input.addEventListener("change", () => {
+  identitePades = null;
+  p12Info.textContent = "";
+  majBoutonSigner();
+});
+
+function fmtDate(d) {
+  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+}
+
+async function ouvrirCertificat() {
+  hideMsg();
+  identitePades = null;
+  p12Info.textContent = "";
+  majBoutonSigner();
+
+  const fichier = p12Input.files && p12Input.files[0];
+  if (!fichier) {
+    showMsg("Choisissez d'abord votre fichier de certificat (.p12 ou .pfx).");
+    return;
+  }
+  if (fichier.size > 1024 * 1024) {
+    showMsg("Ce fichier est trop volumineux pour être un certificat .p12 (plus de 1 Mo).");
+    return;
+  }
+
+  p12LoadBtn.disabled = true;
+  p12Info.textContent = "Ouverture du certificat…";
+  try {
+    const octets = await readAsArrayBuffer(fichier);
+    const identite = await TchadiaPades.lireCertificatP12(octets, p12Password.value);
+    const maintenant = new Date();
+    if (maintenant < identite.valideDu || maintenant > identite.valideAu) {
+      p12Info.textContent = "";
+      showMsg("Ce certificat n'est pas valide aujourd'hui (validité du " + fmtDate(identite.valideDu) + " au " +
+        fmtDate(identite.valideAu) + ") : une signature faite avec lui serait refusée par les lecteurs PDF.");
+      return;
+    }
+    identitePades = identite;
+    // Le mot de passe n'est plus utile : la clé importée n'est pas exportable.
+    p12Password.value = "";
+    p12Info.textContent = "Certificat ouvert : " + identite.titulaire +
+      (identite.autoSigne ? " (certificat auto-signé)" : ", émis par " + identite.emetteur) +
+      ", valide jusqu'au " + fmtDate(identite.valideAu) + ", clé " + identite.algorithme + ".";
+  } catch (e) {
+    p12Info.textContent = "";
+    showMsg(TchadiaPades.messageErreur(e));
+  } finally {
+    p12LoadBtn.disabled = false;
+    majBoutonSigner();
+  }
+}
+
+p12LoadBtn.addEventListener("click", ouvrirCertificat);
+p12Password.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    ouvrirCertificat();
+  }
+});
+
 /* ---------- Génération du PDF signé ---------- */
 
 async function runSign() {
@@ -280,7 +376,12 @@ async function runSign() {
     showMsg("Veuillez d'abord choisir un fichier PDF.");
     return;
   }
-  if (!hasSignature) {
+  const avecPades = padesActive.checked;
+  if (avecPades && !identitePades) {
+    showMsg("Ouvrez d'abord votre certificat (.p12) avec son mot de passe, ou décochez la signature numérique.");
+    return;
+  }
+  if (!hasSignature && !avecPades) {
     showMsg("Veuillez dessiner une signature avant de signer le PDF.");
     return;
   }
@@ -297,17 +398,6 @@ async function runSign() {
       signBtn.disabled = false;
       return;
     }
-
-    setProgress(35, "Préparation de la signature…");
-    const blob = await new Promise((resolve) => sigCanvas.toBlob(resolve, "image/png"));
-    if (!blob) {
-      hideProgress();
-      showMsg("La signature n'a pas pu être générée. Réessayez.");
-      signBtn.disabled = false;
-      return;
-    }
-    const pngBytes = new Uint8Array(await blob.arrayBuffer());
-    const pngImage = await doc.embedPng(pngBytes);
 
     const pages = doc.getPages();
     const pageIndex = currentPageNum - 1;
@@ -337,18 +427,47 @@ async function runSign() {
     const pdfHeight = overlayHeightPx / scale;
     const pdfY = pageHeightPt - (overlayTopPx / scale) - pdfHeight;
 
-    setProgress(70, "Ajout de la signature…");
-    targetPage.drawImage(pngImage, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight });
+    let rectSignature = null;
+    if (hasSignature) {
+      setProgress(35, "Préparation de la signature…");
+      const blob = await new Promise((resolve) => sigCanvas.toBlob(resolve, "image/png"));
+      if (!blob) {
+        hideProgress();
+        showMsg("La signature n'a pas pu être générée. Réessayez.");
+        return;
+      }
+      const pngImage = await doc.embedPng(new Uint8Array(await blob.arrayBuffer()));
+      setProgress(55, "Ajout de la signature…");
+      targetPage.drawImage(pngImage, { x: pdfX, y: pdfY, width: pdfWidth, height: pdfHeight });
+      rectSignature = [pdfX, pdfY, pdfX + pdfWidth, pdfY + pdfHeight];
+    }
 
-    setProgress(90, "Génération du fichier…");
-    const bytes = await doc.save();
+    let bytes;
+    if (avecPades) {
+      setProgress(75, "Signature numérique (certificat)…");
+      try {
+        bytes = await TchadiaPades.signerPdf(doc, identitePades, {
+          page: targetPage,
+          rect: rectSignature,
+          raison: padesReason.value.trim(),
+          lieu: padesLocation.value.trim(),
+        });
+      } catch (e) {
+        hideProgress();
+        showMsg(TchadiaPades.messageErreur(e));
+        return;
+      }
+    } else {
+      setProgress(90, "Génération du fichier…");
+      bytes = await doc.save();
+    }
     hideProgress();
     offerDownload(bytes, "tchadiapdf-signe.pdf");
   } catch (e) {
     hideProgress();
     showError("La signature du PDF a échoué. Réessayez avec un autre fichier.", { retry: runSign });
   } finally {
-    signBtn.disabled = !hasSignature;
+    majBoutonSigner();
   }
 }
 

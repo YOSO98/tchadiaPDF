@@ -102,6 +102,22 @@
       margin-top: 12px;
     }
 
+    /* Signature numérique (certificat .p12) */
+    .pades-section { align-items: flex-start; }
+    .pades-champs { display: flex; flex-wrap: wrap; gap: 16px 20px; width: 100%; }
+    .pades-champs[hidden] { display: none; }
+    .pades-field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 220px; }
+    .pades-full { flex-basis: 100%; }
+    .pades-field input[type="password"], .pades-field input[type="text"] {
+      font-family: inherit; font-size: 0.9rem; padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius-btn); color: var(--ink); background: var(--white);
+    }
+    .pades-field input[type="file"] { font-size: 0.85rem; }
+    .pades-field .btn-secondary { width: auto; align-self: flex-start; margin-top: 0; }
+    .pw-hint { font-size: 0.8rem; color: var(--slate); }
+    .pades-info { font-size: 0.85rem; color: var(--ink); margin: 0; }
+    .pades-info:empty { display: none; }
+
     @media (max-width: 520px) {
       .resize-control { flex-direction: column; align-items: stretch; gap: 8px; }
     }
@@ -134,7 +150,7 @@
 
 <main class="tool-page">
   <h1>Signer un PDF</h1>
-  <p class="tool-sub">Dessinez votre signature, placez-la sur la page de votre choix, téléchargez votre PDF signé.</p>
+  <p class="tool-sub">Dessinez votre signature et placez-la sur la page de votre choix, ou ajoutez une signature numérique PAdES avec votre certificat .p12. Tout reste dans votre navigateur.</p>
 
   <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
     <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -173,6 +189,36 @@
     </div>
   </div>
 
+  <div class="options pades-section" id="padesSection" style="display:none">
+    <div class="pades-field pades-full">
+      <label><input type="checkbox" id="padesActive"> Ajouter une signature numérique avec un certificat (PAdES)</label>
+      <span class="pw-hint">Prouve l'identité du signataire et rend toute modification ultérieure du PDF détectable dans Adobe Acrobat ou tout lecteur compatible. Le certificat et son mot de passe ne quittent jamais votre navigateur.</span>
+    </div>
+    <div class="pades-champs" id="padesChamps" hidden>
+      <div class="pades-field">
+        <label for="p12Input">Certificat (.p12 ou .pfx)</label>
+        <input type="file" id="p12Input" accept=".p12,.pfx,application/x-pkcs12">
+      </div>
+      <div class="pades-field">
+        <label for="p12Password">Mot de passe du certificat</label>
+        <input type="password" id="p12Password" autocomplete="off">
+      </div>
+      <div class="pades-field pades-full">
+        <button type="button" class="btn-secondary" id="p12LoadBtn">Ouvrir le certificat</button>
+        <p class="pades-info" id="p12Info" aria-live="polite"></p>
+      </div>
+      <div class="pades-field">
+        <label for="padesReason">Motif (facultatif)</label>
+        <input type="text" id="padesReason" maxlength="200" placeholder="Ex. : J'approuve ce document">
+      </div>
+      <div class="pades-field">
+        <label for="padesLocation">Lieu (facultatif)</label>
+        <input type="text" id="padesLocation" maxlength="200" placeholder="Ex. : N'Djamena">
+      </div>
+      <span class="pw-hint pades-full">Si vous avez aussi dessiné une signature, la signature numérique est rattachée à son emplacement. Sinon elle est invisible sur la page mais visible dans le panneau Signatures de votre lecteur PDF.</span>
+    </div>
+  </div>
+
   <div class="msg" id="msg"></div>
 
   <button class="btn-primary" id="signBtn" disabled>Signer le PDF</button>
@@ -185,6 +231,18 @@
   <div class="result" id="result">
     <p>Votre PDF signé est prêt.</p>
     <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Signature numérique : ce qui est garanti, et les limites</h3>
+    <ul>
+      <li>Format PAdES de base (niveau B-B) : <code>/SubFilter /ETSI.CAdES.detached</code>, empreinte SHA-256, clés RSA ou ECDSA (P-256, P-384, P-521). La signature couvre tout le fichier.</li>
+      <li>La confiance affichée par votre lecteur dépend de l'autorité qui a émis votre certificat. Un certificat auto-signé ou émis par une autorité non reconnue sera signalé « validité inconnue » : c'est normal, la signature reste mathématiquement vérifiable.</li>
+      <li>Pas d'horodatage par un tiers (niveau B-T) ni de données de révocation embarquées (B-LT) : cela exigerait d'appeler un serveur extérieur, ce que tchadiaPdf s'interdit. L'heure de signature est celle de votre ordinateur.</li>
+      <li>Les certificats .p12 protégés par un ancien chiffrement (3DES ou RC2, export « hérité » de certains Windows ou d'OpenSSL avec <code>-legacy</code>) ne sont pas lisibles par les navigateurs : réexportez-les en AES-256.</li>
+      <li>Les cartes à puce et clés USB de signature (certificats non exportables) ne sont pas prises en charge : un navigateur n'y a pas accès.</li>
+      <li>Signer un PDF qui porte déjà une signature numérique invalide la précédente : le fichier est réécrit en entier, sans mise à jour incrémentale.</li>
+    </ul>
   </div>
 
   <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
@@ -205,7 +263,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e" crossorigin="anonymous"></script>
 <script src="js/common.js?v=19064f79"></script>
-<script src="js/signer-pdf.js?v=f658a893"></script>
+<script src="js/pades.js?v=8da565eb"></script>
+<script src="js/signer-pdf.js?v=65584804"></script>
 <script src="js/analytics.js?v=ced09caa" defer></script>
 <script src="js/ads.js?v=744cd80e" defer></script>
 <script src="js/consent-banner.js?v=1c4f5cf9" defer></script>
