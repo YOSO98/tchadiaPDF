@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ajouter des numéros de page à un PDF gratuit en ligne : tchadiaPdf</title>
+  <title>Numéros de page, numérotation Bates, en-tête et pied de page PDF gratuit : tchadiaPdf</title>
   <link rel="canonical" href="https://tchadiapdf.com/numeros-de-pages">
-  <meta name="description" content="Ajoutez une numérotation personnalisable (position, taille, format) sur toutes les pages de votre PDF, gratuitement et sans envoi sur un serveur.">
+  <meta name="description" content="Ajoutez des numéros de page, une numérotation Bates continue (juridique) ou des en-têtes et pieds de page avec variables sur vos PDF, gratuitement et sans envoi sur un serveur.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Ajouter des numéros de page à un PDF gratuit en ligne : tchadiaPdf">
-  <meta property="og:description" content="Ajoutez une numérotation personnalisable (position, taille, format) sur toutes les pages de votre PDF, gratuitement et sans envoi sur un serveur.">
+  <meta property="og:title" content="Numéros de page, numérotation Bates, en-tête et pied de page PDF gratuit : tchadiaPdf">
+  <meta property="og:description" content="Ajoutez des numéros de page, une numérotation Bates continue (juridique) ou des en-têtes et pieds de page avec variables sur vos PDF, gratuitement et sans envoi sur un serveur.">
   <meta property="og:url" content="https://tchadiapdf.com/numeros-de-pages">
   <meta property="og:image" content="https://tchadiapdf.com/docs/og/organiser.png">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="tchadiaPdf">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Ajouter des numéros de page à un PDF gratuit en ligne : tchadiaPdf">
-  <meta name="twitter:description" content="Ajoutez une numérotation personnalisable (position, taille, format) sur toutes les pages de votre PDF, gratuitement et sans envoi sur un serveur.">
+  <meta name="twitter:title" content="Numéros de page, numérotation Bates, en-tête et pied de page PDF gratuit : tchadiaPdf">
+  <meta name="twitter:description" content="Ajoutez des numéros de page, une numérotation Bates continue (juridique) ou des en-têtes et pieds de page avec variables sur vos PDF, gratuitement et sans envoi sur un serveur.">
   <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/organiser.png">
   <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
@@ -68,6 +68,94 @@
       border-color: var(--blue);
     }
 
+
+    /* Champs numériques et texte propres aux modes Bates et en-tête/pied */
+    .options input[type="number"] {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      color: var(--ink);
+      background: var(--white);
+      width: 110px;
+    }
+    .champs-ligne {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      align-items: flex-end;
+    }
+    .champ {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .champ label { font-size: 0.85rem; font-weight: 600; }
+    .champ input[type="text"] { width: 180px; }
+    .zones-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .zones-grid .champ input[type="text"] { width: 100%; }
+    .aide-variables {
+      font-size: 0.82rem;
+      color: var(--slate);
+      line-height: 1.7;
+    }
+    .aide-variables code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      background: var(--blue-50);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+    .case-a-cocher {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .case-a-cocher input { width: 16px; height: 16px; accent-color: var(--blue); }
+    .apercu-bates {
+      font-size: 0.9rem;
+      color: var(--slate);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-btn);
+      padding: 10px 14px;
+    }
+    .apercu-bates strong { color: var(--ink); font-weight: 600; }
+    .apercu-page {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      display: none;
+      text-align: center;
+    }
+    .apercu-page.visible { display: block; }
+    .apercu-page .apercu-titre { font-size: 0.85rem; color: var(--slate); margin-bottom: 10px; font-weight: 600; }
+    .apercu-page canvas {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      display: inline-block;
+    }
+
+    @media (max-width: 520px) {
+      /* Les trois libellés de mode sont longs : un bouton par ligne */
+      #modeSeg { flex-wrap: wrap; }
+      #modeSeg button { flex: 1 1 100%; }
+      #modeSeg button + button { border-left: none; border-top: 1px solid var(--border); }
+      .zones-grid { grid-template-columns: 1fr; }
+      .champ input[type="text"] { width: 100%; }
+      .champ { width: 100%; }
+      .options input[type="number"] { width: 100%; }
+    }
+
     @media (max-width: 480px) {
       .pos-grid { max-width: 100%; }
       .pos-grid button { font-size: 0.78rem; padding: 10px 4px; }
@@ -92,11 +180,11 @@
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "Ajouter des numéros de page à un PDF",
+  "name": "Numéros de page, numérotation Bates, en-tête et pied de page PDF",
   "url": "https://tchadiapdf.com/numeros-de-pages",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Any (navigateur web)",
-  "description": "Ajoutez une numérotation personnalisable (position, taille, format) sur toutes les pages de votre PDF, gratuitement et sans envoi sur un serveur.",
+  "description": "Ajoutez des numéros de page, une numérotation Bates continue (juridique) ou des en-têtes et pieds de page avec variables sur vos PDF, gratuitement et sans envoi sur un serveur.",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -115,8 +203,8 @@
 </header>
 
 <main class="tool-page">
-  <h1>Numéros de page</h1>
-  <p class="tool-sub">Ajoutez une numérotation personnalisée sur toutes les pages de votre PDF.</p>
+  <h1>Numéros de page, Bates, en-tête et pied de page</h1>
+  <p class="tool-sub">Ajoutez des numéros de page, une numérotation Bates continue ou des en-têtes et pieds de page personnalisés à vos PDF.</p>
 
   <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un ou plusieurs fichiers PDF">
     <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -134,6 +222,89 @@
 
   <div class="options" id="numOptions" style="display:none">
     <div class="opt-group">
+      <label id="modeLabel">Mode :</label>
+      <div class="seg" id="modeSeg" role="group" aria-labelledby="modeLabel">
+        <button type="button" data-mode="numeros" class="active">Numéros de page</button>
+        <button type="button" data-mode="bates">Numérotation Bates</button>
+        <button type="button" data-mode="entete">En-tête et pied de page</button>
+      </div>
+    </div>
+
+    <div class="opt-group" data-modes="bates">
+      <label>Numérotation Bates :</label>
+      <div class="champs-ligne">
+        <div class="champ">
+          <label for="batesPrefixe">Préfixe</label>
+          <input type="text" id="batesPrefixe" placeholder="ex. ABC" maxlength="40" autocomplete="off">
+        </div>
+        <div class="champ">
+          <label for="batesSuffixe">Suffixe</label>
+          <input type="text" id="batesSuffixe" placeholder="facultatif" maxlength="40" autocomplete="off">
+        </div>
+        <div class="champ">
+          <label for="batesDepart">Numéro de départ</label>
+          <input type="number" id="batesDepart" min="0" max="999999999999" step="1" value="1">
+        </div>
+        <div class="champ">
+          <label for="batesChiffres">Nombre de chiffres</label>
+          <input type="number" id="batesChiffres" min="1" max="12" step="1" value="6">
+        </div>
+      </div>
+      <div class="apercu-bates" id="apercuBates" aria-live="polite">Premier numéro : <strong>000001</strong></div>
+    </div>
+
+    <div class="opt-group" data-modes="entete">
+      <label>En-tête (haut de page) :</label>
+      <div class="zones-grid">
+        <div class="champ">
+          <label for="zoneHautGauche">Haut gauche</label>
+          <input type="text" id="zoneHautGauche" placeholder="ex. {titre}" autocomplete="off">
+        </div>
+        <div class="champ">
+          <label for="zoneHautCentre">Haut centre</label>
+          <input type="text" id="zoneHautCentre" placeholder="ex. {fichier}" autocomplete="off">
+        </div>
+        <div class="champ">
+          <label for="zoneHautDroite">Haut droite</label>
+          <input type="text" id="zoneHautDroite" placeholder="ex. {date}" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <div class="opt-group" data-modes="entete">
+      <label>Pied de page (bas de page) :</label>
+      <div class="zones-grid">
+        <div class="champ">
+          <label for="zoneBasGauche">Bas gauche</label>
+          <input type="text" id="zoneBasGauche" placeholder="ex. Confidentiel" autocomplete="off">
+        </div>
+        <div class="champ">
+          <label for="zoneBasCentre">Bas centre</label>
+          <input type="text" id="zoneBasCentre" placeholder="ex. {page}" autocomplete="off">
+        </div>
+        <div class="champ">
+          <label for="zoneBasDroite">Bas droite</label>
+          <input type="text" id="zoneBasDroite" placeholder="ex. Page {page} sur {pages}" autocomplete="off">
+        </div>
+      </div>
+      <p class="aide-variables">Variables disponibles : <code>{page}</code> numéro de la page, <code>{pages}</code> nombre total de pages, <code>{fichier}</code> nom du fichier, <code>{date}</code> date du jour (JJ/MM/AAAA), <code>{titre}</code> titre du document (métadonnée).</p>
+    </div>
+
+    <div class="opt-group" data-modes="entete">
+      <label>Pages concernées :</label>
+      <div class="champs-ligne">
+        <label class="case-a-cocher" for="sauterPremiere">
+          <input type="checkbox" id="sauterPremiere">
+          Ne pas appliquer sur la première page
+        </label>
+        <div class="champ">
+          <label for="plagePages">Plage de pages (vide = toutes)</label>
+          <input type="text" id="plagePages" placeholder="ex. 2-10, 15" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <div class="opt-group" data-modes="numeros bates">
       <label>Position :</label>
       <div class="pos-grid" id="posGrid">
         <button type="button" data-pos="haut-gauche">Haut gauche</button>
@@ -154,7 +325,7 @@
       </div>
     </div>
 
-    <div class="opt-group">
+    <div class="opt-group" data-modes="numeros">
       <label>Format :</label>
       <div class="seg" id="formatSeg">
         <button type="button" data-format="n" class="active">1</button>
@@ -162,6 +333,29 @@
         <button type="button" data-format="page-n">Page 1</button>
       </div>
     </div>
+
+    <div class="opt-group" data-modes="bates entete">
+      <label>Police :</label>
+      <div class="seg" id="fontSeg">
+        <button type="button" data-font="helvetica" class="active">Helvetica</button>
+        <button type="button" data-font="times">Times</button>
+        <button type="button" data-font="courier">Courier</button>
+      </div>
+    </div>
+
+    <div class="opt-group" data-modes="bates entete">
+      <div class="champs-ligne">
+        <div class="champ">
+          <label for="margeInput">Marge (points, 72 = 2,54 cm)</label>
+          <input type="number" id="margeInput" min="6" max="200" step="1" value="28">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="apercu-page" id="apercuPage" aria-live="polite">
+    <div class="apercu-titre">Aperçu de la première page</div>
+    <canvas id="apercuCanvas" width="1" height="1"></canvas>
   </div>
 
   <div class="msg" id="msg"></div>
@@ -204,6 +398,14 @@
       <p>Une grille à 6 zones (haut ou bas, gauche, centre ou droite) permet de choisir l'emplacement exact, utile par exemple pour respecter la mise en page d'un mémoire ou d'un rapport.</p>
     </details>
     <details>
+      <summary>Qu'est-ce que la numérotation Bates ?</summary>
+      <p>La numérotation Bates, utilisée par les cabinets d'avocats et les services juridiques, attribue à chaque page d'un dossier un identifiant unique et continu (préfixe, numéro à nombre de chiffres fixe, suffixe), par exemple ABC000001. Déposez plusieurs fichiers : la numérotation continue d'un fichier au suivant dans l'ordre de la file, et chaque fichier est renommé avec sa plage de numéros.</p>
+    </details>
+    <details>
+      <summary>Comment ajouter un en-tête ou un pied de page à un PDF ?</summary>
+      <p>Choisissez le mode « En-tête et pied de page », saisissez un texte dans une ou plusieurs des six zones (haut et bas, gauche, centre, droite) en utilisant si besoin les variables {page}, {pages}, {fichier}, {date} et {titre}, puis générez le document. Vous pouvez exclure la première page ou limiter l'application à une plage de pages.</p>
+    </details>
+    <details>
       <summary>Le fichier est-il envoyé sur un serveur ?</summary>
       <p>Non, la numérotation est ajoutée entièrement dans votre navigateur.</p>
     </details>
@@ -225,6 +427,7 @@
 </footer>
 
 <script src="/vendor/pdf-lib-1.17.1.min.js"></script>
+<script src="/vendor/pdf-3.11.174.min.js"></script>
 <script src="/vendor/jszip-3.10.1.min.js"></script>
 <script src="js/common.js?v=718db2ae"></script>
 <script src="js/numeros-de-pages.js?v=5ca7ea35"></script>
