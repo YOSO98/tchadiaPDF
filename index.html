@@ -36,15 +36,354 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "tchadiaPdf : outils PDF gratuits en ligne pour fusionner, diviser, convertir",
-  "url": "https://tchadiapdf.com/",
-  "description": "Fusionnez, divisez, pivotez et convertissez vos PDF gratuitement. Vos fichiers restent sur votre appareil : traitement 100% dans votre navigateur.",
-  "isPartOf": {
-    "@type": "WebSite",
-    "name": "tchadiaPdf",
-    "url": "https://tchadiapdf.com/"
-  }
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://tchadiapdf.com/#organization",
+      "name": "tchadiaPdf",
+      "url": "https://tchadiapdf.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://tchadiapdf.com/assets/icons/icon-512.png",
+        "width": 512,
+        "height": 512
+      },
+      "email": "contact@tchadiapdf.com",
+      "sameAs": [
+        "https://github.com/YOSO98/tchadiaPDF"
+      ],
+      "description": "Boîte à outils PDF gratuite et open source (licence MIT). Tout le traitement s'exécute dans le navigateur : aucun fichier n'est envoyé sur un serveur."
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://tchadiapdf.com/#website",
+      "name": "tchadiaPdf",
+      "url": "https://tchadiapdf.com/",
+      "inLanguage": [
+        "fr",
+        "en",
+        "es",
+        "pt",
+        "ar"
+      ],
+      "publisher": {
+        "@id": "https://tchadiapdf.com/#organization"
+      },
+      "license": "https://github.com/YOSO98/tchadiaPDF/blob/main/LICENSE",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://tchadiapdf.com/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://tchadiapdf.com/#webpage",
+      "url": "https://tchadiapdf.com/",
+      "name": "tchadiaPdf : outils PDF gratuits en ligne pour fusionner, diviser, convertir",
+      "description": "Fusionnez, divisez, pivotez et convertissez vos PDF gratuitement. Vos fichiers restent sur votre appareil : traitement 100% dans votre navigateur.",
+      "inLanguage": "fr",
+      "isPartOf": {
+        "@id": "https://tchadiapdf.com/#website"
+      },
+      "about": {
+        "@id": "https://tchadiapdf.com/#organization"
+      }
+    },
+    {
+      "@type": "ItemList",
+      "@id": "https://tchadiapdf.com/#outils",
+      "name": "Outils PDF de tchadiaPdf",
+      "numberOfItems": 47,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Fusionner PDF",
+          "url": "https://tchadiapdf.com/fusionner"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Diviser PDF",
+          "url": "https://tchadiapdf.com/diviser"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Compresser PDF",
+          "url": "https://tchadiapdf.com/compresser-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Faire pivoter PDF",
+          "url": "https://tchadiapdf.com/pivoter"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Organiser PDF",
+          "url": "https://tchadiapdf.com/organiser-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Numéros de page",
+          "url": "https://tchadiapdf.com/numeros-de-pages"
+        },
+        {
+          "@type": "ListItem",
+          "position": 7,
+          "name": "Filigrane",
+          "url": "https://tchadiapdf.com/filigrane"
+        },
+        {
+          "@type": "ListItem",
+          "position": 8,
+          "name": "Rogner PDF",
+          "url": "https://tchadiapdf.com/rogner-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 9,
+          "name": "Livret PDF",
+          "url": "https://tchadiapdf.com/livret-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 10,
+          "name": "Réparer PDF",
+          "url": "https://tchadiapdf.com/reparer-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 11,
+          "name": "Modifier PDF",
+          "url": "https://tchadiapdf.com/modifier-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 12,
+          "name": "Signets PDF",
+          "url": "https://tchadiapdf.com/signets-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 13,
+          "name": "Pièces jointes PDF",
+          "url": "https://tchadiapdf.com/pieces-jointes-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 14,
+          "name": "Assainir PDF",
+          "url": "https://tchadiapdf.com/assainir-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 15,
+          "name": "Protéger PDF",
+          "url": "https://tchadiapdf.com/proteger-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 16,
+          "name": "Déverrouiller PDF",
+          "url": "https://tchadiapdf.com/deverrouiller-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 17,
+          "name": "Signer PDF",
+          "url": "https://tchadiapdf.com/signer-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 18,
+          "name": "Aplatir PDF",
+          "url": "https://tchadiapdf.com/aplatir-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 19,
+          "name": "Métadonnées PDF",
+          "url": "https://tchadiapdf.com/metadonnees-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 20,
+          "name": "Caviarder PDF",
+          "url": "https://tchadiapdf.com/caviarder-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 21,
+          "name": "OCR PDF",
+          "url": "https://tchadiapdf.com/ocr-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 22,
+          "name": "Formulaires PDF",
+          "url": "https://tchadiapdf.com/formulaires-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 23,
+          "name": "Comparer PDF",
+          "url": "https://tchadiapdf.com/comparer-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 24,
+          "name": "Scanner un document",
+          "url": "https://tchadiapdf.com/scanner-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 25,
+          "name": "Extraire les images",
+          "url": "https://tchadiapdf.com/extraire-images-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 26,
+          "name": "JPG en PDF",
+          "url": "https://tchadiapdf.com/jpg-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 27,
+          "name": "Word en PDF",
+          "url": "https://tchadiapdf.com/word-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 28,
+          "name": "Excel en PDF",
+          "url": "https://tchadiapdf.com/excel-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 29,
+          "name": "PowerPoint en PDF",
+          "url": "https://tchadiapdf.com/powerpoint-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 30,
+          "name": "Texte en PDF",
+          "url": "https://tchadiapdf.com/texte-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 31,
+          "name": "HEIC en PDF",
+          "url": "https://tchadiapdf.com/heic-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 32,
+          "name": "WebP en PDF",
+          "url": "https://tchadiapdf.com/webp-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 33,
+          "name": "TIFF en PDF",
+          "url": "https://tchadiapdf.com/tiff-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 34,
+          "name": "BMP en PDF",
+          "url": "https://tchadiapdf.com/bmp-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 35,
+          "name": "SVG en PDF",
+          "url": "https://tchadiapdf.com/svg-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 36,
+          "name": "Markdown en PDF",
+          "url": "https://tchadiapdf.com/markdown-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 37,
+          "name": "HTML en PDF",
+          "url": "https://tchadiapdf.com/html-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 38,
+          "name": "EPUB en PDF",
+          "url": "https://tchadiapdf.com/epub-en-pdf"
+        },
+        {
+          "@type": "ListItem",
+          "position": 39,
+          "name": "PDF en JPG",
+          "url": "https://tchadiapdf.com/pdf-en-jpg"
+        },
+        {
+          "@type": "ListItem",
+          "position": 40,
+          "name": "PDF en Word",
+          "url": "https://tchadiapdf.com/pdf-en-word"
+        },
+        {
+          "@type": "ListItem",
+          "position": 41,
+          "name": "PDF en Excel",
+          "url": "https://tchadiapdf.com/pdf-en-excel"
+        },
+        {
+          "@type": "ListItem",
+          "position": 42,
+          "name": "PDF en PowerPoint",
+          "url": "https://tchadiapdf.com/pdf-en-powerpoint"
+        },
+        {
+          "@type": "ListItem",
+          "position": 43,
+          "name": "PDF en texte",
+          "url": "https://tchadiapdf.com/pdf-en-texte"
+        },
+        {
+          "@type": "ListItem",
+          "position": 44,
+          "name": "HEIC en JPG",
+          "url": "https://tchadiapdf.com/heic-en-jpg"
+        },
+        {
+          "@type": "ListItem",
+          "position": 45,
+          "name": "PNG en JPG",
+          "url": "https://tchadiapdf.com/png-en-jpg"
+        },
+        {
+          "@type": "ListItem",
+          "position": 46,
+          "name": "JPG en PNG",
+          "url": "https://tchadiapdf.com/jpg-en-png"
+        },
+        {
+          "@type": "ListItem",
+          "position": 47,
+          "name": "SVG en PNG",
+          "url": "https://tchadiapdf.com/svg-en-png"
+        }
+      ]
+    }
+  ]
 }
   </script>
 </head>

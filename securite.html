@@ -69,12 +69,12 @@
     <li>intercepte absolument toutes les requêtes réseau d'un outil dès l'ouverture de la page ;</li>
     <li>lui fait traiter un fichier de test contenant un marqueur unique inséré dans son contenu ;</li>
     <li>va jusqu'au bout du traitement, jusqu'au téléchargement du résultat ;</li>
-    <li>vérifie ensuite qu'aucune requête interceptée ne contient ce marqueur, et qu'aucune requête ne vise un domaine qui ne soit pas un CDN de librairie déjà utilisé par le site.</li>
+    <li>vérifie ensuite qu'aucune requête interceptée ne contient ce marqueur, et qu'aucune requête ne vise un autre domaine que tchadiapdf.com lui-même (depuis l'auto-hébergement des bibliothèques, la liste des domaines tiers tolérés est vide).</li>
   </ul>
   <p>Ce test est exécuté automatiquement à chaque modification du code (intégration continue). Si un jour un outil venait à envoyer, même par erreur, le contenu d'un fichier vers un serveur, ce test échouerait et l'alerterait avant toute mise en ligne.</p>
 
   <h2>Les seules requêtes réseau : charger le code, pas vos fichiers</h2>
-  <p>Les outils utilisent des librairies JavaScript spécialisées (lecture et écriture de PDF, d'images, de documents Word ou Excel...) pour effectuer les conversions. Pour rester rapide et léger, le site charge ces librairies depuis des CDN (réseaux de diffusion de contenu) publics et largement utilisés par l'industrie, plutôt que de les héberger lui-même. Ces requêtes ne transportent que du code (les librairies elles-mêmes), jamais vos fichiers. Les CDN utilisés par tchadiaPdf sont :</p>
+  <p>Les outils utilisent des librairies JavaScript spécialisées (lecture et écriture de PDF, d'images, de documents Word ou Excel...) pour effectuer les conversions. Depuis octobre 2026, le site héberge lui-même toutes ces librairies dans son dossier <code>/vendor/</code>, versions figées et licences incluses : la seule chose que votre navigateur télécharge, c'est du code, depuis tchadiapdf.com, jamais vos fichiers vers qui que ce soit.</p>
   <ul>
     <li><strong>Aucun CDN de bibliothèques</strong> : depuis la migration vers le dossier <code>/vendor/</code>, toutes les bibliothèques (pdf-lib, pdf.js, JSZip, qpdf, Tesseract.js et ses données de langue, mammoth, SheetJS, etc.) sont servies par tchadiapdf.com lui-même. Votre navigateur ne contacte plus cdnjs ni jsdelivr.</li>
   </ul>
@@ -88,8 +88,7 @@
   <p><strong>Ce que ça ne garantit pas :</strong></p>
   <ul>
     <li>La sécurité de votre propre appareil ou de votre navigateur reste de votre responsabilité (mises à jour, antivirus, extensions installées, etc.). tchadiaPdf ne peut rien garantir au-delà de ce qui se passe dans l'onglet du navigateur.</li>
-    <li>Un CDN tiers compromis reste, en théorie, un risque résiduel : si un de ces CDN était piraté et se mettait à distribuer du code malveillant, ce code s'exécuterait dans votre navigateur. Ce risque est réduit par des mesures d'intégrité des sous-ressources (SRI), en cours de déploiement sur l'ensemble des outils, qui empêchent le navigateur d'exécuter un fichier de librairie dont le contenu ne correspond pas exactement à celui attendu.
-    </li>
+    <li>La chaîne d'approvisionnement logicielle reste un risque résiduel théorique : les bibliothèques auto-hébergées sont copiées telles quelles depuis les paquets npm officiels, à version figée (voir <code>DEPENDENCIES.md</code>). Si l'un de ces paquets avait été compromis à la source, le code s'exécuterait dans votre navigateur. Les versions sont choisies pour leur ancienneté et leur large usage, et toute mise à jour passe par la suite de tests.</li>
     <li>Un futur outil ou une future mise à jour pourrait, par erreur humaine, introduire un bug qui enverrait des données par inadvertance. C'est précisément pour se prémunir contre ce risque que le test automatisé de non-fuite réseau existe et tourne en continu, et que le code source reste ouvert à l'audit de quiconque souhaite le vérifier.</li>
   </ul>
   <p>Pour toute question ou tout signalement d'un comportement inattendu, voir la <a href="https://github.com/YOSO98/tchadiaPDF/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">politique de sécurité du dépôt</a> ou nous écrire à contact@tchadiapdf.com.</p>

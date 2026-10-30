@@ -90,7 +90,15 @@
           "name": "La compression dégrade-t-elle la lisibilité du texte ?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Le texte lui-même reste net : la compression agit surtout sur les images intégrées au document. Pour un PDF essentiellement composé de photos scannées, une compression forte peut affecter leur qualité visuelle, à ajuster selon vos besoins."
+            "text": "Le texte lui-même reste net : la compression agit surtout sur les images intégrées au document. Pour un PDF essentiellement composé de photos scannées, le profil Web (96 ppp) peut affecter leur qualité visuelle : choisissez alors Impression (150 ppp) ou Archivage (300 ppp)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Que signifient les profils Web, Impression et Archivage ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Chaque profil fixe une résolution cible : les images affichées à une résolution supérieure sont ré-échantillonnées (96 ppp pour l'écran et l'e-mail, 150 ppp pour l'impression de bureau, 300 ppp pour l'archivage), puis réencodées en JPEG à la qualité correspondante. Le profil Personnalisé laisse régler chaque paramètre. Dans tous les cas, si le résultat n'est pas plus léger, l'original est livré tel quel."
           }
         },
         {
@@ -327,7 +335,17 @@
   <p class="verifiable-badge"><a href="/confiance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7z"/></svg>Vérifiable : code open source</a></p>
 
   <!-- outils-associes -->
-  <!-- /outils-associes -->
+  <nav class="related-tools" aria-labelledby="related-tools-title">
+    <h2 id="related-tools-title">Outils associés</h2>
+    <ul>
+      <li><a href="/fusionner">Fusionner PDF</a> : combiner plusieurs PDF en un seul document</li>
+      <li><a href="/pdf-en-jpg">PDF en JPG</a> : exporter chaque page en image</li>
+      <li><a href="/diviser">Diviser PDF</a> : extraire certaines pages dans un nouveau PDF</li>
+      <li><a href="/organiser-pdf">Organiser PDF</a> : réordonner, dupliquer ou supprimer des pages</li>
+      <li><a href="/rogner-pdf">Rogner PDF</a> : recadrer les pages et retirer les marges</li>
+    </ul>
+  </nav>
+<!-- /outils-associes -->
 </main>
 
 <!-- outils-associes -->

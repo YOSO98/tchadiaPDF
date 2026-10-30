@@ -3,20 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assainir un PDF, supprimer les informations masquées gratuitement : tchadiaPdf</title>
+  <!-- seo:debut : bloc généré par scripts/seo-appliquer.js depuis data/outils.json, ne pas modifier à la main -->
+  <title>Assainir un PDF : nettoyer scripts et métadonnées : tchadiaPdf</title>
+  <meta name="description" content="Retirez d'un PDF ce qui n'a pas à y rester : JavaScript, métadonnées, pièces jointes et contenus cachés, gratuitement et sans envoi sur un serveur.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://tchadiapdf.com/assainir-pdf">
-  <meta name="description" content="Supprimez les informations masquées d'un PDF (métadonnées, XMP, JavaScript, pièces jointes, commentaires, calques, actions) gratuitement et sans envoi sur un serveur.">
+  <link rel="alternate" hreflang="fr" href="https://tchadiapdf.com/assainir-pdf">
+  <link rel="alternate" hreflang="x-default" href="https://tchadiapdf.com/assainir-pdf">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Assainir un PDF, supprimer les informations masquées gratuitement : tchadiaPdf">
-  <meta property="og:description" content="Supprimez les informations masquées d'un PDF (métadonnées, XMP, JavaScript, pièces jointes, commentaires, calques, actions) gratuitement et sans envoi sur un serveur.">
+  <meta property="og:title" content="Assainir un PDF : nettoyer scripts et métadonnées : tchadiaPdf">
+  <meta property="og:description" content="Retirez d'un PDF ce qui n'a pas à y rester : JavaScript, métadonnées, pièces jointes et contenus cachés, gratuitement et sans envoi sur un serveur.">
   <meta property="og:url" content="https://tchadiapdf.com/assainir-pdf">
   <meta property="og:image" content="https://tchadiapdf.com/docs/og/organiser.png">
+  <meta property="og:image:alt" content="Assainir PDF : tchadiaPdf">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="tchadiaPdf">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Assainir un PDF, supprimer les informations masquées gratuitement : tchadiaPdf">
-  <meta name="twitter:description" content="Supprimez les informations masquées d'un PDF (métadonnées, XMP, JavaScript, pièces jointes, commentaires, calques, actions) gratuitement et sans envoi sur un serveur.">
+  <meta name="twitter:title" content="Assainir un PDF : nettoyer scripts et métadonnées : tchadiaPdf">
+  <meta name="twitter:description" content="Retirez d'un PDF ce qui n'a pas à y rester : JavaScript, métadonnées, pièces jointes et contenus cachés, gratuitement et sans envoi sur un serveur.">
   <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/organiser.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://tchadiapdf.com/assainir-pdf#application",
+      "name": "Assainir PDF",
+      "alternateName": "Assainir un PDF : nettoyer scripts et métadonnées",
+      "url": "https://tchadiapdf.com/assainir-pdf",
+      "description": "Retirez d'un PDF ce qui n'a pas à y rester : JavaScript, métadonnées, pièces jointes et contenus cachés, gratuitement et sans envoi sur un serveur.",
+      "inLanguage": "fr",
+      "applicationCategory": "UtilitiesApplication",
+      "applicationSubCategory": "Sécurité et confidentialité",
+      "operatingSystem": "Tout système disposant d'un navigateur web récent",
+      "browserRequirements": "Navigateur web récent avec JavaScript activé ; aucun fichier n'est envoyé sur un serveur",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock"
+      },
+      "keywords": "assainir pdf, nettoyer pdf, supprimer javascript pdf, pdf sanitize, supprimer données cachées pdf",
+      "license": "https://github.com/YOSO98/tchadiaPDF/blob/main/LICENSE",
+      "isPartOf": {
+        "@id": "https://tchadiapdf.com/#website"
+      },
+      "publisher": {
+        "@id": "https://tchadiapdf.com/#organization"
+      },
+      "image": "https://tchadiapdf.com/docs/og/organiser.png"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://tchadiapdf.com/assainir-pdf#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Accueil",
+          "item": "https://tchadiapdf.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Assainir PDF",
+          "item": "https://tchadiapdf.com/assainir-pdf"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://tchadiapdf.com/assainir-pdf#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Quelles informations masquées un PDF peut-il contenir ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Le nom de l'auteur et le logiciel utilisé (métadonnées), l'historique d'édition (XMP), des commentaires et notes de révision, des fichiers joints, des scripts JavaScript, des calques invisibles, des données propres à l'application d'origine, ou encore du contenu hors de la zone recadrée. Tout cela reste dans le fichier même si rien n'apparaît à l'écran."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Comment être sûr que les éléments retirés ont vraiment disparu ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "L'outil ne se contente pas de délier les objets : il reconstruit un document neuf dans lequel seuls les éléments conservés sont recopiés, puis relit les octets du fichier produit pour vérifier qu'aucun marqueur des catégories retirées ne subsiste. Le rapport affiché l'indique."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Pourquoi les signets et les liens ne sont-ils pas cochés par défaut ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ils ne contiennent en général aucune information sensible et servent à la navigation dans le document. Vous pouvez les cocher si vous souhaitez un fichier totalement épuré. Les éventuels scripts qu'ils portent sont retirés dans tous les cas si la catégorie JavaScript est cochée."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Est-ce la même chose que caviarder un PDF ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Non. Assainir retire les données cachées dans la structure du fichier ; caviarder supprime un contenu visible sur la page (un nom, un montant). Pour un document vraiment propre, enchaînez les deux : caviardez d'abord, puis assainissez."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mon fichier est-il envoyé sur un serveur ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Non, l'analyse et l'assainissement se font entièrement dans votre navigateur. Le fichier ne quitte jamais votre appareil."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+  <style data-seo="outils-associes">
+    .related-tools { max-width: 760px; margin: 0 auto; padding: 0 20px 48px; }
+    .related-tools h2 { font-size: 1.2rem; margin-bottom: 14px; }
+    .related-tools ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .related-tools li { border: 1px solid var(--border); border-radius: var(--radius-btn); padding: 12px 16px; color: var(--slate); }
+    .related-tools li a { font-weight: 600; }
+    .related-tools .related-guide { background: var(--blue-50); border-color: var(--blue-50); }
+  </style>
+  <!-- seo:fin -->
   <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css?v=f1bca25f">
@@ -88,22 +202,6 @@
       .cat-details { margin-left: 26px; }
     }
   </style>
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Assainir un PDF",
-  "url": "https://tchadiapdf.com/assainir-pdf",
-  "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Any (navigateur web)",
-  "description": "Supprimez les informations masquées d'un PDF (métadonnées, XMP, JavaScript, pièces jointes, commentaires, calques, actions) gratuitement et sans envoi sur un serveur.",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "EUR"
-  }
-}
-  </script>
 </head>
 <body>
 <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -199,7 +297,17 @@
   <p class="verifiable-badge"><a href="/confiance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7z"/></svg>Vérifiable : code open source</a></p>
 
   <!-- outils-associes -->
-  <!-- /outils-associes -->
+  <nav class="related-tools" aria-labelledby="related-tools-title">
+    <h2 id="related-tools-title">Outils associés</h2>
+    <ul>
+      <li><a href="/caviarder-pdf">Caviarder PDF</a> : masquer définitivement des informations sensibles</li>
+      <li><a href="/metadonnees-pdf">Métadonnées PDF</a> : corriger le titre, l'auteur ou les dates</li>
+      <li><a href="/pieces-jointes-pdf">Pièces jointes PDF</a> : voir, extraire ou retirer les fichiers embarqués</li>
+      <li><a href="/aplatir-pdf">Aplatir PDF</a> : figer les champs d'un formulaire rempli</li>
+      <li><a href="/proteger-pdf">Protéger PDF</a> : chiffrer le fichier avec un mot de passe</li>
+    </ul>
+  </nav>
+<!-- /outils-associes -->
 </main>
 
 <footer class="site-footer">

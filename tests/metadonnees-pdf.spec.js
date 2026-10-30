@@ -191,7 +191,8 @@ test("efface toutes les metadonnees : plus de /Metadata ni de Title/Author", asy
 
   await page.locator("#clearAll").check();
   await expect(page.locator("#metaTitle")).toBeDisabled();
-  await expect(page.locator("a[href='/assainir-pdf']")).toBeVisible();
+  // Le bloc « Outils associés » lie aussi Assainir PDF : on cible le lien du formulaire.
+  await expect(page.locator("#metaForm a[href='/assainir-pdf']")).toBeVisible();
   await page.locator("#saveBtn").click();
   await expect(page.locator("#result")).toHaveClass(/visible/, { timeout: 20000 });
 
