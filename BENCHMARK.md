@@ -184,6 +184,73 @@ export ZIP : une fonctionnalité que la plupart des concurrents réservent à
 leurs offres payantes ou limitent en nombre de fichiers gratuits par jour.
 tchadiaPdf ne fixe aucune limite de ce type.
 
+### Signer PDF : signature numérique PAdES (octobre 2026)
+
+| Critère | tchadiaPdf | Smallpdf / iLovePDF | Adobe Acrobat |
+|---|---|---|---|
+| Signature manuscrite dessinée | Oui | Oui | Oui |
+| Signature numérique avec votre propre certificat (.p12/.pfx) | Oui, gratuit | Non (signature électronique via leur service, certificat de la plateforme) | Oui (Acrobat Pro, payant) |
+| Format | PAdES B-B (`ETSI.CAdES.detached`), SHA-256, RSA ou ECDSA | Variable | PAdES B-B à B-LTA |
+| Horodatage tiers (B-T) et données de révocation (B-LT) | Non (voir limites) | Selon offre | Oui |
+| Où se trouve la clé privée pendant la signature | Dans l'onglet (WebCrypto, clé non exportable) | Sur leurs serveurs | Sur le poste |
+
+Fonctionnement : le certificat est ouvert avec pkijs, la clé privée est
+importée dans WebCrypto comme clé non exportable, le mot de passe est effacé
+du champ dès l'ouverture. Le PDF reçoit un champ de signature (visible à
+l'emplacement de la signature dessinée, ou invisible), puis
+@signpdf calcule le `/ByteRange` et y insère la signature CMS construite par
+`js/pades.js` : SignedData détaché, attributs signés `content-type`,
+`message-digest` et `signing-certificate-v2`, sans `signing-time`
+(interdit par PAdES, l'heure est portée par `/M`). pkijs, asn1js et
+@signpdf sont vendorisés dans `vendor/pades-libs.min.js` (446 Ko, servi
+depuis notre domaine, contrôle SRI, chargé seulement quand on coche
+l'option).
+
+**Preuves** (`tests/signer-pdf-pades.spec.js`, 3 tests, le PDF téléchargé
+est rouvert et analysé) :
+- `/ByteRange [0 a b c]` : commence à 0, va jusqu'au dernier octet du
+  fichier, et le seul trou est exactement la chaîne hexadécimale de
+  `/Contents` ;
+- `/Contents` contient un ContentInfo SignedData détaché dont l'attribut
+  `message-digest` est égal au SHA-256 des octets couverts, calculé
+  indépendamment côté Node ; pkijs vérifie la signature ; modifier un seul
+  octet couvert la fait échouer ;
+- pdf-lib rouvre le fichier : même nombre de pages, champ `/FT /Sig`,
+  `/SigFlags 3`, `/Filter /Adobe.PPKLite`, `/SubFilter /ETSI.CAdES.detached` ;
+- certificat RSA 2048 avec chaîne (2 certificats embarqués, signature
+  visible) et ECDSA P-256 auto-signé (signature invisible) ;
+- mauvais mot de passe, ancien chiffrement 3DES/RC2, fichier qui n'est pas
+  un .p12 : message clair, bouton de signature désactivé ;
+- les bibliothèques viennent de `/vendor/` sur notre domaine, aucune
+  requête autre que GET, aucun corps de requête.
+
+Validation externe faite lors du développement (hors CI) : les PDF produits
+par le navigateur sont jugés `INTACT:TRUSTED,UNTOUCHED` par pyHanko
+(`pyhanko sign validate --trust ca.crt`) et `openssl cms -verify` valide la
+signature et la chaîne. Non vérifié dans Adobe Acrobat lui-même (pas
+d'Acrobat sur la machine de développement) : à confirmer par un
+contributeur qui en dispose.
+
+**Limites honnêtes** (aussi affichées sur la page de l'outil) :
+- Pas d'horodatage par une autorité de temps (B-T) ni d'OCSP/CRL embarqués
+  (B-LT/B-LTA) : il faudrait contacter un serveur extérieur, ce que le
+  projet s'interdit. L'heure de signature est celle de l'ordinateur et
+  n'est pas prouvée par un tiers.
+- Les .p12 chiffrés avec les anciens algorithmes PKCS#12 (3DES, RC2 : export
+  « hérité » de Windows, `openssl pkcs12 -legacy`) sont refusés avec un
+  message expliquant comment les réexporter en AES-256 : WebCrypto ne sait
+  pas les déchiffrer.
+- Cartes à puce, clés USB de signature et certificats du magasin système
+  (non exportables) : inaccessibles depuis une page web.
+- Signer un PDF déjà signé invalide la signature précédente (réécriture
+  complète par pdf-lib, pas de mise à jour incrémentale) : l'outil prévient
+  au chargement du fichier.
+- L'apparence de la signature numérique est l'image dessinée ; sans dessin,
+  la signature est invisible (pas de cartouche texte « Signé par... »
+  généré automatiquement).
+- La confiance affichée par le lecteur dépend de l'autorité émettrice du
+  certificat : un certificat auto-signé apparaîtra « validité inconnue ».
+
 ## Phase Conversions : 22 nouvelles conversions de fichiers
 
 tchadiaPdf devient un centre de conversion complet : Office vers PDF (Word,

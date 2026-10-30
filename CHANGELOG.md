@@ -8,6 +8,16 @@ sont organisées par phase de développement, telles que suivies dans
 [TODO.md](TODO.md). Le détail technique de chaque affirmation ci-dessous
 (limites, choix assumés) se trouve dans [BENCHMARK.md](BENCHMARK.md).
 
+## [Non publié] : Parité Acrobat, vague 2
+
+### Ajouté
+
+- Signer PDF : signature numérique PAdES (B-B, `ETSI.CAdES.detached`,
+  SHA-256, RSA ou ECDSA) avec un certificat .p12/.pfx ouvert localement.
+  Le certificat, son mot de passe et le PDF ne quittent pas le navigateur.
+  Bibliothèques pkijs et @signpdf vendorisées dans `vendor/` (SRI,
+  chargement à la demande). Limites détaillées dans BENCHMARK.md.
+
 ## [Non publié] : Phase Conversions et Phase 6 (en cours)
 
 Cette section décrit un travail en cours au moment de la rédaction. Le

@@ -440,3 +440,29 @@ documenté tel quel dans le README et BENCHMARK.md.
 - Permissions de chiffrement PDF plus fines pour proteger-pdf (actuellement
   toutes les permissions sont accordées par défaut).
 - Mode lot pour Diviser PDF.
+
+## Programme parité Acrobat : vague 2 (octobre 2026)
+
+La vague 1 (proteger-pdf permissions fines, OCR multilingue, PNG/TIFF,
+Bates, assainir-pdf, pièces jointes, signets, XMP, caviardage par motifs)
+est menée sur une branche séparée et intégrée par patch.
+
+- [x] Signature numérique PAdES dans signer-pdf (branche
+      `feat/signature-pades`) : certificat .p12/.pfx ouvert localement
+      (pkijs), CMS CAdES détaché SHA-256 RSA/ECDSA, `/ByteRange` via
+      @signpdf, bibliothèques vendorisées dans `vendor/` (SRI, chargement à
+      la demande). Test : `tests/signer-pdf-pades.spec.js`. Limites :
+      BENCHMARK.md, section « Signer PDF : signature numérique PAdES ».
+- [ ] Validation des signatures existantes (intégrité, chaîne, couverture
+      du fichier, signatures multiples).
+- [ ] Annotations PDF natives dans modifier-pdf (Highlight, Square,
+      FreeText, Ink) au lieu du dessin dans le contenu.
+- [ ] comparer-pdf : diff de mots en plus du diff pixel.
+
+Pistes après la vague 2 pour la signature :
+- Repli node-forge (chargé seulement en cas d'échec) pour lire les .p12
+  chiffrés en 3DES/RC2, si le besoin se confirme chez les utilisateurs.
+- Signature par mise à jour incrémentale (ne pas invalider les
+  signatures déjà présentes, signatures multiples).
+- Cartouche visuel généré (nom, date, motif) pour une signature numérique
+  sans dessin.

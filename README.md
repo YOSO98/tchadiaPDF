@@ -92,7 +92,7 @@ Français | [English](README.en.md)
 | Protéger PDF | [tchadiapdf.com/proteger-pdf.html](https://tchadiapdf.com/proteger-pdf.html) |
 | Réparer PDF | [tchadiapdf.com/reparer-pdf.html](https://tchadiapdf.com/reparer-pdf.html) |
 | Déverrouiller PDF | [tchadiapdf.com/deverrouiller-pdf.html](https://tchadiapdf.com/deverrouiller-pdf.html) |
-| Signer PDF | [tchadiapdf.com/signer-pdf.html](https://tchadiapdf.com/signer-pdf.html) |
+| Signer PDF (signature dessinée et signature numérique PAdES avec certificat .p12) | [tchadiapdf.com/signer-pdf.html](https://tchadiapdf.com/signer-pdf.html) |
 | OCR PDF | [tchadiapdf.com/ocr-pdf.html](https://tchadiapdf.com/ocr-pdf.html) |
 | Formulaires PDF | [tchadiapdf.com/formulaires-pdf.html](https://tchadiapdf.com/formulaires-pdf.html) |
 | Comparer PDF | [tchadiapdf.com/comparer-pdf.html](https://tchadiapdf.com/comparer-pdf.html) |

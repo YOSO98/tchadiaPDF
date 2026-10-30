@@ -33,6 +33,33 @@ testée de ce dépôt.
 | @pdf-lib/fontkit | 1.1.1 | MIT | https://github.com/Hopding/fontkit | Sous-ensemble et embarquement de polices dans le PDF (modifier-pdf) |
 | @neslinesli93/qpdf-wasm | 0.3.0 | ISC (wrapper) / Apache-2.0 (qpdf) | https://github.com/neslinesli93/qpdf-wasm | Chiffrement AES-256, réparation PDF (proteger/deverrouiller/reparer-pdf) |
 
+## Bibliothèques vendorisées (servies depuis notre domaine)
+
+Exception au chargement par CDN : la signature numérique PAdES de
+`signer-pdf` manipule une clé privée. Ses bibliothèques sont donc servies
+depuis notre propre domaine, dans un seul fichier
+`vendor/pades-libs.min.js`, chargé à la demande (option cochée) avec un
+attribut `integrity` SRI. Ce fichier est généré par
+`npm run vendor-pades` (`scripts/build-vendor-pades.js`, esbuild), qui met
+aussi à jour l'URL `?v=hash` et l'empreinte SRI dans `js/pades.js` et
+regroupe les licences dans `vendor/LICENSES-pades.txt`. Le site lui-même
+reste sans étape de build : ce script ne tourne qu'à la mise à jour
+volontaire de ces dépendances (versions figées dans `package.json`).
+
+| Librairie | Version figée | Licence | Source officielle | Usage |
+|---|---|---|---|---|
+| pkijs | 4.0.1 | BSD-3-Clause | https://github.com/PeculiarVentures/PKI.js | Lecture PKCS#12, construction et vérification CMS |
+| asn1js | 4.0.0 | BSD-3-Clause | https://github.com/PeculiarVentures/ASN1.js | Encodage/décodage ASN.1 DER |
+| @signpdf/signpdf | 4.0.0 | MIT | https://github.com/vbuch/node-signpdf | Calcul du `/ByteRange` et insertion de la signature |
+| @signpdf/placeholder-pdf-lib | 4.0.0 | MIT | https://github.com/vbuch/node-signpdf | Champ et dictionnaire de signature avec pdf-lib |
+| @signpdf/utils | 4.0.0 | MIT | https://github.com/vbuch/node-signpdf | Constantes et classe Signer |
+| buffer | 6.0.3 | MIT | https://github.com/feross/buffer | Équivalent navigateur de `Buffer` (utilisé par @signpdf) |
+
+Dépendances transitives embarquées : @noble/hashes, @peculiar/utils,
+bytestreamjs, base64-js, ieee754 (licences complètes dans
+`vendor/LICENSES-pades.txt`). pdf-lib n'est pas dupliqué : le paquet
+réutilise le `PDFLib` déjà chargé par la page.
+
 ## Polices
 
 | Police | Source | Licence | Usage |
