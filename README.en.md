@@ -6,7 +6,7 @@ English | [Français](README.md)
 
 <p align="center">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/licence-MIT-2563EB"></a>
-  <a href="#the-46-available-tools"><img alt="46 tools" src="https://img.shields.io/badge/outils-46-2563EB"></a>
+  <a href="#the-47-available-tools"><img alt="47 tools" src="https://img.shields.io/badge/outils-47-2563EB"></a>
   <a href="https://tchadiapdf.com"><img alt="Site online" src="https://img.shields.io/website?url=https%3A%2F%2Ftchadiapdf.com"></a>
   <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-2563EB"></a>
   <a href="#contributing"><img alt="5 languages" src="https://img.shields.io/badge/langues-5-2563EB"></a>
@@ -30,7 +30,7 @@ English | [Français](README.md)
 - **100% private**: all processing happens in your browser tab, no file is ever sent to a server. This absence of network traffic is verified by an automated test that intercepts every request during a real conversion: [tests/no-network-leak.spec.js](tests/no-network-leak.spec.js).
 - **Open source**: auditable code under the MIT license, contributions welcome.
 
-## The 46 available tools
+## The 47 available tools
 
 ### Edit
 

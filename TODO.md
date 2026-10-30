@@ -21,7 +21,7 @@ restant 100 % local. Plan complet, cartographie des 55 fonctions et feuille
 de route en 4 vagues : voir le document « Acrobat Pro vers tchadiaPdf »
 (résumé dans BENCHMARK.md, section « Parité Acrobat Pro, vague 1 »).
 
-**Vague 1 : terminée (10 chantiers, 3 nouveaux outils, 46 outils au total).**
+**Vague 1 : terminée (10 chantiers, 3 nouveaux outils, 47 outils au total).**
 - [x] Fondation : toutes les bibliothèques auto-hébergées dans `vendor/`
       (zéro CDN tiers, OCR hors ligne, tests sans Internet), port de test
       configurable (`TCHADIA_TEST_PORT`).

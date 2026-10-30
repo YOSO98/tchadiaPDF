@@ -6,7 +6,7 @@ Français | [English](README.en.md)
 
 <p align="center">
   <a href="LICENSE"><img alt="Licence MIT" src="https://img.shields.io/badge/licence-MIT-2563EB"></a>
-  <a href="#les-46-outils-disponibles"><img alt="46 outils" src="https://img.shields.io/badge/outils-46-2563EB"></a>
+  <a href="#les-47-outils-disponibles"><img alt="47 outils" src="https://img.shields.io/badge/outils-47-2563EB"></a>
   <a href="https://tchadiapdf.com"><img alt="Site en ligne" src="https://img.shields.io/website?url=https%3A%2F%2Ftchadiapdf.com"></a>
   <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-2563EB"></a>
   <a href="#contribuer"><img alt="5 langues" src="https://img.shields.io/badge/langues-5-2563EB"></a>
@@ -30,7 +30,7 @@ Français | [English](README.en.md)
 - **100% privé** : tout le traitement a lieu dans l'onglet de votre navigateur, aucun fichier n'est envoyé sur un serveur. L'absence de trafic réseau est vérifiée par un test automatisé qui intercepte toutes les requêtes pendant une conversion réelle : [tests/no-network-leak.spec.js](tests/no-network-leak.spec.js).
 - **Open source** : code auditable sous licence MIT, contributions bienvenues.
 
-## Les 46 outils disponibles
+## Les 47 outils disponibles
 
 ### Modifier
 
