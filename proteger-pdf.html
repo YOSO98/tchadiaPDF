@@ -29,12 +29,21 @@
   <style>
     .pw-field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 220px; }
     .pw-field label { font-size: 0.9rem; font-weight: 600; }
-    .pw-field input[type="password"] {
+    .pw-field input[type="password"], .pw-field input[type="text"] {
       font-family: inherit; font-size: 0.95rem; padding: 10px 12px;
       border: 1px solid var(--border); border-radius: var(--radius-btn); color: var(--ink); background: var(--white);
     }
-    .pw-field input[type="password"]:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
-    .pw-hint { font-size: 0.8rem; color: var(--slate); }
+    .pw-field input:focus, .pw-field select:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .pw-field select { width: 100%; }
+    .pw-hint { font-size: 0.8rem; color: var(--slate); font-weight: 400; }
+    #pwOptions { align-items: flex-start; }
+    .pw-group { flex-basis: 100%; }
+    .pw-group h2 { font-size: 1rem; margin: 0; }
+    .pw-summary { flex-basis: 100%; background: var(--blue-50); border-radius: var(--radius-btn); padding: 12px 16px; }
+    .pw-summary ul, .result .pw-summary ul { list-style: none; margin: 6px 0 0; padding: 0; font-size: 0.9rem; font-weight: 400; color: var(--ink); }
+    .pw-summary li { margin: 2px 0; }
+    .result .pw-summary { text-align: left; margin-bottom: 14px; }
+    .result .pw-summary p { margin-bottom: 0; }
   </style>
   <script type="application/ld+json">
 {
@@ -64,7 +73,7 @@
 
 <main class="tool-page">
   <h1>Protéger PDF</h1>
-  <p class="tool-sub">Ajoutez un mot de passe à votre PDF : lui seul permettra de l'ouvrir.</p>
+  <p class="tool-sub">Chiffrez votre PDF (AES-256) avec un mot de passe d'ouverture, un mot de passe propriétaire et des droits précis : impression, copie, modification.</p>
 
   <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
     <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -76,18 +85,63 @@
   <div class="file-list" id="fileList"></div>
 
   <div class="options" id="pwOptions" style="display:none">
-    <div class="pw-field">
-      <label for="pw1">Mot de passe</label>
-      <input type="password" id="pw1" autocomplete="new-password" placeholder="Choisissez un mot de passe">
+    <div class="pw-group">
+      <h2>Mots de passe</h2>
     </div>
     <div class="pw-field">
-      <label for="pw2">Confirmer le mot de passe</label>
+      <label for="pw1">Mot de passe d'ouverture</label>
+      <input type="password" id="pw1" autocomplete="new-password" placeholder="Vide : le PDF s'ouvre librement">
+      <span class="pw-hint">Il sera demandé pour ouvrir le PDF. Conservez-le précieusement : il ne peut pas être récupéré si vous l'oubliez. Laissez-le vide pour seulement restreindre l'impression et la modification (ouverture libre).</span>
+    </div>
+    <div class="pw-field">
+      <label for="pw2">Confirmer le mot de passe d'ouverture</label>
       <input type="password" id="pw2" autocomplete="new-password" placeholder="Retapez le mot de passe">
-      <span class="pw-hint">Ce mot de passe sera nécessaire pour ouvrir le PDF. Conservez-le précieusement : il ne peut pas être récupéré si vous l'oubliez.</span>
+    </div>
+    <div class="pw-field">
+      <label for="pwOwner">Mot de passe propriétaire (droits), facultatif</label>
+      <input type="password" id="pwOwner" autocomplete="new-password" placeholder="Protège les droits ci-dessous">
+      <span class="pw-hint">Distinct du mot de passe d'ouverture, il permet de modifier plus tard les droits ci-dessous. S'il est vide, le mot de passe d'ouverture est réutilisé : il devient alors obligatoire dès que vous restreignez un droit, sinon toute personne qui ouvre le PDF aurait tous les droits.</span>
+    </div>
+    <div class="pw-field">
+      <label><input type="checkbox" id="showPw"> Afficher les mots de passe</label>
+    </div>
+
+    <div class="pw-group">
+      <h2>Droits accordés aux lecteurs</h2>
+    </div>
+    <div class="pw-field">
+      <label for="permPrint">Impression</label>
+      <select id="permPrint">
+        <option value="full" selected>Autorisée (haute résolution)</option>
+        <option value="low">Basse résolution seulement</option>
+        <option value="none">Interdite</option>
+      </select>
+    </div>
+    <div class="pw-field">
+      <label for="permModify">Modification</label>
+      <select id="permModify">
+        <option value="all" selected>Autorisée</option>
+        <option value="annotate">Commentaires, formulaires et signature seulement</option>
+        <option value="form">Remplissage de formulaires et signature seulement</option>
+        <option value="none">Interdite</option>
+      </select>
+    </div>
+    <div class="pw-field">
+      <label><input type="checkbox" id="permExtract" checked> Autoriser la copie de texte et d'images</label>
+      <span class="pw-hint">Décochez pour empêcher la sélection et la copie du contenu vers d'autres applications.</span>
+    </div>
+    <div class="pw-field">
+      <label><input type="checkbox" id="permAccess" checked> Autoriser l'accès aux lecteurs d'écran</label>
+      <span class="pw-hint">Laissez cette case cochée : elle permet aux personnes aveugles ou malvoyantes de lire le document avec une synthèse vocale, sans autoriser la copie classique.</span>
     </div>
     <div class="pw-field">
       <label><input type="checkbox" id="linearize"> Optimiser pour le web (linéarisation)</label>
       <span class="pw-hint">Permet au PDF de commencer à s'afficher avant d'être entièrement téléchargé.</span>
+    </div>
+
+    <div class="pw-summary" id="permSummary" aria-live="polite">
+      <strong>Résumé de la protection</strong>
+      <ul></ul>
     </div>
   </div>
 
@@ -102,7 +156,18 @@
 
   <div class="result" id="result">
     <p>Votre PDF protégé est prêt.</p>
+    <div class="pw-summary" id="resultSummary">
+      <p>Protection appliquée</p>
+      <ul></ul>
+    </div>
     <a class="btn-primary" href="#">Télécharger le PDF</a>
+  </div>
+
+  <div class="fidelity-box">
+    <h3>Ce que protège vraiment un mot de passe PDF</h3>
+    <p>Le mot de passe d'ouverture chiffre réellement le contenu (AES-256, norme PDF 2.0) : sans lui, le fichier est illisible.</p>
+    <p>Les droits (impression, copie, modification) sont respectés par les lecteurs honnêtes comme Acrobat, Aperçu ou les navigateurs, mais ils ne constituent pas une protection cryptographique absolue : une personne déterminée qui connaît le mot de passe d'ouverture, ou qui ouvre un PDF à ouverture libre, peut les contourner avec des outils spécialisés. C'est exactement la même limite que dans Acrobat Pro.</p>
+    <p>Si le moteur AES-256 ne peut pas être chargé, un chiffrement de secours RC4 128 bits (norme PDF 1.4, lu par tous les lecteurs) est appliqué avec les mêmes mots de passe et les mêmes droits ; l'outil vous en informe alors clairement.</p>
   </div>
 
   <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
