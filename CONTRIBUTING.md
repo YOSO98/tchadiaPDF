@@ -75,6 +75,14 @@ Chaque outil suit exactement la même structure que `fusionner.html` /
 5. **Ajoutez la carte sur `index.html`** dans `.tools-grid`, en retirant
    la classe `soon` si une carte existait déjà en « bientôt disponible ».
 
+5 bis. **Déclarez l'outil dans `data/outils.json`** (titre court, titre
+   SEO, description de 70 à 160 caractères, catégorie, mots-clés, 3 à 5
+   outils associés), puis lancez `npm run seo` : les balises du `<head>`
+   (canonical, Open Graph, JSON-LD, FAQ structurée à partir de la section
+   `.faq`), le bloc « Outils associés » et `sitemap.xml` sont générés ; ne
+   les modifiez pas à la main. `node scripts/verifier-seo.js` doit rester
+   vert (voir `docs/SEO-AUDIT.md`).
+
 6. **Vérifiez avant de proposer votre contribution** :
    - le responsive mobile (la grille et les options s'empilent
      correctement sous 520px)
