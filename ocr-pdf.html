@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OCR PDF gratuit en ligne, rendre un PDF scanné recherchable : tchadiaPdf</title>
   <link rel="canonical" href="https://tchadiapdf.com/ocr-pdf">
-  <meta name="description" content="Ajoutez une couche de texte reconnu par OCR (français et anglais) sur un PDF scanné, gratuitement. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.">
+  <meta name="description" content="Rendez un PDF scanné recherchable grâce à l'OCR : plus de 100 langues, redressement automatique des pages inclinées, export du texte brut. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="OCR PDF gratuit en ligne, rendre un PDF scanné recherchable : tchadiaPdf">
-  <meta property="og:description" content="Ajoutez une couche de texte reconnu par OCR (français et anglais) sur un PDF scanné, gratuitement. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.">
+  <meta property="og:description" content="Rendez un PDF scanné recherchable grâce à l'OCR : plus de 100 langues, redressement automatique des pages inclinées, export du texte brut. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.">
   <meta property="og:url" content="https://tchadiapdf.com/ocr-pdf">
   <meta property="og:image" content="https://tchadiapdf.com/docs/og/organiser.png">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="tchadiaPdf">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="OCR PDF gratuit en ligne, rendre un PDF scanné recherchable : tchadiaPdf">
-  <meta name="twitter:description" content="Ajoutez une couche de texte reconnu par OCR (français et anglais) sur un PDF scanné, gratuitement. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.">
+  <meta name="twitter:description" content="Rendez un PDF scanné recherchable grâce à l'OCR : plus de 100 langues, redressement automatique des pages inclinées, export du texte brut. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.">
   <meta name="twitter:image" content="https://tchadiapdf.com/docs/og/organiser.png">
   <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
@@ -55,6 +55,93 @@
       display: flex;
       justify-content: center;
     }
+
+    /* Options de l'OCR : le bloc langues prend toute la largeur, les cases
+       à cocher s'alignent en dessous. Couleurs : variables du design system. */
+    .options .opt-full { flex: 1 1 100%; }
+    .options .opt-check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .options .opt-check input { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; }
+    .options .opt-seg { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .opt-hint { display: block; font-size: 0.8rem; color: var(--slate); font-weight: 400; margin-top: 4px; }
+
+    /* Sélecteur de langues : jetons des langues retenues, champ de recherche,
+       liste défilante de cases à cocher. */
+    .lang-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; min-height: 34px; }
+    .lang-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 5px 8px 5px 12px;
+      border: 1px solid var(--blue);
+      border-radius: 999px;
+      background: var(--blue-50);
+      color: var(--ink);
+    }
+    .lang-chip button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      line-height: 1;
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--blue);
+      cursor: pointer;
+    }
+    .lang-chip button:hover { background: var(--white); }
+    .lang-search {
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      color: var(--ink);
+      background: var(--white);
+    }
+    .lang-search:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .lang-list {
+      margin-top: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: var(--white);
+    }
+    .lang-list .lang-group {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--slate);
+      padding: 8px 12px 4px;
+    }
+    .lang-list .lang-group.hidden, .lang-list .lang-item.hidden { display: none; }
+    .lang-list .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      font-weight: 400;
+      cursor: pointer;
+    }
+    .lang-list .lang-item:hover { background: var(--blue-50); }
+    .lang-list .lang-item input { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
+    .lang-list .lang-item .lang-code { font-size: 0.75rem; color: var(--slate); margin-left: auto; }
+    .lang-list .lang-item .lang-remote { font-size: 0.75rem; color: var(--slate); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
+    .lang-list .lang-empty { padding: 12px; font-size: 0.85rem; color: var(--slate); display: none; }
+    .lang-list.is-empty .lang-empty { display: block; }
+
+    /* Résultat : second lien pour le texte brut, résumé du traitement */
+    .result .ocr-txt-link { margin-left: 12px; }
+    .result .ocr-summary { font-weight: 400; font-size: 0.85rem; color: var(--slate); margin: 12px 0 0; }
+    @media (max-width: 520px) {
+      .result .ocr-txt-link { margin-left: 0; margin-top: 10px; }
+    }
   </style>
   <script type="application/ld+json">
 {
@@ -64,7 +151,7 @@
   "url": "https://tchadiapdf.com/ocr-pdf",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Any (navigateur web)",
-  "description": "Ajoutez une couche de texte reconnu par OCR (français et anglais) sur un PDF scanné, gratuitement. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.",
+  "description": "Rendez un PDF scanné recherchable grâce à l'OCR : plus de 100 langues, redressement automatique des pages inclinées, export du texte brut. Traitement 100% dans votre navigateur, aucun fichier envoyé sur un serveur.",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -84,7 +171,7 @@
 
 <main class="tool-page">
   <h1>OCR PDF</h1>
-  <p class="tool-sub">Rendez un PDF scanné recherchable en ajoutant une couche de texte invisible, reconnue par OCR (français et anglais).</p>
+  <p class="tool-sub">Rendez un PDF scanné recherchable en ajoutant une couche de texte invisible, reconnue par OCR dans plus de 100 langues, avec redressement automatique des pages inclinées.</p>
 
   <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choisir un fichier PDF">
     <svg width="24" height="24" class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -96,6 +183,27 @@
   <div class="file-info" id="fileInfo">
     <span class="f-name" id="fileName"></span>
     <span class="f-meta" id="fileMeta"></span>
+  </div>
+
+  <div class="options" id="options">
+    <div class="opt-full">
+      <label for="langSearch">Langues du document</label>
+      <span class="opt-hint">Choisissez une ou plusieurs langues. Le français et l'anglais sont servis par tchadiapdf.com ; les autres langues sont téléchargées à la demande, uniquement après votre accord.</span>
+      <div class="lang-chips" id="langChips" aria-live="polite"></div>
+      <input type="search" class="lang-search" id="langSearch" placeholder="Rechercher une langue (arabe, espagnol, chinois…)" autocomplete="off" aria-controls="langList">
+      <div class="lang-list" id="langList" role="group" aria-label="Liste des langues disponibles">
+        <p class="lang-empty">Aucune langue ne correspond à cette recherche.</p>
+      </div>
+    </div>
+    <label class="opt-check"><input type="checkbox" id="deskewCheck" checked> Redresser les pages inclinées (jusqu'à 5°)</label>
+    <label class="opt-check"><input type="checkbox" id="forceCheck"> Forcer l'OCR, même sur les pages déjà cherchables</label>
+    <div class="opt-seg opt-full">
+      <label id="outputLabel">Sortie</label>
+      <div class="seg" id="outputSeg" role="group" aria-labelledby="outputLabel">
+        <button type="button" class="active" data-mode="pdf" aria-pressed="true">PDF cherchable</button>
+        <button type="button" data-mode="pdf-txt" aria-pressed="false">PDF + texte brut (.txt)</button>
+      </div>
+    </div>
   </div>
 
   <div class="msg" id="msg"></div>
@@ -113,6 +221,8 @@
   <div class="result" id="result">
     <p>Votre PDF recherchable est prêt.</p>
     <a class="btn-primary" href="#">Télécharger le PDF</a>
+    <a class="btn-secondary ocr-txt-link" id="txtLink" href="#" download="tchadiapdf-ocr.txt" hidden>Télécharger le texte (.txt)</a>
+    <p class="ocr-summary" id="ocrSummary"></p>
   </div>
 
   <div class="ad-slot" aria-hidden="true">Espace publicitaire</div>
